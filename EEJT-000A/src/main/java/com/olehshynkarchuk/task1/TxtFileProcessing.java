@@ -1,27 +1,28 @@
 package com.olehshynkarchuk.task1;
 
 
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 
-public class TxtProcessing {
+public class TxtFileProcessing {
 
     private FileReader fileReader;
-    private String[] arr;
-    private String filename;
+    private String[] arrayOfStringFromTxt;
+    private String fileNamePath;
 
-    public TxtProcessing(String filename) {
-        this.filename = filename;
+    public TxtFileProcessing(String fileNamePath) {
+        this.fileNamePath = fileNamePath;
     }
 
-    public String[] getLinesFromArray() {
-        arr = arraySizeCount();
+    public String[] getLinesFromArray() throws TxtFileProcessingException {
+        arrayOfStringFromTxt = arrayLengthCount();
         return addLinesToArray();
     }
 
-    private String[] addLinesToArray() {
+    private String[] addLinesToArray() throws TxtFileProcessingException {
         try {
-            fileReader = new FileReader(filename);
+            fileReader = new FileReader(fileNamePath);
             int nextLine = 0;
             StringBuilder chars = new StringBuilder();
             while (fileReader.ready()) {
@@ -30,26 +31,28 @@ public class TxtProcessing {
                     if (!fileReader.ready()) {
                         chars.append((char) symbol);
                     }
-                    arr[nextLine] = chars.toString();
+                    arrayOfStringFromTxt[nextLine] = chars.toString();
                     nextLine++;
                     chars = new StringBuilder();
                 } else {
                     chars.append((char) symbol);
                 }
             }
+        } catch (FileNotFoundException ex) {
+            throw new TxtFileProcessingException("File not found");
         } catch (IOException e) {
-            System.out.println("addLinesToArray Error");
+            throw new TxtFileProcessingException("Exception while adding row to array");
         }
-        return arr;
+        return arrayOfStringFromTxt;
     }
 
     private boolean isaNextLineOrLastSymbol(char symbol) throws IOException {
         return symbol == '\n' || !fileReader.ready();
     }
 
-    private String[] arraySizeCount() {
+    private String[] arrayLengthCount() throws TxtFileProcessingException {
         try {
-            fileReader = new FileReader(filename);
+            fileReader = new FileReader(fileNamePath);
             int size = 0;
             while (fileReader.ready()) {
                 int symbol = fileReader.read();
@@ -59,9 +62,10 @@ public class TxtProcessing {
             }
             fileReader.close();
             return new String[size];
+        } catch (FileNotFoundException ex) {
+            throw new TxtFileProcessingException("File not found");
         } catch (IOException e) {
-            System.out.println("arraySizeCount error");
+            throw new TxtFileProcessingException("Exception while counting array size");
         }
-        return new String[0];
     }
 }

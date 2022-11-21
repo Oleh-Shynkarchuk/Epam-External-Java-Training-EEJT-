@@ -13,7 +13,7 @@ public class Chain {
 
     private void buildChain(String fileName, String filenameExtensions, long sizeStartRange,
                             long sizeEndRange, long dateStartRange, long dateEndRange) {
-        chain = new NameFileProcessor(new NameExtensionFileProcessor(new SizeRangeFileProcessor(new DateRangeFileProcessor(null, dateStartRange, dateEndRange), sizeStartRange, sizeEndRange), filenameExtensions), fileName);
+        chain = new FileProcessorByName(new FileProcessorByNameExtension(new FileProcessorBySizeRange(new FileProcessorByDateRange(null, dateStartRange, dateEndRange), sizeStartRange, sizeEndRange), filenameExtensions), fileName);
     }
 
     public void searchFiles(File filePath, FileParametrs fileArrayList) {

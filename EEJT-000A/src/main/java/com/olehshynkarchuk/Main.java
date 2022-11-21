@@ -1,7 +1,9 @@
 package com.olehshynkarchuk;
 
-import com.olehshynkarchuk.task1.TxtProcessing;
-import com.olehshynkarchuk.task2.*;
+import com.olehshynkarchuk.task1.TxtFileProcessing;
+import com.olehshynkarchuk.task1.TxtFileProcessingException;
+import com.olehshynkarchuk.task2.Chain;
+import com.olehshynkarchuk.task2.FileParametrs;
 
 import java.io.File;
 import java.sql.Timestamp;
@@ -10,12 +12,12 @@ import java.util.Scanner;
 
 public class Main {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws TxtFileProcessingException {
         /* ------- Task1 ---------*/
 
-        TxtProcessing txtProcessing = new TxtProcessing("C:\\data\\Epam-External-Java-Training-EEJT-\\EEJT-000A\\Bigtext.txt");
-        for (String s : txtProcessing.getLinesFromArray()) {
-            System.out.println(s);
+        TxtFileProcessing txtFileProcessing = new TxtFileProcessing("EEJT-000A\\Bigtext.txt");
+        for (String arrayString : txtFileProcessing.getLinesFromArray()) {
+            System.out.println(arrayString);
         }
 
         /* ------- Task2 ---------*/
@@ -29,23 +31,23 @@ public class Main {
             long sizeEndRange = 0L;
             long dateStartRange = 0L;
             long dateEndRange = 0L;
-            int add;
+            int step;
             Scanner scanner = new Scanner(System.in);
             System.out.println("Шукати по імені файлу?(0/1) ");
-            add = scanner.nextInt();
+            step = scanner.nextInt();
             scanner.nextLine();
-            switch (add) {
+            switch (step) {
                 case 0 -> System.out.println("Пошук за іменем файлу не відбуватиметься.");
                 case 1 -> {
                     System.out.println("Назва файлу : ");
                     fileName = scanner.nextLine();
                 }
-                default -> throw new IllegalStateException("Неочікуване введення даних: " + add);
+                default -> throw new IllegalStateException("Неочікуване введення даних: " + step);
             }
             System.out.println("Шукати за форматом файла?(0/1) ");
-            add = scanner.nextInt();
+            step = scanner.nextInt();
             scanner.nextLine();
-            switch (add) {
+            switch (step) {
                 case 0 -> System.out.println("Пошук за форматом не відбуватиметься.");
                 case 1 -> {
                     System.out.println("Формат (.docx) крапка обовязкова : ");
@@ -55,12 +57,12 @@ public class Main {
                         filenameExtensions = (scanner.nextLine());
                     }
                 }
-                default -> throw new IllegalStateException("Неочікуване введення даних: " + add);
+                default -> throw new IllegalStateException("Неочікуване введення даних: " + step);
             }
             System.out.println("Шукати за розміром файла?(0/1) ");
-            add = scanner.nextInt();
+            step = scanner.nextInt();
             scanner.nextLine();
-            switch (add) {
+            switch (step) {
                 case 0 -> System.out.println("Пошук за розіром файлу не відбуватиметься.");
                 case 1 -> {
                     while (sizeStartRange >= sizeEndRange) {
@@ -73,9 +75,9 @@ public class Main {
                 }
             }
             System.out.println("Шукати за датою модифікації файла?(0/1) ");
-            add = scanner.nextInt();
+            step = scanner.nextInt();
             scanner.nextLine();
-            switch (add) {
+            switch (step) {
                 case 0 -> System.out.println("Пошук за датою модифікації файлу не відбуватиметься.");
                 case 1 -> {
                     while (dateStartRange >= dateEndRange) {
@@ -91,7 +93,7 @@ public class Main {
             ArrayList<File> fileArrayList = new ArrayList<>();
             FileParametrs fileParametrs = new FileParametrs();
             fileParametrs.setFileList(fileArrayList);
-            chain.searchFiles(new File("D:\\steam"), fileParametrs);
+            chain.searchFiles(new File("EEJT-000A"), fileParametrs);
             for (File f : fileArrayList) {
                 Timestamp t = new Timestamp(f.lastModified());
                 System.out.println("\n" + f.getAbsolutePath());
@@ -99,8 +101,8 @@ public class Main {
                 System.out.println("Розмір :" + f.length() + " байт");
             }
             System.out.println("Продовжити пошук?(0/1) ");
-            add = scanner.nextInt();
-            if (add == 0) {
+            step = scanner.nextInt();
+            if (step == 0) {
                 work = false;
             }
             scanner.nextLine();
