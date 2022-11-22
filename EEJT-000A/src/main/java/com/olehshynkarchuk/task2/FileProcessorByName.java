@@ -23,4 +23,9 @@ public class FileProcessorByName extends FileProcessor {
     public boolean isaFileAccordingToConditions(FileParameters fileParameters, File file) {
         return file.getName().toLowerCase().contains(fileParameters.getFileName().toLowerCase());
     }
+
+    @Override
+    protected void next(File filePath, FileParameters fileParameters) {
+        if (fileProcessor != null) fileProcessor.searchFiles(filePath, fileParameters);
+    }
 }

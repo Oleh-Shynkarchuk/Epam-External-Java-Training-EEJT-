@@ -23,4 +23,9 @@ public class FileProcessorByDateRange extends FileProcessor {
     protected boolean isaFileAccordingToConditions(FileParameters fileParameters, File file) {
         return fileParameters.getDateStartRange() <= file.lastModified() && file.lastModified() <= fileParameters.getDateEndRange();
     }
+
+    @Override
+    protected void next(File filePath, FileParameters fileParameters) {
+        if (fileProcessor != null) fileProcessor.searchFiles(filePath, fileParameters);
+    }
 }

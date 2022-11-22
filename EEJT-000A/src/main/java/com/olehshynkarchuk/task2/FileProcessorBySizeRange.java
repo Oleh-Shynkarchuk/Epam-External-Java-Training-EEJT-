@@ -23,4 +23,9 @@ public class FileProcessorBySizeRange extends FileProcessor {
     public boolean isaFileAccordingToConditions(FileParameters fileParameters, File file) {
         return fileParameters.getSizeStartRange() <= file.length() && file.length() <= fileParameters.getSizeEndRange();
     }
+
+    @Override
+    protected void next(File filePath, FileParameters fileParameters) {
+        if (fileProcessor != null) fileProcessor.searchFiles(filePath, fileParameters);
+    }
 }

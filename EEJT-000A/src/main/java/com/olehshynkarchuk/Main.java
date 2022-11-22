@@ -85,8 +85,8 @@ public class Main {
                     }
                 }
             }
-            Chain chain = new Chain();
-            chain.searchFiles(new File("EEJT-000A"), fileParameters);
+            Chain chain = new Chain(fileParameters);
+            chain.searchFiles(new File("EEJT-000A"));
             for (File f : fileParameters.getFileList()) {
                 Timestamp t = new Timestamp(f.lastModified());
                 System.out.println("\n" + f.getAbsolutePath());

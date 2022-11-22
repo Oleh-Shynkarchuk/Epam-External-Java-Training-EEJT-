@@ -6,28 +6,29 @@ import java.io.File;
 
 public abstract class FileProcessor {
 
-    FileProcessor nextFileProcessor;
-
     protected FileProcessor() {
     }
 
     public void searchFiles(File filePath, FileParameters fileParameters) {
         if (needToSearchCorrespondingFiles(fileParameters)) {
-            if (filePath.isDirectory()) {
-                File[] directoryFiles = (File[]) ArrayUtils.nullToEmpty(filePath.listFiles());
-                for (File file : directoryFiles) {
-                    if (file.isDirectory()) {
-                        searchFiles(file, fileParameters);
-                    } else if (isaFileAccordingToConditions(fileParameters, file)) {
-                        fileParameters.getFileList().add(file);
-                    }
-                }
-            }
+            walkingOfDirectoryByRecursion(filePath, fileParameters);
         } else if (needToExcludeIrrelevantFiles(fileParameters)) {
             fileParameters.getFileList().removeIf(file -> !isaFileAccordingToConditions(fileParameters, file));
         }
-        if (nextFileProcessor != null)
-            nextFileProcessor.searchFiles(filePath, fileParameters);
+        next(filePath, fileParameters);
+    }
+
+    private void walkingOfDirectoryByRecursion(File filePath, FileParameters fileParameters) {
+        if (filePath.isDirectory()) {
+            for (Object fileObj : ArrayUtils.nullToEmpty(filePath.listFiles())) {
+                File file = (File) fileObj;
+                if (file.isDirectory()) {
+                    walkingOfDirectoryByRecursion(file, fileParameters);
+                } else if (isaFileAccordingToConditions(fileParameters, file)) {
+                    fileParameters.getFileList().add(file);
+                }
+            }
+        }
     }
 
     protected abstract boolean needToSearchCorrespondingFiles(FileParameters fileParameters);
@@ -35,4 +36,6 @@ public abstract class FileProcessor {
     protected abstract boolean needToExcludeIrrelevantFiles(FileParameters fileParameters);
 
     protected abstract boolean isaFileAccordingToConditions(FileParameters fileParameters, File file);
+
+    protected abstract void next(File filePath, FileParameters fileParameters);
 }

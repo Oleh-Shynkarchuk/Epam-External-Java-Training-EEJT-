@@ -8,29 +8,31 @@ import java.util.function.Predicate;
 
 public class Chain {
 
+    private final FileParameters parameters;
     private FileProcessor chain;
-    private final Map<Predicate<FileParameters>, Function<FileProcessor, FileProcessor>> chainMapSearching = new LinkedHashMap<>();
+    private final Map<Predicate<FileParameters>, Function<FileProcessor, FileProcessor>> chainProcessorMap = new LinkedHashMap<>();
 
-    public Chain() {
+    public Chain(FileParameters parameters) {
+        this.parameters = parameters;
         buildChain();
     }
 
     private void buildChain() {
-        chainMapSearching.put(parameters -> parameters.getDateEndRange() != 0L, FileProcessorByDateRange::new);
-        chainMapSearching.put(parameters -> parameters.getSizeEndRange() != 0L, FileProcessorBySizeRange::new);
-        chainMapSearching.put(parameters -> parameters.getFilenameExtensions() != null, FileProcessorByNameExtension::new);
-        chainMapSearching.put(parameters -> parameters.getFileName() != null, FileProcessorByName::new);
+        chainProcessorMap.put(parameters -> parameters.getDateEndRange() != 0L, FileProcessorByDateRange::new);
+        chainProcessorMap.put(parameters -> parameters.getSizeEndRange() != 0L, FileProcessorBySizeRange::new);
+        chainProcessorMap.put(parameters -> parameters.getFilenameExtensions() != null, FileProcessorByNameExtension::new);
+        chainProcessorMap.put(parameters -> parameters.getFileName() != null, FileProcessorByName::new);
     }
 
-    public void searchFiles(File filePath, FileParameters fileParameters) {
-        if (fileParameters != null) {
-            for (Map.Entry<Predicate<FileParameters>, Function<FileProcessor, FileProcessor>> entry : chainMapSearching.entrySet()) {
-                if (entry.getKey().test(fileParameters)) {
+    public void searchFiles(File filePath) {
+        if (parameters != null) {
+            for (Map.Entry<Predicate<FileParameters>, Function<FileProcessor, FileProcessor>> entry : chainProcessorMap.entrySet()) {
+                if (entry.getKey().test(parameters)) {
                     chain = entry.getValue().apply(chain);
                 }
             }
             if (chain != null) {
-                chain.searchFiles(filePath, fileParameters);
+                chain.searchFiles(filePath, parameters);
             }
         }
     }
