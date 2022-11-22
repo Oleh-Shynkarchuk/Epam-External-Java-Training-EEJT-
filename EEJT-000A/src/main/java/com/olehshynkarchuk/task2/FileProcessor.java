@@ -6,7 +6,10 @@ import java.io.File;
 
 public abstract class FileProcessor {
 
-    protected FileProcessor() {
+    private final FileProcessor nextFileProcessor;
+
+    public FileProcessor(FileProcessor nextFileProcessor) {
+        this.nextFileProcessor = nextFileProcessor;
     }
 
     public void searchFiles(File filePath, FileParameters fileParameters) {
@@ -15,13 +18,12 @@ public abstract class FileProcessor {
         } else if (needToExcludeIrrelevantFiles(fileParameters)) {
             fileParameters.getFileList().removeIf(file -> !isaFileAccordingToConditions(fileParameters, file));
         }
-        next(filePath, fileParameters);
+        if (nextFileProcessor != null) nextFileProcessor.searchFiles(filePath, fileParameters);
     }
 
     private void walkingOfDirectoryByRecursion(File filePath, FileParameters fileParameters) {
         if (filePath.isDirectory()) {
-            for (Object fileObj : ArrayUtils.nullToEmpty(filePath.listFiles())) {
-                File file = (File) fileObj;
+            for (File file : ArrayUtils.nullToEmpty(filePath.listFiles(), File[].class)) {
                 if (file.isDirectory()) {
                     walkingOfDirectoryByRecursion(file, fileParameters);
                 } else if (isaFileAccordingToConditions(fileParameters, file)) {
@@ -36,6 +38,4 @@ public abstract class FileProcessor {
     protected abstract boolean needToExcludeIrrelevantFiles(FileParameters fileParameters);
 
     protected abstract boolean isaFileAccordingToConditions(FileParameters fileParameters, File file);
-
-    protected abstract void next(File filePath, FileParameters fileParameters);
 }

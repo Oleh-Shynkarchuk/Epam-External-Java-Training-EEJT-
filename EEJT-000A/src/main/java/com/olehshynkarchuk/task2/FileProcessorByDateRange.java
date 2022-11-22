@@ -3,10 +3,9 @@ package com.olehshynkarchuk.task2;
 import java.io.File;
 
 public class FileProcessorByDateRange extends FileProcessor {
-    FileProcessor fileProcessor;
 
-    public FileProcessorByDateRange(FileProcessor fileProcessor) {
-        this.fileProcessor = fileProcessor;
+    public FileProcessorByDateRange(FileProcessor nextFileProcessor) {
+        super(nextFileProcessor);
     }
 
     @Override
@@ -22,10 +21,5 @@ public class FileProcessorByDateRange extends FileProcessor {
     @Override
     protected boolean isaFileAccordingToConditions(FileParameters fileParameters, File file) {
         return fileParameters.getDateStartRange() <= file.lastModified() && file.lastModified() <= fileParameters.getDateEndRange();
-    }
-
-    @Override
-    protected void next(File filePath, FileParameters fileParameters) {
-        if (fileProcessor != null) fileProcessor.searchFiles(filePath, fileParameters);
     }
 }

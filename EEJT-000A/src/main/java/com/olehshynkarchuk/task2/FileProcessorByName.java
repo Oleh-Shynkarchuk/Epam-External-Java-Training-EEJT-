@@ -3,10 +3,9 @@ package com.olehshynkarchuk.task2;
 import java.io.File;
 
 public class FileProcessorByName extends FileProcessor {
-    FileProcessor fileProcessor;
 
-    public FileProcessorByName(FileProcessor fileProcessor) {
-        this.fileProcessor = fileProcessor;
+    public FileProcessorByName(FileProcessor nextFileProcessor) {
+        super(nextFileProcessor);
     }
 
     @Override
@@ -22,10 +21,5 @@ public class FileProcessorByName extends FileProcessor {
     @Override
     public boolean isaFileAccordingToConditions(FileParameters fileParameters, File file) {
         return file.getName().toLowerCase().contains(fileParameters.getFileName().toLowerCase());
-    }
-
-    @Override
-    protected void next(File filePath, FileParameters fileParameters) {
-        if (fileProcessor != null) fileProcessor.searchFiles(filePath, fileParameters);
     }
 }
