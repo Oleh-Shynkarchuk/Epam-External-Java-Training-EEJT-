@@ -1,39 +1,38 @@
 package com.olehshynkarchuk.task2;
 
+import org.apache.commons.lang3.ArrayUtils;
+
 import java.io.File;
 
 public abstract class FileProcessor {
 
-    private final FileProcessor nextFileProcessor;
+    FileProcessor nextFileProcessor;
 
-    public FileProcessor(FileProcessor nextFileProcessor) {
-        this.nextFileProcessor = nextFileProcessor;
+    protected FileProcessor() {
     }
 
-    public void searchFiles(File filePath, FileParametrs fileArrayList) {
-        if (needToSearchCorrespondingFiles(fileArrayList)) {
+    public void searchFiles(File filePath, FileParameters fileParameters) {
+        if (needToSearchCorrespondingFiles(fileParameters)) {
             if (filePath.isDirectory()) {
-                File[] directoryFiles = filePath.listFiles();
-                if (directoryFiles != null) {
-                    for (File file : directoryFiles) {
-                        if (file.isDirectory()) {
-                            searchFiles(file, fileArrayList);
-                        } else if (isaFileAccordingToConditions(file)) {
-                            fileArrayList.getFileList().add(file);
-                        }
+                File[] directoryFiles = (File[]) ArrayUtils.nullToEmpty(filePath.listFiles());
+                for (File file : directoryFiles) {
+                    if (file.isDirectory()) {
+                        searchFiles(file, fileParameters);
+                    } else if (isaFileAccordingToConditions(fileParameters, file)) {
+                        fileParameters.getFileList().add(file);
                     }
                 }
             }
-        } else if (needToExcludeIrrelevantFiles()) {
-            fileArrayList.getFileList().removeIf(file -> !isaFileAccordingToConditions(file));
+        } else if (needToExcludeIrrelevantFiles(fileParameters)) {
+            fileParameters.getFileList().removeIf(file -> !isaFileAccordingToConditions(fileParameters, file));
         }
         if (nextFileProcessor != null)
-            nextFileProcessor.searchFiles(filePath, fileArrayList);
+            nextFileProcessor.searchFiles(filePath, fileParameters);
     }
 
-    protected abstract boolean needToSearchCorrespondingFiles(FileParametrs fileArrayList);
+    protected abstract boolean needToSearchCorrespondingFiles(FileParameters fileParameters);
 
-    protected abstract boolean needToExcludeIrrelevantFiles();
+    protected abstract boolean needToExcludeIrrelevantFiles(FileParameters fileParameters);
 
-    protected abstract boolean isaFileAccordingToConditions(File file);
+    protected abstract boolean isaFileAccordingToConditions(FileParameters fileParameters, File file);
 }

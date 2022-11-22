@@ -3,26 +3,24 @@ package com.olehshynkarchuk.task2;
 import java.io.File;
 
 public class FileProcessorByNameExtension extends FileProcessor {
+    FileProcessor fileProcessor;
 
-    private final String filenameExtension;
-
-    public FileProcessorByNameExtension(FileProcessor next, String filenameExtension) {
-        super(next);
-        this.filenameExtension = filenameExtension;
+    public FileProcessorByNameExtension(FileProcessor fileProcessor) {
+        this.fileProcessor = fileProcessor;
     }
 
     @Override
-    protected boolean needToExcludeIrrelevantFiles() {
-        return filenameExtension != null;
+    protected boolean needToExcludeIrrelevantFiles(FileParameters fileParameters) {
+        return fileParameters.getFilenameExtensions() != null;
     }
 
     @Override
-    protected boolean needToSearchCorrespondingFiles(FileParametrs fileArrayList) {
-        return filenameExtension != null && fileArrayList.getFileList().isEmpty();
+    protected boolean needToSearchCorrespondingFiles(FileParameters fileParameters) {
+        return fileParameters.getFilenameExtensions() != null && fileParameters.getFileList().isEmpty();
     }
 
     @Override
-    public boolean isaFileAccordingToConditions(File file) {
-        return file.getName().toLowerCase().endsWith(filenameExtension.toLowerCase());
+    public boolean isaFileAccordingToConditions(FileParameters fileParameters, File file) {
+        return file.getName().toLowerCase().endsWith(fileParameters.getFilenameExtensions().toLowerCase());
     }
 }

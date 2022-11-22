@@ -3,28 +3,24 @@ package com.olehshynkarchuk.task2;
 import java.io.File;
 
 public class FileProcessorBySizeRange extends FileProcessor {
+    FileProcessor fileProcessor;
 
-    private final long sizeStartRange;
-    private final long sizeEndRange;
-
-    public FileProcessorBySizeRange(FileProcessor next, long sizeStartRange, long sizeEndRange) {
-        super(next);
-        this.sizeStartRange = sizeStartRange;
-        this.sizeEndRange = sizeEndRange;
+    public FileProcessorBySizeRange(FileProcessor fileProcessor) {
+        this.fileProcessor = fileProcessor;
     }
 
     @Override
-    protected boolean needToExcludeIrrelevantFiles() {
-        return sizeEndRange != 0L;
+    protected boolean needToExcludeIrrelevantFiles(FileParameters fileParameters) {
+        return fileParameters.getSizeEndRange() != 0L;
     }
 
     @Override
-    protected boolean needToSearchCorrespondingFiles(FileParametrs fileArrayList) {
-        return sizeEndRange != 0L && fileArrayList.getFileList().isEmpty();
+    protected boolean needToSearchCorrespondingFiles(FileParameters fileParameters) {
+        return fileParameters.getSizeEndRange() != 0L && fileParameters.getFileList().isEmpty();
     }
 
     @Override
-    public boolean isaFileAccordingToConditions(File file) {
-        return sizeStartRange <= file.length() && file.length() <= sizeEndRange;
+    public boolean isaFileAccordingToConditions(FileParameters fileParameters, File file) {
+        return fileParameters.getSizeStartRange() <= file.length() && file.length() <= fileParameters.getSizeEndRange();
     }
 }
