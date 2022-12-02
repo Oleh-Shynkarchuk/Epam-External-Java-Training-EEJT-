@@ -1,14 +1,14 @@
 package com.olehshynkarchuk.task.command;
 
-import com.olehshynkarchuk.task.goods.Goods;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.olehshynkarchuk.task.goods.Repository;
 
-import java.util.Map;
-
-public record CommandAllGoods() implements Command<Map<Integer, Goods>> {
+public record CommandAllGoods(Repository repository) implements Command<String> {
 
     @Override
-    public Map<Integer, Goods> execute(String request, Repository repository) {
-        return repository.getAllGoodsTable();
+    public String execute(String request, Repository repository) throws JsonProcessingException {
+        ObjectMapper mapper = new ObjectMapper();
+        return mapper.writeValueAsString(repository.getAllGoodsTable());
     }
 }

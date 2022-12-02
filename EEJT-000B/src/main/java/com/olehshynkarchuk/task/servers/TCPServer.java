@@ -1,16 +1,18 @@
 package com.olehshynkarchuk.task.servers;
 
+import com.olehshynkarchuk.task.command.CommandFactory;
+
 import java.io.IOException;
 import java.net.ServerSocket;
 
-public class TCPServer {
+public class TCPServer implements AbstractFactoryServer {
     private ServerSocket serverSocket;
 
-    public void start(int port) {
+    public void start(int port, CommandFactory factory) {
         try {
             this.serverSocket = new ServerSocket(port);
             while (true)
-                new TCPRequestHandler(serverSocket.accept()).start();
+                new TCPRequestHandler(serverSocket.accept(), factory).start();
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
@@ -24,6 +26,11 @@ public class TCPServer {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public AbstractFactoryServer create() {
+        return new TCPServer();
     }
 }
 

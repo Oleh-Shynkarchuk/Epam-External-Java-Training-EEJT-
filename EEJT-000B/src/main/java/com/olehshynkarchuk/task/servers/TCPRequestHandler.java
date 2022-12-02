@@ -1,9 +1,7 @@
 package com.olehshynkarchuk.task.servers;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.olehshynkarchuk.task.command.CommandFactory;
 import com.olehshynkarchuk.task.goods.Goods;
-import com.olehshynkarchuk.task.goods.Repository;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -20,18 +18,15 @@ public class TCPRequestHandler extends Thread {
     private final String prefix = "<";
     private final String postfix = ">";
 
-    public TCPRequestHandler(Socket accept) {
+    public TCPRequestHandler(Socket accept, CommandFactory factory) {
         this.clientSocket = accept;
     }
 
     @Override
     public void run() {
-        Repository repository = new Repository();
         try {
             initWriterReader();
             String word = input.readLine();
-            CommandFactory commandFactory = new CommandFactory();
-            ObjectMapper mapper = new ObjectMapper();
             if (word.equals("get count")) {
                 System.out.println("command" + commandFactory.commandList.get(CommandFactory.Commands.GOODSSIZE).execute(word, repository));
                 output.write(prefix +
@@ -39,8 +34,8 @@ public class TCPRequestHandler extends Thread {
                         + postfix);
                 output.flush();
             } else if (word.matches("get item=\\d+")) {
-                int id = Integer.parseInt(String.join("", word.split("\\D+")));
-                output.write(prefix + commandFactory.commandList.get(CommandFactory.Commands.GOODSNAMEANDPRICE).execute(word, repository) + postfix);
+                String s = (String.join("", word.split("\\D+")));
+                output.write(prefix + commandFactory.commandList.get(CommandFactory.Commands.GOODSNAMEANDPRICE).execute(s, repository) + postfix);
                 output.flush();
             } else if (word.equals("put item")) {
                 Goods goods = new Goods("newTcpProduct", -300);

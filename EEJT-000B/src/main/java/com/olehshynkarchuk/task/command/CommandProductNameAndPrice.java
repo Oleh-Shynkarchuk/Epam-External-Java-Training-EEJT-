@@ -1,14 +1,15 @@
 package com.olehshynkarchuk.task.command;
 
-import com.olehshynkarchuk.task.goods.Goods;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.olehshynkarchuk.task.goods.Repository;
 
-public record CommandProductNameAndPrice() implements Command<Goods> {
+public record CommandProductNameAndPrice(Repository repository) implements Command<String> {
 
     @Override
-    public Goods execute(String request, Repository repository) {
-
-        return repository.getItem(Integer.parseInt(request));
+    public String execute(String request, Repository repository) throws JsonProcessingException {
+        ObjectMapper mapper = new ObjectMapper();
+        return mapper.writeValueAsString(repository.getItem(Integer.parseInt(request)));
     }
 
 }

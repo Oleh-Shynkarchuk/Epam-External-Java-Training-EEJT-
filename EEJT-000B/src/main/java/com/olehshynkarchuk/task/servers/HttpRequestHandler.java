@@ -1,9 +1,7 @@
 package com.olehshynkarchuk.task.servers;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.olehshynkarchuk.task.command.CommandFactory;
 import com.olehshynkarchuk.task.goods.Goods;
-import com.olehshynkarchuk.task.goods.Repository;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -20,16 +18,16 @@ public class HttpRequestHandler extends Thread {
     private final Socket clientSocket;
     private PrintWriter output;
     private BufferedReader input;
+    private CommandFactory commandFactory;
 
-    public HttpRequestHandler(Socket socket) {
+    public HttpRequestHandler(Socket socket, CommandFactory factory) {
         this.clientSocket = socket;
+        this.commandFactory = factory;
     }
 
     public void run() {
         try {
             initWriterReader();
-            Repository repository = new Repository();
-            CommandFactory commandFactory = new CommandFactory();
             String requestStartLine = getRequestStartLine();
             System.out.println(requestStartLine);
             if (!requestStartLine.equals("")) {
@@ -43,13 +41,12 @@ public class HttpRequestHandler extends Thread {
                         repository.putItem(goods);
                     }
                 } else if (httpMethod.equals("GET")) {
-                    ObjectMapper mapper = new ObjectMapper();
                     if (request.equals("/shop/count")) {
                         okRequestResponds();
-                        output.println(mapper.writeValueAsString(commandFactory.commandList.get(CommandFactory.Commands.GOODSNAMEANDPRICE).execute(request, repository)));
-                    } else if (request.contains("/shop/item\\?get_info=")) {
+                        output.println(mapper.writeValueAsString(commandFactory.commandList.get(CommandFactory.Commands.GOODSSIZE).execute(request, repository)));
+                    } else if (request.contains("/shop/item?get_info=")) {
                         if (request.matches("/shop/item\\?get_info=\\d+")) {
-                            String id = request.replaceAll("\\D", "");
+                            String id = (String.join("", request.split("\\D+")));
                             okRequestResponds();
                             output.println(mapper.writeValueAsString(commandFactory.commandList.get(CommandFactory.Commands.GOODSNAMEANDPRICE).execute(id, repository)));
                         } else {
@@ -59,7 +56,7 @@ public class HttpRequestHandler extends Thread {
                             output.println(mapper.writeValueAsString("Wrong input"));
                         }
 
-                    } else if (request.equals("/shop/insert_item")) {
+                    } else if (request.equals("/shop/items")) {
                         okRequestResponds();
                         output.println(mapper.writeValueAsString(commandFactory.commandList.get(CommandFactory.Commands.ALLGOODS).execute(request, repository)));
                     } else {
