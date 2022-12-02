@@ -1,8 +1,9 @@
 package com.olehshynkarchuk.task.servers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.olehshynkarchuk.task.repo.Goods;
-import com.olehshynkarchuk.task.repo.Repository;
+import com.olehshynkarchuk.task.command.CommandFactory;
+import com.olehshynkarchuk.task.goods.Goods;
+import com.olehshynkarchuk.task.goods.Repository;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -28,6 +29,7 @@ public class HttpRequestHandler extends Thread {
         try {
             initWriterReader();
             Repository repository = new Repository();
+            CommandFactory commandFactory = new CommandFactory();
             String requestStartLine = getRequestStartLine();
             System.out.println(requestStartLine);
             if (!requestStartLine.equals("")) {
@@ -44,17 +46,27 @@ public class HttpRequestHandler extends Thread {
                     ObjectMapper mapper = new ObjectMapper();
                     if (request.equals("/shop/count")) {
                         okRequestResponds();
-                        output.println(mapper.writeValueAsString(repository.getCount()));
-                    } else if (request.matches("/shop/item\\?get_info=\\d+")) {
-                        int id = Integer.parseInt(request.replaceAll("\\D", ""));
-                        okRequestResponds();
-                        output.println(mapper.writeValueAsString(repository.getItem(id)));
+                        output.println(mapper.writeValueAsString(commandFactory.commandList.get(CommandFactory.Commands.GOODSNAMEANDPRICE).execute(request, repository)));
+                    } else if (request.contains("/shop/item\\?get_info=")) {
+                        if (request.matches("/shop/item\\?get_info=\\d+")) {
+                            String id = request.replaceAll("\\D", "");
+                            okRequestResponds();
+                            output.println(mapper.writeValueAsString(commandFactory.commandList.get(CommandFactory.Commands.GOODSNAMEANDPRICE).execute(id, repository)));
+                        } else {
+                            output.println("HTTP/1.1 400 Bad Request");
+                            output.println("Connection: close");
+                            output.println();
+                            output.println(mapper.writeValueAsString("Wrong input"));
+                        }
+
                     } else if (request.equals("/shop/insert_item")) {
                         okRequestResponds();
-                        output.println(mapper.writeValueAsString(repository.items));
+                        output.println(mapper.writeValueAsString(commandFactory.commandList.get(CommandFactory.Commands.ALLGOODS).execute(request, repository)));
                     } else {
-                        output.println("HTTP/1.1 404 Not Found");
+                        output.println("HTTP/1.1 404 Not found");
                         output.println("Connection: close");
+                        output.println();
+                        output.println(mapper.writeValueAsString("Page 404"));
                     }
                 }
             }
@@ -63,6 +75,7 @@ public class HttpRequestHandler extends Thread {
             e.printStackTrace();
         } finally {
             try {
+                System.out.println("closing");
                 closeClientRequest();
             } catch (IOException e) {
                 e.printStackTrace();

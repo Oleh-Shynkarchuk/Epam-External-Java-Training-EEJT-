@@ -3,15 +3,13 @@ package com.olehshynkarchuk.task.servers;
 import java.io.IOException;
 import java.net.ServerSocket;
 
-public class TCPServer implements AbstractFactoryServer {
+public class TCPServer {
     private ServerSocket serverSocket;
 
-
-    @Override
     public void start(int port) {
         try {
             this.serverSocket = new ServerSocket(port);
-            if (true)
+            while (true)
                 new TCPRequestHandler(serverSocket.accept()).start();
         } catch (IOException e) {
             e.printStackTrace();
@@ -20,7 +18,6 @@ public class TCPServer implements AbstractFactoryServer {
         }
     }
 
-    @Override
     public void stop() {
         try {
             serverSocket.close();

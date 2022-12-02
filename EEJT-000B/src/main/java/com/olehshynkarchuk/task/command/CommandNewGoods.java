@@ -2,8 +2,8 @@ package com.olehshynkarchuk.task.command;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.olehshynkarchuk.task.repo.Goods;
-import com.olehshynkarchuk.task.repo.Repository;
+import com.olehshynkarchuk.task.goods.Goods;
+import com.olehshynkarchuk.task.goods.Repository;
 
 public record CommandNewGoods() implements Command<Integer> {
 
@@ -17,7 +17,7 @@ public record CommandNewGoods() implements Command<Integer> {
             e.printStackTrace();
         }
         if (goods != null) repository.putItem(goods);
-        if (repository.items.containsValue(goods)) return 1;
+        if (repository.getItems().containsValue(goods)) return 1;
         else return 0;
     }
 }

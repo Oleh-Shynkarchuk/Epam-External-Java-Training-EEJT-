@@ -5,14 +5,14 @@ import java.io.IOException;
 import java.net.ServerSocket;
 
 
-public class HttpServer implements AbstractFactoryServer {
+public class HttpServer {
 
     private ServerSocket serverSocket;
 
     public void start(int port) {
         try {
             serverSocket = new ServerSocket(port);
-            if (true)
+            while (true)
                 new HttpRequestHandler(serverSocket.accept()).start();
         } catch (IOException e) {
             e.printStackTrace();

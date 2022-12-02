@@ -1,7 +1,7 @@
 package com.olehshynkarchuk.task.command;
 
-import com.olehshynkarchuk.task.repo.Goods;
-import com.olehshynkarchuk.task.repo.Repository;
+import com.olehshynkarchuk.task.goods.Goods;
+import com.olehshynkarchuk.task.goods.Repository;
 
 import java.util.Map;
 

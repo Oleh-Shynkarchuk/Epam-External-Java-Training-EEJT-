@@ -1,13 +1,14 @@
 package com.olehshynkarchuk.task.command;
 
-import com.olehshynkarchuk.task.repo.Goods;
-import com.olehshynkarchuk.task.repo.Repository;
+import com.olehshynkarchuk.task.goods.Goods;
+import com.olehshynkarchuk.task.goods.Repository;
 
 public record CommandProductNameAndPrice() implements Command<Goods> {
 
     @Override
     public Goods execute(String request, Repository repository) {
-        return repository.getItem(1);
+
+        return repository.getItem(Integer.parseInt(request));
     }
 
 }

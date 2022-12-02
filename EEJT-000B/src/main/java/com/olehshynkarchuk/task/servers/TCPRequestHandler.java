@@ -2,8 +2,8 @@ package com.olehshynkarchuk.task.servers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.olehshynkarchuk.task.command.CommandFactory;
-import com.olehshynkarchuk.task.repo.Goods;
-import com.olehshynkarchuk.task.repo.Repository;
+import com.olehshynkarchuk.task.goods.Goods;
+import com.olehshynkarchuk.task.goods.Repository;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -30,7 +30,7 @@ public class TCPRequestHandler extends Thread {
         try {
             initWriterReader();
             String word = input.readLine();
-            CommandFactory commandFactory = new CommandFactory(repository);
+            CommandFactory commandFactory = new CommandFactory();
             ObjectMapper mapper = new ObjectMapper();
             if (word.equals("get count")) {
                 System.out.println("command" + commandFactory.commandList.get(CommandFactory.Commands.GOODSSIZE).execute(word, repository));

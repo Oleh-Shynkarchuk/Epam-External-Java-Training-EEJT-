@@ -1,19 +1,12 @@
-package com.olehshynkarchuk.task.repo;
+package com.olehshynkarchuk.task.goods;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public class Repository {
-    private static Repository instance;
 
-    public static Repository getInstance() {
-        if (instance == null) {
-            instance = new Repository();
-        }
-        return instance;
-    }
 
-    public Map<Integer, Goods> items;
+    private final Map<Integer, Goods> items;
 
     public Repository() {
         Map<Integer, Goods> temp = Map.of(1, new Goods("Product#1", 25.3),
@@ -42,6 +35,10 @@ public class Repository {
     }
 
     public Map<Integer, Goods> getAllGoodsTable() {
+        return items;
+    }
+
+    public Map<Integer, Goods> getItems() {
         return items;
     }
 }

@@ -1,4 +1,4 @@
-package com.olehshynkarchuk.task.repo;
+package com.olehshynkarchuk.task.goods;
 
 public record Goods(String name, double price) {
 }
