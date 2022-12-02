@@ -27,41 +27,38 @@ public class TCPRequestHandler extends Thread {
     @Override
     public void run() {
         Repository repository = new Repository();
-        while (true) {
+        try {
+            initWriterReader();
+            String word = input.readLine();
+            CommandFactory commandFactory = new CommandFactory(repository);
+            ObjectMapper mapper = new ObjectMapper();
+            if (word.equals("get count")) {
+                System.out.println("command" + commandFactory.commandList.get(CommandFactory.Commands.GOODSSIZE).execute(word, repository));
+                output.write(prefix +
+                        commandFactory.commandList.get(CommandFactory.Commands.GOODSSIZE).execute(word, repository)
+                        + postfix);
+                output.flush();
+            } else if (word.matches("get item=\\d+")) {
+                int id = Integer.parseInt(String.join("", word.split("\\D+")));
+                output.write(prefix + commandFactory.commandList.get(CommandFactory.Commands.GOODSNAMEANDPRICE).execute(word, repository) + postfix);
+                output.flush();
+            } else if (word.equals("put item")) {
+                Goods goods = new Goods("newTcpProduct", -300);
+                output.write(prefix +
+                        commandFactory.commandList.get(CommandFactory.Commands.NEWGOODS).execute(mapper.writeValueAsString(goods), repository)
+                        + postfix);
+                output.flush();
+            } else {
+                output.write("Wrong input : " + word + "\n");
+                output.flush();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
             try {
-                initWriterReader();
-                String word = input.readLine();
-                CommandFactory commandFactory = new CommandFactory(repository);
-                ObjectMapper mapper = new ObjectMapper();
-                if (word.equals("get count")) {
-                    System.out.println("command" + commandFactory.commandList.get(CommandFactory.Commands.GOODSSIZE).execute(word, repository));
-                    output.write(prefix +
-                            commandFactory.commandList.get(CommandFactory.Commands.GOODSSIZE).execute(word, repository)
-                            + postfix);
-                    output.flush();
-                } else if (word.matches("get item=\\d+")) {
-                    int id = Integer.parseInt(String.join("", word.split("\\D+")));
-                    output.write(prefix + commandFactory.commandList.get(CommandFactory.Commands.GOODSNAMEANDPRICE).execute(word, repository) + postfix);
-                    output.flush();
-                } else if (word.equals("put item")) {
-                    Goods goods = new Goods("newTcpProduct", -300);
-                    output.write(prefix +
-                            commandFactory.commandList.get(CommandFactory.Commands.NEWGOODS).execute(mapper.writeValueAsString(goods), repository)
-                            + postfix);
-                    output.flush();
-                } else {
-                    output.write("Wrong input : " + word + "\n");
-                    output.flush();
-                    break;
-                }
+                closeClientRequest();
             } catch (IOException e) {
                 e.printStackTrace();
-            } finally {
-                try {
-                    closeClientRequest();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
             }
         }
     }

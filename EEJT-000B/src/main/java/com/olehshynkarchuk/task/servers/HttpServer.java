@@ -12,7 +12,7 @@ public class HttpServer implements AbstractFactoryServer {
     public void start(int port) {
         try {
             serverSocket = new ServerSocket(port);
-            while (true)
+            if (true)
                 new HttpRequestHandler(serverSocket.accept()).start();
         } catch (IOException e) {
             e.printStackTrace();

@@ -11,7 +11,7 @@ public class TCPServer implements AbstractFactoryServer {
     public void start(int port) {
         try {
             this.serverSocket = new ServerSocket(port);
-            while (true)
+            if (true)
                 new TCPRequestHandler(serverSocket.accept()).start();
         } catch (IOException e) {
             e.printStackTrace();

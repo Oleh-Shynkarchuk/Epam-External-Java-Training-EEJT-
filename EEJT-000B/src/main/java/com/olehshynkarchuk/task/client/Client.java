@@ -19,15 +19,13 @@ public class Client {
                 in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
                 out = new PrintWriter((clientSocket.getOutputStream()));
                 System.out.println("Передати повідомлення на сервак:");
-                // если соединение произошло и потоки успешно созданы - мы можем
-                //  работать дальше и предложить клиенту что то ввести
-                // если нет - вылетит исключение
-                String word = reader.readLine(); // ждём пока клиент что-нибудь
-                // не напишет в консоль
-                out.write(word + "\n"); // отправляем сообщение на сервер
+
+                String word = reader.readLine();
+
+                out.write(word + "\n");
                 out.flush();
-                String serverWord = in.readLine(); // ждём, что скажет сервер
-                System.out.println(serverWord); // получив - выводим на экран
+                String serverWord = in.readLine();
+                System.out.println(serverWord);
             } finally {
                 System.out.println("Клієнт закритий...");
                 clientSocket.close();
