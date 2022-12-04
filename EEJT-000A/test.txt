@@ -1,3 +1,0 @@
-simple string
-for checking the correct operation
- of the method
