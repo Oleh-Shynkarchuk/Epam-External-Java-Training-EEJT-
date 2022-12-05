@@ -7,7 +7,6 @@ import com.olehshynkarchuk.task.io.SocketIO;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Locale;
 
@@ -15,12 +14,11 @@ public class TCPRequestHandler extends Thread {
 
     private final SocketIO socketIO;
     private final CommandContainer commandContainer;
-    private final ServerSocket serverSocket;
 
-    public TCPRequestHandler(ServerSocket serverSocket, Socket accept, CommandContainer commandContainer) {
+    public TCPRequestHandler(Socket accept, CommandContainer commandContainer) {
         this.commandContainer = commandContainer;
         this.socketIO = new SocketIO(accept);
-        this.serverSocket = serverSocket;
+
     }
 
     @Override

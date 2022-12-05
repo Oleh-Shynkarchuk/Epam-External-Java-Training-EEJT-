@@ -26,7 +26,7 @@ public class HttpServer extends AbstractServer {
         try {
             serverSocket = new ServerSocket(port);
             while (switcher) {
-                new HttpRequestHandler(serverSocket, serverSocket.accept(), commandContainer).start();
+                new HttpRequestHandler(serverSocket.accept(), commandContainer).start();
             }
         } catch (IOException e) {
             ConsoleIO.printErr(e.getMessage());

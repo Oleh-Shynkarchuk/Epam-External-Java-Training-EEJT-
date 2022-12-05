@@ -1,6 +1,5 @@
 package com.olehshynkarchuk.task.io;
 
-import java.util.Scanner;
 
 public class ConsoleIO {
 
@@ -12,7 +11,4 @@ public class ConsoleIO {
         System.err.println(message);
     }
 
-    public Scanner scanner() {
-        return new Scanner(System.in);
-    }
 }

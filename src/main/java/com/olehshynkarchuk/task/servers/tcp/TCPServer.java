@@ -24,7 +24,7 @@ public class TCPServer extends AbstractServer {
         try {
             serverSocket = new ServerSocket(port);
             while (switcher)
-                new TCPRequestHandler(serverSocket, serverSocket.accept(), commandContainer).start();
+                new TCPRequestHandler(serverSocket.accept(), commandContainer).start();
         } catch (IOException e) {
             ConsoleIO.printErr(e.getMessage());
             throw new RuntimeException(e);

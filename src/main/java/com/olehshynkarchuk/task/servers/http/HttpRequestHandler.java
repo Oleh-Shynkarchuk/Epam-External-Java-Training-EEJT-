@@ -7,18 +7,15 @@ import com.olehshynkarchuk.task.io.SocketIO;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.net.ServerSocket;
 import java.net.Socket;
 
 public class HttpRequestHandler extends Thread {
     private final SocketIO socketIO;
     private final CommandContainer commandFactory;
-    private ServerSocket serverSocket;
 
-    public HttpRequestHandler(ServerSocket serverSocket, Socket socket, CommandContainer factory) {
+    public HttpRequestHandler(Socket socket, CommandContainer factory) {
         this.commandFactory = factory;
         socketIO = new SocketIO(socket);
-        this.serverSocket = serverSocket;
     }
 
     public void run() {
