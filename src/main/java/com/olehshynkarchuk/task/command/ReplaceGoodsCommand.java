@@ -7,38 +7,33 @@ import com.olehshynkarchuk.task.goods.GoodsRepository;
 
 import java.util.Map;
 
-public class ReplaceGoodsCommand implements Command {
-    private final GoodsRepository goodsRepository;
-    private final JsonMapper jsonMapper;
+import static com.olehshynkarchuk.task.constant.Constants.HttpMessageResponse.*;
+import static com.olehshynkarchuk.task.constant.Constants.HttpStatusCodeResponse.*;
 
-    public ReplaceGoodsCommand(GoodsRepository goodsRepository, JsonMapper jsonMapper) {
-        this.goodsRepository = goodsRepository;
-        this.jsonMapper = jsonMapper;
-    }
+public record ReplaceGoodsCommand(GoodsRepository goodsRepository,
+                                  JsonMapper jsonMapper) implements Command {
 
     @Override
     public Map<Integer, String> execute(String requestHead, String requestBody) throws JsonProcessingException {
 
-        Goods goodsOnUpdate = jsonMapper.readValue(requestBody, Goods.class);
+        Goods newGoods = jsonMapper.readValue(requestBody, Goods.class);
 
-        if (isaAllGoodsFieldsInit(goodsOnUpdate)) {
-            int goodsID = Integer.parseInt(String.join("", requestHead.split("\\D+")));
-            if (goodsOnUpdate.price() < 0) {
-                return Map.of(422, jsonMapper.writeValueAsString
-                        (Map.of(422, "Unprocessable Entity : Price of Goods cannot be negative")));
+        if (isaAllGoodsFieldsInit(newGoods)) {
+            int goodsID = Integer.parseInt(String.join("", requestHead.split("[^\\d-]")));
+            if (newGoods.price() < 0) {
+                return Map.of(UNPROCESSABLE_ENTITY_CODE, jsonMapper.writeValueAsString
+                        (Map.of(UNPROCESSABLE_ENTITY_CODE, UNPROCESSABLE_ENTITY_MESSAGE)));
             }
-            Goods goodsOnReturn = goodsRepository.updateGoodsByID(goodsID, goodsOnUpdate);
-            return goodsOnReturn == null ? Map.of(409, "Error:Goods with this ID doesn't exist in the Repository")
-                    : Map.of(200, jsonMapper.writeValueAsString(goodsOnReturn));
+            Goods goodsOnReturn = goodsRepository.replaceGoodsByID(goodsID, newGoods);
+            return goodsOnReturn == null ? Map.of(CONFLICT_CODE, jsonMapper.writeValueAsString(Map.of(CONFLICT_CODE, CONFLICT_MESSAGE)))
+                    : Map.of(OK_CODE, jsonMapper.writeValueAsString(goodsOnReturn));
         } else {
-            return Map.of(422, jsonMapper.writeValueAsString
-                    (Map.of(422, "Unprocessable Entity : " +
-                            " You need to specify all fields" +
-                            " of the Goods class for the PUT method")));
+            return Map.of(BAD_REQUEST_CODE, jsonMapper.writeValueAsString
+                    (Map.of(BAD_REQUEST_CODE, BAD_REQUEST_MESSAGE)));
         }
     }
 
-    private boolean isaAllGoodsFieldsInit(Goods goodsOnUpdate) {
-        return goodsOnUpdate.name() != null && goodsOnUpdate.price() != 0.0;
+    private boolean isaAllGoodsFieldsInit(Goods goods) {
+        return (goods.name() != null && !goods.name().equals(""));
     }
 }

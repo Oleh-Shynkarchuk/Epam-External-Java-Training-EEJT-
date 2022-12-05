@@ -5,16 +5,19 @@ import com.olehshynkarchuk.task.io.ConsoleIO;
 import com.olehshynkarchuk.task.io.SocketIO;
 
 import java.io.IOException;
+import java.net.ServerSocket;
 import java.net.Socket;
 
 public class HttpRequestHandler extends Thread {
     private final SocketIO socketIO;
     private final CommandContainer commandFactory;
+    private ServerSocket serverSocket;
 
-    public HttpRequestHandler(Socket socket, CommandContainer factory) {
+    public HttpRequestHandler(ServerSocket serverSocket, Socket socket, CommandContainer factory) {
+        System.out.println("new Handler");
         this.commandFactory = factory;
         socketIO = new SocketIO(socket);
-
+        this.serverSocket = serverSocket;
     }
 
     public void run() {

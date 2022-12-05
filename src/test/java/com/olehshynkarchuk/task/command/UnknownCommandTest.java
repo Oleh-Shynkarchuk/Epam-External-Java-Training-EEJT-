@@ -1,20 +1,37 @@
 package com.olehshynkarchuk.task.command;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.json.JsonMapper;
-import com.olehshynkarchuk.task.goods.GoodsRepository;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.Map;
+
+import static com.olehshynkarchuk.task.constant.Constants.HttpMessageResponse.NF_MESSAGE;
+import static com.olehshynkarchuk.task.constant.Constants.HttpStatusCodeResponse.NF_CODE;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.when;
+
+@ExtendWith(MockitoExtension.class)
 class UnknownCommandTest {
 
-    private CommandContainer container;
+    @Mock
     private JsonMapper jsonMapper;
-    private GoodsRepository goodsRepository;
+    @InjectMocks
+    private UnknownCommand unknownCommand;
 
-    @BeforeEach
-    void setUp() {
-        jsonMapper = new JsonMapper();
-        goodsRepository = new GoodsRepository();
-        container = new CommandContainer(goodsRepository, jsonMapper);
+    @Test
+    void testUnknownMessage() throws JsonProcessingException {
+
+        Map<Integer, String> expected = Map.of(NF_CODE,
+                "{" + NF_CODE + ":\"" + NF_MESSAGE + "\"}");
+
+        when(jsonMapper.writeValueAsString(Map.of(NF_CODE,
+                NF_MESSAGE))).thenReturn("{" + NF_CODE + ":\"" + NF_MESSAGE + "\"}");
+
+        assertEquals(expected, unknownCommand.execute("", ""));
     }
-
 }

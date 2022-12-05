@@ -10,10 +10,11 @@ import java.net.ServerSocket;
 
 
 public class HttpServer extends AbstractServer {
-    public static boolean switcher = true;
+
     private final CommandContainer commandContainer;
     private ServerSocket serverSocket;
     private final int port;
+    private boolean switcher = true;
 
     public HttpServer(int port, CommandContainer commandContainer) {
         this.port = port;
@@ -24,8 +25,9 @@ public class HttpServer extends AbstractServer {
     public void start() {
         try {
             serverSocket = new ServerSocket(port);
-            while (switcher)
-                new HttpRequestHandler(serverSocket.accept(), commandContainer).start();
+            while (switcher) {
+                new HttpRequestHandler(serverSocket, serverSocket.accept(), commandContainer).start();
+            }
         } catch (IOException e) {
             ConsoleIO.printErr(e.getMessage());
             throw new RuntimeException(e);
@@ -36,6 +38,7 @@ public class HttpServer extends AbstractServer {
     }
 
     public void stop() {
+        switcher = false;
         try {
             serverSocket.close();
         } catch (IOException e) {
@@ -43,4 +46,5 @@ public class HttpServer extends AbstractServer {
             throw new RuntimeException(e);
         }
     }
+
 }

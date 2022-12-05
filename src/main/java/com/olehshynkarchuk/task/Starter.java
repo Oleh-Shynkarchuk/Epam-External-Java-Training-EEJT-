@@ -14,9 +14,6 @@ public class Starter {
 
         AbstractServer server1 = new HttpServerFactory().createServer(port, commandFactory);
         AbstractServer server2 = new TcpServerFactory().createServer(port + 1, commandFactory);
-//        server1.stop();
-//        server2.stop();
-
     }
 
     private static CommandContainer getCommandFactory() {

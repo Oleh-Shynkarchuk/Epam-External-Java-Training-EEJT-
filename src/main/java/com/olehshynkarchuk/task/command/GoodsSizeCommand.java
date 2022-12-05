@@ -7,9 +7,11 @@ import com.olehshynkarchuk.task.goods.GoodsRepository;
 
 import java.util.Map;
 
+import static com.olehshynkarchuk.task.constant.Constants.HttpStatusCodeResponse.OK_CODE;
+
 public record GoodsSizeCommand(GoodsRepository goodsRepository, JsonMapper jsonMapper) implements Command {
     @Override
     public Map<Integer, String> execute(String requestHead, String requestBody) throws JsonProcessingException {
-        return Map.of(200, jsonMapper.writeValueAsString(goodsRepository.getCount()));
+        return Map.of(OK_CODE, jsonMapper.writeValueAsString(goodsRepository.getCount()));
     }
 }

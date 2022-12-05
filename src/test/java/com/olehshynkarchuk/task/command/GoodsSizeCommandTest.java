@@ -3,31 +3,33 @@ package com.olehshynkarchuk.task.command;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.olehshynkarchuk.task.goods.GoodsRepository;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Map;
 
-import static com.olehshynkarchuk.task.command.CommandContainer.Command.getCommand;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.Mockito.when;
 
+@ExtendWith(MockitoExtension.class)
 class GoodsSizeCommandTest {
 
-    private CommandContainer container;
-    private JsonMapper jsonMapper;
-    private GoodsRepository goodsRepository;
-
-    @BeforeEach
-    void setUp() {
-        jsonMapper = new JsonMapper();
-        goodsRepository = new GoodsRepository();
-        container = new CommandContainer(goodsRepository, jsonMapper);
-    }
+    @Mock
+    private GoodsRepository goodsRepository1;
+    @Mock
+    private JsonMapper jsonMapper1;
+    @InjectMocks
+    private GoodsSizeCommand goodsSizeCommand;
 
     @Test
-    void testGetCount() throws JsonProcessingException {
-        assertEquals(Map.of(200, jsonMapper.writeValueAsString(goodsRepository.getCount()))
-                , container.commandList.get(getCommand("GET", "/shop/items/count"))
-                        .execute("", ""));
+    void shouldReturnAmountOfAllGoodsInRepo() throws JsonProcessingException {
+
+        when(goodsRepository1.getCount()).thenReturn(Map.of("count", 10));
+        when(jsonMapper1.writeValueAsString(Map.of("count", 10))).thenReturn("{\"count\":10}");
+
+        assertNotNull(goodsSizeCommand.execute("", ""));
     }
 }

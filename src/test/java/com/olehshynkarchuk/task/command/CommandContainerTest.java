@@ -24,10 +24,10 @@ class CommandContainerTest {
     @Test
     void testCommandContainerGetCommand() {
         assertEquals(SearchSingleGoodsCommand.class,
-                container.commandList.get(getCommand("GET", "/shop/item/12/get")).getClass());
+                container.commandList.get(getCommand("GET", "/shop/item/get/12")).getClass());
         assertEquals(GoodsSizeCommand.class,
                 container.commandList.get(getCommand("GET", "get count")).getClass());
-        assertNotEquals(SearchSingleGoodsCommand.class,
+        assertEquals(SearchSingleGoodsCommand.class,
                 container.commandList.get(getCommand("GET", "get item=-1")).getClass());
         assertNotEquals(SearchSingleGoodsCommand.class,
                 container.commandList.get(getCommand("GET", "/shop/item/A/get")).getClass());
@@ -49,7 +49,7 @@ class CommandContainerTest {
                 container.commandList.get(getCommand("PUT", "/shop/item/new")).getClass());
 
         assertEquals(ReplaceGoodsCommand.class,
-                container.commandList.get(getCommand("PUT", "/shop/item/111/put")).getClass());
+                container.commandList.get(getCommand("PUT", "/shop/item/put/111")).getClass());
         assertNotEquals(ReplaceGoodsCommand.class,
                 container.commandList.get(getCommand("PUT", "put itemS=1")).getClass());
         assertEquals(ReplaceGoodsCommand.class,
@@ -62,7 +62,7 @@ class CommandContainerTest {
         assertNotEquals(DeleteGoodsCommand.class,
                 container.commandList.get(getCommand("DELETE", "/shop/item/A/delete")).getClass());
         assertEquals(DeleteGoodsCommand.class,
-                container.commandList.get(getCommand("DELETE", "/shop/item/1/delete")).getClass());
+                container.commandList.get(getCommand("DELETE", "/shop/item/delete/1")).getClass());
         assertNotEquals(DeleteGoodsCommand.class,
                 container.commandList.get(getCommand("PUT", "/shop/item/1/delete")).getClass());
 

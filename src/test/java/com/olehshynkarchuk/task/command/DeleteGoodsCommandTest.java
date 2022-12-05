@@ -9,6 +9,9 @@ import org.junit.jupiter.api.Test;
 import java.util.Map;
 
 import static com.olehshynkarchuk.task.command.CommandContainer.Command.getCommand;
+import static com.olehshynkarchuk.task.constant.Constants.HttpMessageResponse.CONFLICT_MESSAGE;
+import static com.olehshynkarchuk.task.constant.Constants.HttpStatusCodeResponse.CONFLICT_CODE;
+import static com.olehshynkarchuk.task.constant.Constants.HttpStatusCodeResponse.OK_CODE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
@@ -27,26 +30,28 @@ class DeleteGoodsCommandTest {
     @Test
     void testDelete() throws JsonProcessingException {
 
-        assertEquals(Map.of(200, jsonMapper.writeValueAsString(goodsRepository.getItem(1))), container.commandList.get(getCommand("DELETE", "/shop/item/1/delete"))
-                .execute("/shop/item/1/delete", ""));
-        assertNotEquals(Map.of(200, jsonMapper.writeValueAsString(goodsRepository.getItem(1))), container.commandList.get(getCommand("DELETE", "/shop/item/1/delete"))
-                .execute("/shop/item/1/delete", ""));
-        assertEquals(jsonMapper.writeValueAsString(Map.of(409, "Error:Goods with this ID doesn't exist in the Repository"))
-                , container.commandList.get(getCommand("DELETE", "/shop/item/1/delete"))
+        assertEquals(Map.of(OK_CODE, jsonMapper.writeValueAsString(goodsRepository.getItem(1))),
+                container.commandList.get(getCommand("DELETE", "/shop/item/delete/1"))
+                        .execute("/shop/item/delete/1", ""));
+        assertNotEquals(Map.of(OK_CODE, jsonMapper.writeValueAsString(goodsRepository.getItem(1))),
+                container.commandList.get(getCommand("DELETE", "/shop/item/delete/1"))
+                        .execute("/shop/item/delete/1", ""));
+        assertEquals(jsonMapper.writeValueAsString(Map.of(CONFLICT_CODE, CONFLICT_MESSAGE)),
+                container.commandList.get(getCommand("DELETE", "/shop/item/delete/1"))
                         .execute("/shop/item/1/delete", "").entrySet().iterator().next().getValue());
     }
 
     @Test
     void testDeleteNegativeID() throws JsonProcessingException {
-        assertEquals(jsonMapper.writeValueAsString(Map.of(404, "Error:Not Found"))
-                , container.commandList.get(getCommand("DELETE", "/shop/item/-1/delete"))
-                        .execute("/shop/item/-1/delete", "").entrySet().iterator().next().getValue());
+        assertEquals(jsonMapper.writeValueAsString(Map.of(CONFLICT_CODE, CONFLICT_MESSAGE))
+                , container.commandList.get(getCommand("DELETE", "/shop/item/delete/-11"))
+                        .execute("/shop/item/delete/-11", "").entrySet().iterator().next().getValue());
     }
 
     @Test
     void testDeletePositiveIDButNExist() throws JsonProcessingException {
-        assertEquals(jsonMapper.writeValueAsString(Map.of(409, "Error:Goods with this ID doesn't exist in the Repository"))
-                , container.commandList.get(getCommand("DELETE", "/shop/item/123/delete"))
-                        .execute("/shop/item/123/delete", "").entrySet().iterator().next().getValue());
+        assertEquals(jsonMapper.writeValueAsString(Map.of(CONFLICT_CODE, CONFLICT_MESSAGE))
+                , container.commandList.get(getCommand("DELETE", "/shop/item/delete/123"))
+                        .execute("/shop/item/delete/123", "").entrySet().iterator().next().getValue());
     }
 }
