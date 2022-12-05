@@ -9,9 +9,9 @@ import org.junit.jupiter.api.Test;
 import java.util.Map;
 
 import static com.olehshynkarchuk.task.command.CommandContainer.Command.getCommand;
+import static com.olehshynkarchuk.task.constant.Constants.HttpMessageResponse.BAD_REQUEST_MESSAGE;
 import static com.olehshynkarchuk.task.constant.Constants.HttpMessageResponse.CONFLICT_MESSAGE;
-import static com.olehshynkarchuk.task.constant.Constants.HttpStatusCodeResponse.CONFLICT_CODE;
-import static com.olehshynkarchuk.task.constant.Constants.HttpStatusCodeResponse.OK_CODE;
+import static com.olehshynkarchuk.task.constant.Constants.HttpStatusCodeResponse.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
@@ -42,14 +42,21 @@ class DeleteGoodsCommandTest {
     }
 
     @Test
-    void testDeleteNegativeID() throws JsonProcessingException {
-        assertEquals(jsonMapper.writeValueAsString(Map.of(CONFLICT_CODE, CONFLICT_MESSAGE))
+    void shouldReturnBadRequestWhenDeleteNegativeID() throws JsonProcessingException {
+        assertEquals(jsonMapper.writeValueAsString(Map.of(BAD_REQUEST_CODE, BAD_REQUEST_MESSAGE))
                 , container.commandList.get(getCommand("DELETE", "/shop/item/delete/-11"))
                         .execute("/shop/item/delete/-11", "").entrySet().iterator().next().getValue());
     }
 
     @Test
-    void testDeletePositiveIDButNExist() throws JsonProcessingException {
+    void shouldReturnBadRequestWhenDeleteNonNumberID() throws JsonProcessingException {
+        assertEquals(jsonMapper.writeValueAsString(Map.of(BAD_REQUEST_CODE, BAD_REQUEST_MESSAGE))
+                , container.commandList.get(getCommand("DELETE", "/shop/item/delete/-11"))
+                        .execute("/shop/item/delete/-11", "").entrySet().iterator().next().getValue());
+    }
+
+    @Test
+    void shouldReturnConfictWhenDeletePositiveIDButNExist() throws JsonProcessingException {
         assertEquals(jsonMapper.writeValueAsString(Map.of(CONFLICT_CODE, CONFLICT_MESSAGE))
                 , container.commandList.get(getCommand("DELETE", "/shop/item/delete/123"))
                         .execute("/shop/item/delete/123", "").entrySet().iterator().next().getValue());

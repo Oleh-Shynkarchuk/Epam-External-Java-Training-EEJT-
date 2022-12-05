@@ -17,20 +17,23 @@ public record ReplaceGoodsCommand(GoodsRepository goodsRepository,
     public Map<Integer, String> execute(String requestHead, String requestBody) throws JsonProcessingException {
 
         Goods newGoods = jsonMapper.readValue(requestBody, Goods.class);
-
-        if (isaAllGoodsFieldsInit(newGoods)) {
-            int goodsID = Integer.parseInt(String.join("", requestHead.split("[^\\d-]")));
-            if (newGoods.price() < 0) {
+        String checkNegativeID = String.join("", requestHead.split("[^\\d-]"));
+        if (checkNegativeID.matches("\\d+")) {
+            if (isaAllGoodsFieldsInit(newGoods)) {
+                int goodsID = Integer.parseInt(checkNegativeID);
+                if (newGoods.price() < 0) {
+                    return Map.of(UNPROCESSABLE_ENTITY_CODE, jsonMapper.writeValueAsString
+                            (Map.of(UNPROCESSABLE_ENTITY_CODE, UNPROCESSABLE_ENTITY_MESSAGE)));
+                }
+                Goods goodsOnReturn = goodsRepository.replaceGoodsByID(goodsID, newGoods);
+                return goodsOnReturn == null ? Map.of(CONFLICT_CODE, jsonMapper.writeValueAsString(Map.of(CONFLICT_CODE, CONFLICT_MESSAGE)))
+                        : Map.of(OK_CODE, jsonMapper.writeValueAsString(goodsOnReturn));
+            } else {
                 return Map.of(UNPROCESSABLE_ENTITY_CODE, jsonMapper.writeValueAsString
                         (Map.of(UNPROCESSABLE_ENTITY_CODE, UNPROCESSABLE_ENTITY_MESSAGE)));
             }
-            Goods goodsOnReturn = goodsRepository.replaceGoodsByID(goodsID, newGoods);
-            return goodsOnReturn == null ? Map.of(CONFLICT_CODE, jsonMapper.writeValueAsString(Map.of(CONFLICT_CODE, CONFLICT_MESSAGE)))
-                    : Map.of(OK_CODE, jsonMapper.writeValueAsString(goodsOnReturn));
-        } else {
-            return Map.of(BAD_REQUEST_CODE, jsonMapper.writeValueAsString
-                    (Map.of(BAD_REQUEST_CODE, BAD_REQUEST_MESSAGE)));
-        }
+        } else return Map.of(BAD_REQUEST_CODE, jsonMapper.writeValueAsString
+                (Map.of(BAD_REQUEST_CODE, BAD_REQUEST_MESSAGE)));
     }
 
     private boolean isaAllGoodsFieldsInit(Goods goods) {

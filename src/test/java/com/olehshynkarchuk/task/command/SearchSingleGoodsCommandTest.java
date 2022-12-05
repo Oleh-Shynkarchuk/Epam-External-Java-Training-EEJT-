@@ -12,9 +12,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Map;
 
+import static com.olehshynkarchuk.task.constant.Constants.HttpMessageResponse.BAD_REQUEST_MESSAGE;
 import static com.olehshynkarchuk.task.constant.Constants.HttpMessageResponse.CONFLICT_MESSAGE;
-import static com.olehshynkarchuk.task.constant.Constants.HttpStatusCodeResponse.CONFLICT_CODE;
-import static com.olehshynkarchuk.task.constant.Constants.HttpStatusCodeResponse.OK_CODE;
+import static com.olehshynkarchuk.task.constant.Constants.HttpStatusCodeResponse.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
 
@@ -29,9 +29,9 @@ class SearchSingleGoodsCommandTest {
     private SearchSingleGoodsCommand searchSingleGoodsCommand;
 
     @Test
-    void shouldReturnGoodsWithThisIDDoesNotExist() throws JsonProcessingException {
+    void shouldReturnGoodsWhenDoesNotExist() throws JsonProcessingException {
         //given
-        String requestHead = "/shop/item/2/new";
+        String requestHead = "/shop/item/new/2";
         int ID = 2;
         Map<Integer, String> expected = Map.of(CONFLICT_CODE,
                 "{" + CONFLICT_CODE + ":\"" + CONFLICT_MESSAGE + "\"}");
@@ -47,9 +47,40 @@ class SearchSingleGoodsCommandTest {
     }
 
     @Test
-    void shouldReturnGoodsWithThisID() throws JsonProcessingException {
+    void shouldReturnBadRequestWhenNegativeID() throws JsonProcessingException {
         //given
-        String requestHead = "/shop/item/2/new";
+        String requestHead = "/shop/item/new/-2";
+        Map<Integer, String> expected = Map.of(BAD_REQUEST_CODE,
+                "{" + BAD_REQUEST_CODE + ":\"" + BAD_REQUEST_MESSAGE + "\"}");
+
+        //when
+        when(jsonMapper.writeValueAsString(Map.of(BAD_REQUEST_CODE,
+                BAD_REQUEST_MESSAGE))).thenReturn("{" + BAD_REQUEST_CODE + ":\"" + BAD_REQUEST_MESSAGE + "\"}");
+
+        //then
+        assertEquals(expected, searchSingleGoodsCommand.execute(requestHead, ""));
+    }
+
+    @Test
+    void shouldReturnBadRequestWhenNonNumericID() throws JsonProcessingException {
+        //given
+        String requestHead = "/shop/item/new/a";
+        Map<Integer, String> expected = Map.of(BAD_REQUEST_CODE,
+                "{" + BAD_REQUEST_CODE + ":\"" + BAD_REQUEST_MESSAGE + "\"}");
+
+        //when
+
+        when(jsonMapper.writeValueAsString(Map.of(BAD_REQUEST_CODE,
+                BAD_REQUEST_MESSAGE))).thenReturn("{" + BAD_REQUEST_CODE + ":\"" + BAD_REQUEST_MESSAGE + "\"}");
+
+        //then
+        assertEquals(expected, searchSingleGoodsCommand.execute(requestHead, ""));
+    }
+
+    @Test
+    void shouldReturnGoodsWhenExist() throws JsonProcessingException {
+        //given
+        String requestHead = "/shop/item/new/2";
         int ID = 2;
         Map<Integer, String> expected = Map.of(OK_CODE,
                 "{\"name\":\"nameStub\",\"price\":254.31}}");

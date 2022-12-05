@@ -4,7 +4,9 @@ import com.olehshynkarchuk.task.command.CommandContainer;
 import com.olehshynkarchuk.task.io.ConsoleIO;
 import com.olehshynkarchuk.task.io.SocketIO;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 
@@ -14,7 +16,6 @@ public class HttpRequestHandler extends Thread {
     private ServerSocket serverSocket;
 
     public HttpRequestHandler(ServerSocket serverSocket, Socket socket, CommandContainer factory) {
-        System.out.println("new Handler");
         this.commandFactory = factory;
         socketIO = new SocketIO(socket);
         this.serverSocket = serverSocket;
@@ -22,8 +23,9 @@ public class HttpRequestHandler extends Thread {
 
     public void run() {
         try {
-            socketIO.initIO();
-            String requestStartLine = socketIO.lines().filter(lines -> lines.contains("HTTP/")).findFirst().orElse(null);
+            BufferedReader reader = socketIO.createSocketReader();
+            PrintWriter writer = socketIO.createSocketWriter();
+            String requestStartLine = socketIO.lines(reader).filter(lines -> lines.contains("HTTP/")).findFirst().orElse(null);
             if (requestStartLine != null) {
                 ConsoleIO.println("HTTP START");
                 String[] splitRequest = requestStartLine.split(" ");
@@ -31,10 +33,10 @@ public class HttpRequestHandler extends Thread {
                 String requestHead = splitRequest[1].trim();
                 String httpVersion = splitRequest[2].trim();
                 String requestBodyData = "";
-                requestBodyData = getRequestBodyDataIfNeed(httpMethod, requestBodyData);
+                requestBodyData = getRequestBodyDataIfNeed(reader, httpMethod, requestBodyData);
                 ConsoleIO.println("HTTP HEADER REQUEST: " + requestStartLine);
                 ConsoleIO.println("HTTP BODY REQUEST: " + requestBodyData);
-                socketIO.sendHttpResponds(httpVersion, commandFactory.commandList.get(CommandContainer.Command.getCommand(httpMethod, requestHead))
+                socketIO.sendHttpResponds(writer, httpVersion, commandFactory.commandList.get(CommandContainer.Command.getCommand(httpMethod, requestHead))
                         .execute(requestHead, requestBodyData));
                 ConsoleIO.println("HTTP END");
             }
@@ -45,14 +47,14 @@ public class HttpRequestHandler extends Thread {
         }
     }
 
-    private String getRequestBodyDataIfNeed(String httpMethod, String requestBodyData) {
+    private String getRequestBodyDataIfNeed(BufferedReader reader, String httpMethod, String requestBodyData) {
         if (httpMethod.equals("POST") || httpMethod.equals("PUT")) {
-            String contentLengthLine = socketIO.lines().filter(lines -> lines.contains("Content-Length:")).findFirst().orElse(null);
+            String contentLengthLine = socketIO.lines(reader).filter(lines -> lines.contains("Content-Length:")).findFirst().orElse(null);
             int contentLength = Integer.parseInt(contentLengthLine != null ? contentLengthLine.substring(contentLengthLine.indexOf("Content-Length:") + 16) : "0");
             if (contentLength > 0) {
-                socketIO.readLine();
+                socketIO.readLine(reader);
                 char[] bodyCharArray = new char[contentLength];
-                if (socketIO.read(bodyCharArray, 0, contentLength) == contentLength) {
+                if (socketIO.read(reader, bodyCharArray, 0, contentLength) == contentLength) {
                     requestBodyData = new String(bodyCharArray);
                 }
             }

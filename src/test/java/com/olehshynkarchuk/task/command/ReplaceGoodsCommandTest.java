@@ -27,30 +27,46 @@ class ReplaceGoodsCommandTest {
     private ReplaceGoodsCommand replaceGoodsCommand;
 
     @Test
-    void shouldReturnBadRequestIfGoodsWhichAddingToRepoWhenAtLeastOneGoodsFieldAreMissing() throws JsonProcessingException {
+    void shouldUnprocessableIfGoodsWhichAddingToRepoWhenAtLeastOneGoodsFieldAreMissing() throws JsonProcessingException {
         //given
-        String requestHead = "/shop/item/2/put";
+        String requestHead = "/shop/item/put/2";
         String firstRequestBody = "{\"price\":254.31}";
         String secondRequestBody = "{\"name\":\"\",\"price\":254.31}";
-        Map<Integer, String> expected = Map.of(BAD_REQUEST_CODE,
-                "{" + BAD_REQUEST_CODE + ":\"" + BAD_REQUEST_MESSAGE + "\"}");
+        Map<Integer, String> expected = Map.of(UNPROCESSABLE_ENTITY_CODE,
+                "{" + UNPROCESSABLE_ENTITY_CODE + ":\"" + UNPROCESSABLE_ENTITY_MESSAGE + "\"}");
         //when
         when(jsonMapper.readValue(firstRequestBody, Goods.class))
                 .thenReturn(new Goods(null, 254.31));
         when(jsonMapper.readValue(secondRequestBody, Goods.class))
                 .thenReturn(new Goods("", 254.31));
-        when(jsonMapper.writeValueAsString(Map.of(400,
-                BAD_REQUEST_MESSAGE)))
-                .thenReturn("{" + BAD_REQUEST_CODE + ":\"" + BAD_REQUEST_MESSAGE + "\"}");
+        when(jsonMapper.writeValueAsString(Map.of(UNPROCESSABLE_ENTITY_CODE,
+                UNPROCESSABLE_ENTITY_MESSAGE)))
+                .thenReturn("{" + UNPROCESSABLE_ENTITY_CODE + ":\"" + UNPROCESSABLE_ENTITY_MESSAGE + "\"}");
         //then
         assertEquals(expected, replaceGoodsCommand.execute(requestHead, firstRequestBody));
         assertEquals(expected, replaceGoodsCommand.execute(requestHead, secondRequestBody));
     }
 
     @Test
+    void shouldReturnBadRequestWhenNonNumericID() throws JsonProcessingException {
+        //given
+        String requestHead = "/shop/item/put/a";
+        Map<Integer, String> expected = Map.of(BAD_REQUEST_CODE,
+                "{" + BAD_REQUEST_CODE + ":\"" + BAD_REQUEST_MESSAGE + "\"}");
+
+        //when
+
+        when(jsonMapper.writeValueAsString(Map.of(BAD_REQUEST_CODE,
+                BAD_REQUEST_MESSAGE))).thenReturn("{" + BAD_REQUEST_CODE + ":\"" + BAD_REQUEST_MESSAGE + "\"}");
+
+        //then
+        assertEquals(expected, replaceGoodsCommand.execute(requestHead, ""));
+    }
+
+    @Test
     void shouldReturnUnprocessableEntityIfGoodsWhichAddingToRepoHaveNegativePrice() throws JsonProcessingException {
         //given
-        String requestHead = "/shop/item/2/put";
+        String requestHead = "/shop/item/put/2";
         String requestBody = "{\"name\":\"nameStub\",\"price\":-100.34}";
         Map<Integer, String> expected = Map.of(UNPROCESSABLE_ENTITY_CODE,
                 "{" + UNPROCESSABLE_ENTITY_CODE + ":\"" + UNPROCESSABLE_ENTITY_MESSAGE + "\"}");
@@ -68,7 +84,7 @@ class ReplaceGoodsCommandTest {
     @Test
     void shouldReturnGoodsWithThatIDDoesNotExistForReplacing() throws JsonProcessingException {
         //given
-        String requestHead = "/shop/item/2/put";
+        String requestHead = "/shop/item/put/2";
         int ID = 2;
         String firstRequestBody = "{\"name\":\"nameStub\",\"price\":254.31}";
         Goods goods = new Goods("nameStub", 254.31);
@@ -89,7 +105,7 @@ class ReplaceGoodsCommandTest {
     @Test
     void shouldReturnAddedGoods() throws JsonProcessingException {
         //given
-        String requestHead = "/shop/item/2/put";
+        String requestHead = "/shop/item/put/2";
         int ID = 2;
         String firstRequestBody = "{\"name\":\"nameStub\",\"price\":254.31}";
         Goods goods = new Goods("nameStub", 254.31);

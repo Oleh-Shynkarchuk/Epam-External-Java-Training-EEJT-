@@ -16,6 +16,7 @@ public class Constants {
         public static final String BAD_REQUEST_MESSAGE = "Bad Request";
         public static final String NF_MESSAGE = "Not Found";
         public static final String CONFLICT_MESSAGE = "Conflict : Goods with this ID doesn't exist in the Repository";
-        public static final String UNPROCESSABLE_ENTITY_MESSAGE = "Unprocessable Entity : Price of Goods cannot be negative or zero";
+        public static final String UNPROCESSABLE_ENTITY_MESSAGE = "Unprocessable Entity : Check entered data maybe u" +
+                " wrote bad thing(negative or zero price, empty fields, etc)";
     }
 }

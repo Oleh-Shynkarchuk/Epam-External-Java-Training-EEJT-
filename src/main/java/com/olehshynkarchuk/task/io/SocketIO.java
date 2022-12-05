@@ -20,17 +20,28 @@ public class SocketIO implements AutoCloseable {
         this.socket = socket;
     }
 
-    public void initIO() {
+    public BufferedReader createSocketReader() {
         try {
-            input = new BufferedReader(new InputStreamReader(socket.getInputStream(), StandardCharsets.UTF_8));
-            output = new PrintWriter(socket.getOutputStream(), true);
+            input = new BufferedReader(new InputStreamReader(
+                    socket.getInputStream(), StandardCharsets.UTF_8));
+            return input;
         } catch (IOException e) {
             ConsoleIO.printErr(e.getMessage());
             throw new RuntimeException(e);
         }
     }
 
-    public String readLine() {
+    public PrintWriter createSocketWriter() {
+        try {
+            output = new PrintWriter(socket.getOutputStream(), true, StandardCharsets.UTF_8);
+            return output;
+        } catch (IOException e) {
+            ConsoleIO.printErr(e.getMessage());
+            throw new RuntimeException(e);
+        }
+    }
+
+    public String readLine(BufferedReader input) {
         try {
             return input.readLine();
         } catch (IOException e) {
@@ -39,7 +50,7 @@ public class SocketIO implements AutoCloseable {
         }
     }
 
-    public void sendTcpResponds(Map<Integer, String> message) {
+    public void sendTcpResponds(PrintWriter output, Map<Integer, String> message) {
         output.println(PREFIX + message.entrySet().iterator().next().getValue() + POSTFIX);
     }
 
@@ -56,11 +67,11 @@ public class SocketIO implements AutoCloseable {
         }
     }
 
-    public Stream<String> lines() {
+    public Stream<String> lines(BufferedReader input) {
         return input.lines();
     }
 
-    public int read(char[] bodyCharArray, int i, int contentLength) {
+    public int read(BufferedReader input, char[] bodyCharArray, int i, int contentLength) {
         try {
             return input.read(bodyCharArray, i, contentLength);
         } catch (IOException e) {
@@ -69,7 +80,7 @@ public class SocketIO implements AutoCloseable {
         }
     }
 
-    public void sendHttpResponds(String httpVersion, Map<Integer, String> commandResult) {
+    public void sendHttpResponds(PrintWriter output, String httpVersion, Map<Integer, String> commandResult) {
         output.println(httpVersion + " " + commandResult.entrySet().iterator().next().getKey());
         output.println("Content-Type: application/json; charset=utf-8");
         output.println("");
