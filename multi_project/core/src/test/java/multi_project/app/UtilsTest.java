@@ -11,6 +11,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class UtilsTest {
     @Test
     void shouldReturnTrueWhenPositiveNumber() {
+        assertTrue(Utils.isAllPositiveNumbers("31", "43", "1", "0"));
         assertTrue(Utils.isAllPositiveNumbers("12", "13", "99", "21234"));
         assertTrue(Utils.isAllPositiveNumbers("1", "2", "3", "4"));
     }
