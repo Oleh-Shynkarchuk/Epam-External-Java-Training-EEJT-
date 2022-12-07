@@ -3,3 +3,8 @@
 
 # Ignore Gradle build output directory
 build
+# Project exclude paths
+*.iml
+.idea
+out
+/target/
