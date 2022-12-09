@@ -9,4 +9,4 @@
  */
 
 rootProject.name = 'multi_project'
-include('core', 'api')
+include('api', 'core')

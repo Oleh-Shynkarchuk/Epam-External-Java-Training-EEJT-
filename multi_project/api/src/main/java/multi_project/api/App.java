@@ -4,7 +4,7 @@
 package multi_project.api;
 
 
-import multi_project.app.Utils;
+import multi_project.core.Utils;
 
 public class App {
     public static void main(String[] args) {
