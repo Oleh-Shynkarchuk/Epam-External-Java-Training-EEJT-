@@ -5,14 +5,10 @@ package multi_project.core;
 
 import utils.StringUtils;
 
+import java.util.Arrays;
+
 public class Utils {
     public static boolean isAllPositiveNumbers(String... str) {
-        boolean isPositive = true;
-        for (String s : str) {
-            if (!StringUtils.isPositiveNumber(s)) {
-                isPositive = false;
-            }
-        }
-        return isPositive;
+        return Arrays.stream(str).allMatch(StringUtils::isPositiveNumber);
     }
 }

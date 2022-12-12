@@ -5,9 +5,8 @@
  */
 
 plugins {
-    id 'multi_project.java-library-conventions'
+    id 'java'
 }
-
 
 dependencies {
     implementation project(':core')

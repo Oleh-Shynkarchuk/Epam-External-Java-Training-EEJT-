@@ -5,14 +5,9 @@
  */
 
 plugins {
-    id 'multi_project.java-application-conventions'
+    id 'java'
 }
 
 dependencies {
     implementation files('customlib/utils-1.3.5.jar')
-}
-
-application {
-    // Define the main class for the application.
-    mainClass = 'multi_project.api.App'
 }
