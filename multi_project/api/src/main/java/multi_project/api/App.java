@@ -3,7 +3,6 @@
  */
 package multi_project.api;
 
-
 import multi_project.core.Utils;
 
 public class App {
