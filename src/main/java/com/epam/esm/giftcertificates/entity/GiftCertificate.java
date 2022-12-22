@@ -7,21 +7,26 @@ import java.util.List;
 import java.util.Objects;
 
 import com.epam.esm.tags.entity.Tag;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class GiftCertificate {
     private Long id;
     private String name;
     private String description;
     private BigDecimal price;
-    private Duration duration;
-    private LocalDateTime create_date;
-    private LocalDateTime last_update_date;
+
+    private String duration;
+
+    private String create_date;
+
+    private String last_update_date;
     private List<Tag> tagsList;
 
     public GiftCertificate() {
     }
 
-    public GiftCertificate(Long id, String name, String description, BigDecimal price, Duration duration, LocalDateTime create_date, LocalDateTime last_update_date) {
+    public GiftCertificate(Long id, String name, String description, BigDecimal price, String duration, String create_date, String last_update_date,List<Tag> tagsList) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -29,16 +34,17 @@ public class GiftCertificate {
         this.duration = duration;
         this.create_date = create_date;
         this.last_update_date = last_update_date;
+        this.tagsList=tagsList;
     }
 
     public GiftCertificate(Long id, String name, String description, BigDecimal price,
-                          // Duration duration,
+                           String duration,
                            List<Tag> tagsList) {
         this.id = id;
         this.name = name;
         this.description = description;
         this.price = price;
-       // this.duration = duration;
+        this.duration = duration;
         this.tagsList = tagsList;
     }
 
@@ -58,15 +64,15 @@ public class GiftCertificate {
         return price;
     }
 
-    public Duration getDuration() {
+    public String getDuration() {
         return duration;
     }
 
-    public LocalDateTime getCreate_date() {
+    public String getCreate_date() {
         return create_date;
     }
 
-    public LocalDateTime getLast_update_date() {
+    public String getLast_update_date() {
         return last_update_date;
     }
 
@@ -94,15 +100,15 @@ public class GiftCertificate {
         this.price = price;
     }
 
-    public void setDuration(Duration duration) {
+    public void setDuration(String duration) {
         this.duration = duration;
     }
 
-    public void setCreate_date(LocalDateTime create_date) {
+    public void setCreate_date(String create_date) {
         this.create_date = create_date;
     }
 
-    public void setLast_update_date(LocalDateTime last_update_date) {
+    public void setLast_update_date(String last_update_date) {
         this.last_update_date = last_update_date;
     }
 

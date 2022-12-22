@@ -55,6 +55,7 @@ public class SpringMVCConfig implements WebMvcConfigurer {
         dataSource.setDriverClassName(Objects.requireNonNull(environment.getProperty("driver")));
         return dataSource;
     }
+
     @Bean
     public JdbcTemplate jdbcTemplate() {
         return new JdbcTemplate(mysqlDataSource());

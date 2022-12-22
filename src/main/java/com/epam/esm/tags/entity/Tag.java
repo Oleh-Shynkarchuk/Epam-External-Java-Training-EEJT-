@@ -36,13 +36,12 @@ public class Tag {
         if (obj == this) return true;
         if (obj == null || obj.getClass() != this.getClass()) return false;
         var that = (Tag) obj;
-        return Objects.equals(this.id, that.id) &&
-                Objects.equals(this.name, that.name);
+        return Objects.equals(this.name, that.name);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name);
+        return Objects.hash(name);
     }
 
     @Override

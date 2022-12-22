@@ -24,11 +24,12 @@ public class GiftCertificateServiceImpl implements GiftCertificatesService {
     }
 
     @Override
-    public boolean create(GiftCertificate createGiftCertificate) {
+    public Optional<GiftCertificate> create(GiftCertificate createGiftCertificate) {
         List<GiftCertificate> allGiftCertificates = giftCertificateRepository.getAllGiftCertificates();
         if (allGiftCertificates.stream().anyMatch(giftCertificate -> giftCertificate.getName().equals(createGiftCertificate.getName()))) {
-            return giftCertificateRepository.createNewGiftCertificate(createGiftCertificate);
-        }else return false;
+        return Optional.empty();
+        }
+        return giftCertificateRepository.createNewGiftCertificate(createGiftCertificate);
     }
 
     @Override

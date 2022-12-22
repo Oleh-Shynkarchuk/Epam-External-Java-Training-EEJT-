@@ -10,7 +10,7 @@ public interface GiftCertificateRepository {
 
     List<GiftCertificate> getAllGiftCertificates();
 
-    boolean createNewGiftCertificate(GiftCertificate giftCertificate);
+    Optional<GiftCertificate> createNewGiftCertificate(GiftCertificate giftCertificate);
 
     boolean deleteGiftCertificateById(Long id);
 

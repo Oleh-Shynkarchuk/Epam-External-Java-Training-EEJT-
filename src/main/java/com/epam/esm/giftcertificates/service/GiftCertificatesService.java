@@ -7,7 +7,7 @@ import java.util.Optional;
 
 public interface GiftCertificatesService {
     List<GiftCertificate> read();
-    boolean create(GiftCertificate newGiftCertificate);
+    Optional<GiftCertificate> create(GiftCertificate newGiftCertificate);
     boolean delete(Long id);
     boolean update(Long id, GiftCertificate newGiftCertificate);
 

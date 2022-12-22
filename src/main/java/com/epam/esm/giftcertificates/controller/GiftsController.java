@@ -69,23 +69,21 @@ public class GiftsController {
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> createNewTag(@RequestBody GiftCertificate giftCertificate) {
         System.out.println("gft = " +giftCertificate);
-        boolean isCreated = giftCertificatesService.create(giftCertificate);
-        Optional<GiftCertificate> read = giftCertificatesService.read(giftCertificate.getName());
-        if (isCreated) {
-            if (read.isPresent()) {
+        Optional<GiftCertificate> read = giftCertificatesService.create(giftCertificate);
+         if (read.isPresent()) {
                 return new ResponseEntity<>(read.get(), HttpStatus.CREATED);
             }
-        } else {
-            if (read.isPresent()) {
-                return new ResponseEntity<>(List.of(Map.of("errorMessage", "Bad request (" + read.get() + ") already exist or something went wrong"),
-                        Map.of("errorCode", HttpStatus.BAD_REQUEST)), HttpStatus.BAD_REQUEST);
-            }
-        }
+//        }
+//          {
+//                return new ResponseEntity<>(List.of(Map.of("errorMessage", "Bad request (" + read.get() + ") already exist or something went wrong"),
+//                        Map.of("errorCode", HttpStatus.BAD_REQUEST)), HttpStatus.BAD_REQUEST);
+//            }
+//        }
         return new ResponseEntity<>(List.of(Map.of("errorMessage", "An error occurrence while creating new tag"),
                 Map.of("errorCode", HttpStatus.INTERNAL_SERVER_ERROR)), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    @PatchMapping(value = "/{id}/patch", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PatchMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> patchNewTag(@PathVariable("id") Long id, @RequestBody GiftCertificate giftCertificate) {
         Optional<GiftCertificate> read = giftCertificatesService.read(id);
         if (read.isPresent()) {
@@ -100,7 +98,7 @@ public class GiftsController {
                 Map.of("errorCode", HttpStatus.INTERNAL_SERVER_ERROR)), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    @DeleteMapping(value = "/{id}/delete")
+    @DeleteMapping(value = "/{id}")
     public ResponseEntity<?> deleteTagsById(@PathVariable("id") Long id) {
         if (id > 0L) {
             Optional<GiftCertificate> tagIsExist = giftCertificatesService.read(id);
