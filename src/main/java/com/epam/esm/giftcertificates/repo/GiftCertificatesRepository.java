@@ -5,7 +5,7 @@ import com.epam.esm.giftcertificates.entity.GiftCertificate;
 import java.util.List;
 import java.util.Optional;
 
-public interface GiftCertificateRepository {
+public interface GiftCertificatesRepository {
     Optional<GiftCertificate> getGiftCertificateById(Long id);
 
     List<GiftCertificate> getAllGiftCertificates();
@@ -14,7 +14,7 @@ public interface GiftCertificateRepository {
 
     boolean deleteGiftCertificateById(Long id);
 
-    boolean updateGiftCertificateById(Long id, GiftCertificate giftCertificate);
+    Optional<GiftCertificate> updateGiftCertificateById(Long id, GiftCertificate giftCertificate);
 
-    Optional<GiftCertificate> getGiftCertificateByTagName(String name);
+    Optional<List<GiftCertificate>> getGiftCertificateByParam(String processedParameters, List<String> paramList);
 }

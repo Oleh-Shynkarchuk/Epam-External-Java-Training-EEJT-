@@ -15,11 +15,11 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 @RestController
 @RequestMapping(value = "/gifts", produces = MediaType.APPLICATION_JSON_VALUE)
-public class GiftsController {
+public class GiftCertificatesController {
 
     private final GiftCertificatesService giftCertificatesService;
     @Autowired
-    public GiftsController(GiftCertificatesService giftCertificatesService) {
+    public GiftCertificatesController(GiftCertificatesService giftCertificatesService) {
         this.giftCertificatesService = giftCertificatesService;
     }
 
