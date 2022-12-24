@@ -1,25 +1,26 @@
 package com.epam.esm.tags.service;
 
+import com.epam.esm.integration.errorhandle.Validate;
 import com.epam.esm.tags.entity.Tag;
 import com.epam.esm.tags.repository.TagsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class TagsServiceImpl implements TagsService {
-    TagsRepository tagsRepository;
+    private final TagsRepository tagsRepository;
 
     @Autowired
-    public void setTagsRepository(TagsRepository tagsRepository) {
+    public TagsServiceImpl(TagsRepository tagsRepository) {
         this.tagsRepository = tagsRepository;
     }
 
     @Override
-    public Optional<Tag> read(Long id) {
-        return tagsRepository.getTagById(id);
+    public Tag read(Long id) {
+        Validate.positiveRequestedId(id);
+        return tagsRepository.getTagById(id).orElseThrow();
     }
 
     @Override
@@ -28,17 +29,14 @@ public class TagsServiceImpl implements TagsService {
     }
 
     @Override
-    public boolean create(Tag newTag) {
-        return tagsRepository.createNewTag(newTag);
-    }
-
-    @Override
-    public Optional<Tag> read(String name) {
-        return tagsRepository.getTagByName(name);
+    public Tag create(Tag newTag) {
+        Validate.FieldNameOfTagMustBeUnique(newTag.getName(), (tagsRepository.getAllTags()));
+        return tagsRepository.createNewTag(newTag).orElseThrow();
     }
 
     @Override
     public boolean delete(Long id) {
+        read(id);
         return tagsRepository.deleteTagById(id);
     }
 

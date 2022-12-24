@@ -3,15 +3,14 @@ package com.epam.esm.giftcertificates.service;
 import com.epam.esm.giftcertificates.entity.GiftCertificate;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface GiftCertificatesService {
     List<GiftCertificate> read();
-    Optional<GiftCertificate> create(GiftCertificate newGiftCertificate);
+    GiftCertificate create(GiftCertificate newGiftCertificate);
     boolean delete(Long id);
-    boolean update(Long id, GiftCertificate newGiftCertificate);
+    GiftCertificate update(Long id, GiftCertificate newGiftCertificate);
 
-    Optional<GiftCertificate> read(Long id);
+    GiftCertificate read(Long id);
 
-    Optional<GiftCertificate> read(String sql);
+    List<GiftCertificate> read(String tagName, String name, String description, String sortByDate, String sortByName);
 }
