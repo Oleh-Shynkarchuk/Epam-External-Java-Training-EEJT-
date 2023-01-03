@@ -12,6 +12,8 @@ import org.springframework.http.converter.xml.MarshallingHttpMessageConverter;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.oxm.xstream.XStreamMarshaller;
 import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
@@ -67,5 +69,10 @@ public class SpringMVCConfig implements WebMvcConfigurer {
     @Bean
     public TransactionTemplate transactionTemplate() {
         return new TransactionTemplate(dataSourceTransactionManager(mysqlDataSource()));
+    }
+
+    @Bean
+    public KeyHolder keyHolder() {
+        return new GeneratedKeyHolder();
     }
 }

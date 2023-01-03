@@ -51,9 +51,9 @@ public class Validate {
     }
 
     public static void FieldNameOfTagMustBeUnique(String name, List<Tag> allTags) {
-        if (name != null && allTags.stream().noneMatch(tag -> tag.getName().equals(name))) {
+        if (name != null && allTags.stream().anyMatch(tag -> tag.getName().equals(name))) {
             throw new InvalidRequest("Tag with name = " + name
-                    + " change name field before creating a new tag",HttpStatus.NOT_FOUND.value()*100+3, HttpStatus.BAD_REQUEST);
+                    + "alread change name field before creating a new tag",HttpStatus.BAD_REQUEST.value()*100+3, HttpStatus.BAD_REQUEST);
         }
     }
 }
