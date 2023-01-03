@@ -47,7 +47,7 @@ public class GiftCertificatesController {
     }
 
     @PatchMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<GiftCertificate> patchNewGiftCertificate(@PathVariable("id") Long id, @RequestBody GiftCertificate giftCertificate) {
+    public ResponseEntity<GiftCertificate> patchGiftCertificate(@PathVariable("id") Long id, @RequestBody GiftCertificate giftCertificate) {
         return new ResponseEntity<>(giftCertificatesService.updateGiftCertificate(id, giftCertificate), HttpStatus.CREATED);
     }
 
