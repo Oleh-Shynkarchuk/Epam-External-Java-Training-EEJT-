@@ -22,23 +22,23 @@ public class TagsController {
         this.tagsService = tagsService;
     }
 
-    @GetMapping()
+    @GetMapping
     public ResponseEntity<List<Tag>> getAllTags() {
-        return new ResponseEntity<>(tagsService.read(), HttpStatus.OK);
+        return new ResponseEntity<>(tagsService.readAllTags(), HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<?> getOneTag(@PathVariable("id") Long id) {
-        return new ResponseEntity<>(tagsService.read(id), HttpStatus.OK);
+        return new ResponseEntity<>(tagsService.readTag(id), HttpStatus.OK);
     }
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> createNewTag(@RequestBody Tag tag) {
-        return new ResponseEntity<>(tagsService.create(tag), HttpStatus.CREATED);
+        return new ResponseEntity<>(tagsService.createTag(tag), HttpStatus.CREATED);
     }
 
     @DeleteMapping(value = "/{id}")
     public ResponseEntity<?> deleteTagsById(@PathVariable("id") Long id) {
-        return new ResponseEntity<>(tagsService.delete(id), HttpStatus.NO_CONTENT);
+        return new ResponseEntity<>(tagsService.deleteTag(id), HttpStatus.NO_CONTENT);
     }
 }
