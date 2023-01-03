@@ -3,12 +3,13 @@ package com.epam.esm.giftcertificates.repo;
 import com.epam.esm.giftcertificates.entity.GiftCertificate;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 public interface GiftCertificatesRepository {
     Optional<GiftCertificate> getGiftCertificateById(Long id);
 
-    List<GiftCertificate> getAllGiftCertificates();
+    Optional<List<GiftCertificate>> getAllGiftCertificates();
 
     Optional<GiftCertificate> createNewGiftCertificate(GiftCertificate giftCertificate);
 
@@ -16,5 +17,5 @@ public interface GiftCertificatesRepository {
 
     Optional<GiftCertificate> updateGiftCertificateById(Long id, GiftCertificate giftCertificate);
 
-    Optional<List<GiftCertificate>> getGiftCertificateByParam(String processedParameters, List<String> paramList);
+    Optional<List<GiftCertificate>> getGiftCertificateByParam(String statementQuery,List<String>paramList);
 }

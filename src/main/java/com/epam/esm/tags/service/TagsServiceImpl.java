@@ -18,27 +18,25 @@ public class TagsServiceImpl implements TagsService {
     }
 
     @Override
-    public Tag read(Long id) {
+    public Tag readTag(Long id) {
         Validate.positiveRequestedId(id);
         return tagsRepository.getTagById(id).orElseThrow();
     }
 
     @Override
-    public List<Tag> read() {
+    public List<Tag> readAllTags() {
         return tagsRepository.getAllTags();
     }
 
     @Override
-    public Tag create(Tag newTag) {
+    public Tag createTag(Tag newTag) {
         Validate.FieldNameOfTagMustBeUnique(newTag.getName(), (tagsRepository.getAllTags()));
         return tagsRepository.createNewTag(newTag).orElseThrow();
     }
 
     @Override
-    public boolean delete(Long id) {
-        read(id);
+    public boolean deleteTag(Long id) {
+        readTag(id);
         return tagsRepository.deleteTagById(id);
     }
-
-
 }

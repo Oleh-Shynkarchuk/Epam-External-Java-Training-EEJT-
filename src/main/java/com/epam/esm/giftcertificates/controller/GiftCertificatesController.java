@@ -13,48 +13,47 @@ import org.springframework.web.bind.annotation.*;
 
 
 import java.util.List;
+import java.util.Map;
+
 @RestController
 @RequestMapping(value = "/gifts", produces = MediaType.APPLICATION_JSON_VALUE)
 public class GiftCertificatesController {
 
     private final GiftCertificatesService giftCertificatesService;
+
     @Autowired
     public GiftCertificatesController(GiftCertificatesService giftCertificatesService) {
         this.giftCertificatesService = giftCertificatesService;
     }
 
-    @GetMapping()
-    public ResponseEntity<List<GiftCertificate>> getAllTags() {
-        return new ResponseEntity<>(giftCertificatesService.read(), HttpStatus.OK);
+    @GetMapping
+    public ResponseEntity<List<GiftCertificate>> getAllGiftCertificates() {
+        return new ResponseEntity<>(giftCertificatesService.readAllGiftCertificates(), HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<GiftCertificate> getOneGiftCertificate(@PathVariable("id") Long id) {
-        return new ResponseEntity<>(giftCertificatesService.read(id), HttpStatus.OK);
+    public ResponseEntity<GiftCertificate> getGiftCertificateById(@PathVariable("id") Long id) {
+        return new ResponseEntity<>(giftCertificatesService.readGiftCertificate(id), HttpStatus.OK);
     }
 
-    @GetMapping(value = "/")
-    public ResponseEntity<List<GiftCertificate>> getOneGiftCertificate(
-            @RequestParam(required = false) String tagName,
-            @RequestParam(required = false) String name,
-            @RequestParam(required = false) String description,
-            @RequestParam(required = false) String sortByDate,
-            @RequestParam(required = false) String sortByName) {
-        return new ResponseEntity<>(giftCertificatesService.read(tagName,name,description,sortByDate,sortByName), HttpStatus.OK);
+    @GetMapping(value = "/search")
+    public ResponseEntity<List<GiftCertificate>> searchGiftCertificates(@RequestParam Map<String,String> stringMap) {
+        return new ResponseEntity<>(giftCertificatesService.readGiftCertificate(stringMap), HttpStatus.OK);
     }
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<GiftCertificate> createNewTag(@RequestBody GiftCertificate giftCertificate) {
-        return new ResponseEntity<>(giftCertificatesService.create(giftCertificate), HttpStatus.CREATED);
+    public ResponseEntity<GiftCertificate> createNewGiftCertificate(@RequestBody GiftCertificate giftCertificate) {
+        return new ResponseEntity<>(giftCertificatesService.createGiftCertificate(giftCertificate), HttpStatus.CREATED);
     }
 
     @PatchMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<GiftCertificate> patchNewTag(@PathVariable("id") Long id, @RequestBody GiftCertificate giftCertificate) {
-        return new ResponseEntity<>(giftCertificatesService.update(id, giftCertificate), HttpStatus.CREATED);
+    public ResponseEntity<GiftCertificate> patchNewGiftCertificate(@PathVariable("id") Long id, @RequestBody GiftCertificate giftCertificate) {
+        return new ResponseEntity<>(giftCertificatesService.updateGiftCertificate(id, giftCertificate), HttpStatus.CREATED);
     }
 
     @DeleteMapping(value = "/{id}")
-    public ResponseEntity<?> deleteTagsById(@PathVariable("id") Long id) {
-        return new ResponseEntity<>(giftCertificatesService.delete(id), HttpStatus.NO_CONTENT);
+    public ResponseEntity<?> deleteGiftCertificateById(@PathVariable("id") Long id) {
+        giftCertificatesService.deleteGiftCertificate(id);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }
