@@ -1,6 +1,8 @@
 package com.epam.esm.giftcertificates.filter;
 
 
+import com.epam.esm.integration.sqlrepo.SQLQuery;
+
 import java.util.List;
 
 public class DateSortSearchChainFilter extends SearchChainFilter {
@@ -13,7 +15,7 @@ public class DateSortSearchChainFilter extends SearchChainFilter {
     }
 
     String buildQuery(boolean isFirst) {
-        return "ORDER BY create_date "+sortDate + (nextChain != null ? nextChain.buildQuery(false) : "");
+        return SQLQuery.BuildQuery.ORDER_BY_CREATE_DATE + sortDate + (nextChain != null ? nextChain.buildQuery(false) : "");
     }
 
     @Override

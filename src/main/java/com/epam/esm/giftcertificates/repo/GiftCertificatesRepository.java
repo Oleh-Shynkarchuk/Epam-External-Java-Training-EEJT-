@@ -18,4 +18,6 @@ public interface GiftCertificatesRepository {
     Optional<GiftCertificate> updateGiftCertificateById(Long id, GiftCertificate giftCertificate);
 
     Optional<List<GiftCertificate>> getGiftCertificateByParam(String statementQuery,List<String>paramList);
+
+    boolean isGiftCertificateByNameExist(String name);
 }

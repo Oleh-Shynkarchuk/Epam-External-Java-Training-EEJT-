@@ -1,10 +1,11 @@
 package com.epam.esm.integration.sqlrepo;
 
 import com.epam.esm.giftcertificates.entity.GiftCertificate;
-import com.epam.esm.giftcertificates.filter.Chain;
 import com.epam.esm.giftcertificates.repo.GiftCertificatesRepository;
+import com.epam.esm.integration.errorhandle.UpdateTransactionException;
 import com.epam.esm.tags.entity.Tag;
 import com.epam.esm.tags.repository.TagsRepository;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.KeyHolder;
@@ -68,7 +69,7 @@ public class MySQLRepository implements TagsRepository, GiftCertificatesReposito
 
     @Override
     public Optional<GiftCertificate> getGiftCertificateById(Long id) {
-        return jdbcTemplate.query(SQLQuery.SELECT_FROM_GIFT_CERTIFICATE_WITH_TAGS_BY_GIFT_ID, rs -> {
+        return jdbcTemplate.query(SQLQuery.SELECT_FROM_CERTIFICATES_WITH_TAGS_BY_ID, rs -> {
             GiftCertificate giftCertificate = null;
             while (rs.next()) {
                 if (giftCertificate == null) {
@@ -90,7 +91,7 @@ public class MySQLRepository implements TagsRepository, GiftCertificatesReposito
 
     @Override
     public Optional<List<GiftCertificate>> getAllGiftCertificates() {
-        String SELECT_FROM_GiftCertificates = SQLQuery.SELECT_FROM_GIFT_CERTIFICATE;
+        String SELECT_FROM_GiftCertificates = SQLQuery.SELECT_FROM_CERTIFICATES;
         return Optional.of(jdbcTemplate.query(SELECT_FROM_GiftCertificates, (ResultSet resultset, int i) ->
                 new GiftCertificate(resultset.getLong("id"),
                         resultset.getString("name"),
@@ -108,19 +109,19 @@ public class MySQLRepository implements TagsRepository, GiftCertificatesReposito
             try {
                 createCertificateInTransaction(giftCertificate, keyHolder);
                 long giftCertificate_id = (Objects.requireNonNull(keyHolder.getKey())).longValue();
-
-                return addEachNewTagToDbAndCreateRelationships(giftCertificate_id, giftCertificate, keyHolder);
+                addEachNewTagToDbAndCreateRelationships(giftCertificate_id, giftCertificate, keyHolder);
+                return getGiftCertificateById(giftCertificate_id);
             } catch (Exception e) {
                 status.setRollbackOnly();
+                throw new UpdateTransactionException("Exception during create new certificates.Transaction rollback");
             }
-            return Optional.empty();
         });
     }
 
 
     @Override
     public boolean deleteGiftCertificateById(Long id) {
-        return jdbcTemplate.update(SQLQuery.DELETE_FROM_GIFTCERTIFICATE_WHERE_ID, id) == 1;
+        return jdbcTemplate.update(SQLQuery.DELETE_FROM_CERTIFICATES_WHERE_ID, id) == 1;
     }
 
     @Override
@@ -128,7 +129,7 @@ public class MySQLRepository implements TagsRepository, GiftCertificatesReposito
         return transactionTemplate.execute(status -> {
             try {
                 jdbcTemplate.update(con -> {
-                    PreparedStatement ps = con.prepareStatement(SQLQuery.UPDATE_GIFTCERTIFICATE_ALL_FIELDS);
+                    PreparedStatement ps = con.prepareStatement(SQLQuery.UPDATE_CERTIFICATES_ALL_FIELDS);
                     ps.setString(1, giftCertificate.getName());
                     ps.setString(2, giftCertificate.getDescription());
                     ps.setBigDecimal(3, giftCertificate.getPrice());
@@ -137,24 +138,29 @@ public class MySQLRepository implements TagsRepository, GiftCertificatesReposito
                     ps.setLong(6, id);
                     return ps;
                 });
-                if (giftCertificate.getTagsList() == null) {
-                    return getGiftCertificateById(id);
-                } else if (giftCertificate.getTagsList().isEmpty()) {
-                    jdbcTemplate.update(SQLQuery.DELETE_ALL_RELATIONSHIPS_BETWEN_TAG_AND_CERTIFICATE, id);
-                    return getGiftCertificateById(id);
+                if (giftCertificate.getTagsList() != null) {
+                    jdbcTemplate.update(SQLQuery.DELETE_ALL_RELATIONSHIPS_BETWEEN_TAGS_AND_CERTIFICATES, id);
+                    if (!giftCertificate.getTagsList().isEmpty()) {
+                        addEachNewTagToDbAndCreateRelationships(id, giftCertificate, keyHolder);
+                    }
                 }
-                jdbcTemplate.update(SQLQuery.DELETE_ALL_RELATIONSHIPS_BETWEN_TAG_AND_CERTIFICATE, id);
-                return addEachNewTagToDbAndCreateRelationships(id, giftCertificate, keyHolder);
+                return getGiftCertificateById(id);
             } catch (Exception e) {
                 status.setRollbackOnly();
+                throw new UpdateTransactionException("");
             }
-            return Optional.empty();
         });
     }
 
     @Override
-    public Optional<List<GiftCertificate>> getGiftCertificateByParam(String statementQuery, List<String>paramList) {
-        System.out.println(Arrays.toString(paramList.toArray()));
+    public boolean isGiftCertificateByNameExist(String name) {
+        Integer exist = jdbcTemplate.queryForObject(SQLQuery.SELECT_FROM_CERTIFICATES_BY_NAME,Integer.class,name);
+        if (exist == null) return false;
+        else return exist>0;
+    }
+
+    @Override
+    public Optional<List<GiftCertificate>> getGiftCertificateByParam(String statementQuery, List<String> paramList) {
         return jdbcTemplate.query(statementQuery, rs -> {
             ArrayList<GiftCertificate> list = new ArrayList<>();
             while (rs.next()) {
@@ -179,7 +185,7 @@ public class MySQLRepository implements TagsRepository, GiftCertificatesReposito
         }, paramList.toArray());
     }
 
-    private Optional<GiftCertificate> addEachNewTagToDbAndCreateRelationships(Long id, GiftCertificate giftCertificate, KeyHolder keyHolder) {
+    private void addEachNewTagToDbAndCreateRelationships(Long id, GiftCertificate giftCertificate, KeyHolder keyHolder) {
         List<Tag> allTags = getAllTags();
         allTags.forEach(tag -> giftCertificate.getTagsList().forEach(tag1 -> {
             if (tag1.getName().equals(tag.getName()))
@@ -190,12 +196,11 @@ public class MySQLRepository implements TagsRepository, GiftCertificatesReposito
             createTagsInTransaction(keyHolder, tag);
             createManyToManyRelationships(id, (Objects.requireNonNull(keyHolder.getKey())).longValue());
         });
-        return getGiftCertificateById(id);
     }
 
     private void createManyToManyRelationships(long giftCertificate_id, long tag_id) {
         jdbcTemplate.update(con -> {
-            PreparedStatement ps = con.prepareStatement(SQLQuery.INSERT_INTO_GIFTCERTIFICATE_HAS_TAGS_BY_THEIR_ID);
+            PreparedStatement ps = con.prepareStatement(SQLQuery.INSERT_INTO_CERTIFICATES_HAS_TAGS_BY_THEIR_ID);
             ps.setLong(1, giftCertificate_id);
             ps.setLong(2, tag_id);
             return ps;
@@ -212,7 +217,7 @@ public class MySQLRepository implements TagsRepository, GiftCertificatesReposito
 
     private void createCertificateInTransaction(GiftCertificate giftCertificate, KeyHolder keyHolder) {
         jdbcTemplate.update(con -> {
-            PreparedStatement ps = con.prepareStatement(SQLQuery.INSERT_INTO_GIFTCERTIFICATE_ALL_FIELDS, new String[]{"id"});
+            PreparedStatement ps = con.prepareStatement(SQLQuery.INSERT_INTO_CERTIFICATES_ALL_FIELDS, new String[]{"id"});
             ps.setString(1, giftCertificate.getName());
             ps.setString(2, giftCertificate.getDescription());
             ps.setBigDecimal(3, giftCertificate.getPrice());

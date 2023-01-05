@@ -33,27 +33,14 @@ public class Validate {
         }
     }
 
-    public static void GiftCertificateOnUpdate(Long id, String name, List<GiftCertificate> all) {
-        positiveRequestedId(id);
-        if (all.stream().noneMatch(giftCertificate -> giftCertificate.getId().equals(id))) {
-            throw new InvalidRequest("Gift certificate with id = " + id
-                    + " does not exist.",HttpStatus.NOT_FOUND.value()*100+2, HttpStatus.NOT_FOUND);
-        }
-        FieldNameOfCertificateMustBeUnique(name, all);
-    }
-
-    public static void FieldNameOfCertificateMustBeUnique(String name, List<GiftCertificate> all) {
-        if (name != null && all.stream().anyMatch(giftCertificate ->
-                giftCertificate.getName().equals(name))) {
-            throw new InvalidRequest("Gift certificate with name = " + name
-                    + " change name field before creating a new certificate",HttpStatus.NOT_FOUND.value()*100+2, HttpStatus.NOT_FOUND);
-        }
-    }
-
     public static void FieldNameOfTagMustBeUnique(String name, List<Tag> allTags) {
         if (name != null && allTags.stream().anyMatch(tag -> tag.getName().equals(name))) {
             throw new InvalidRequest("Tag with name = " + name
                     + "alread change name field before creating a new tag",HttpStatus.BAD_REQUEST.value()*100+3, HttpStatus.BAD_REQUEST);
         }
+    }
+
+    public static void GiftCertificateOnUpdate(Long id, GiftCertificate updateGiftCertificate) {
+        positiveRequestedId(id);
     }
 }

@@ -1,5 +1,6 @@
 package com.epam.esm.tags.entity;
 
+import javax.annotation.processing.Generated;
 import java.util.Objects;
 
 public class Tag {

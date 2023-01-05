@@ -1,5 +1,7 @@
 package com.epam.esm.giftcertificates.filter;
 
+import com.epam.esm.integration.sqlrepo.SQLQuery;
+
 import java.util.List;
 
 public class TagNameSearchChainFilter extends SearchChainFilter {
@@ -12,10 +14,9 @@ public class TagNameSearchChainFilter extends SearchChainFilter {
     }
 
     String buildQuery(boolean isFirst) {
-        return " certificates_id IN (select certificates_id" +
-                " FROM gifts.certificates_has_tags" +
-                " JOIN gifts.tags ON tags_id=id WHERE name = ?) " + (nextChain != null ? nextChain.buildQuery(false) : "");
+        return SQLQuery.BuildQuery.SEARCH_TAG_NAME_QUERY_PART + (nextChain != null ? nextChain.buildQuery(false) : "");
     }
+
     @Override
     void buildListParam(List<String> paramList) {
         paramList.add(tag_name);

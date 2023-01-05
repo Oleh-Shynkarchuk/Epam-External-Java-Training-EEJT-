@@ -1,5 +1,7 @@
 package com.epam.esm.giftcertificates.filter;
 
+import com.epam.esm.integration.sqlrepo.SQLQuery;
+
 import java.util.List;
 
 public class GiftNameSearchChainFilter extends SearchChainFilter {
@@ -13,9 +15,9 @@ public class GiftNameSearchChainFilter extends SearchChainFilter {
 
     String buildQuery(boolean isFirst) {
         if (isFirst) {
-            return " certificates.name LIKE ? " + (nextChain != null ? nextChain.buildQuery(false) : "");
+            return SQLQuery.BuildQuery.CERTIFICATES_NAME_LIKE + (nextChain != null ? nextChain.buildQuery(false) : "");
         }
-        return "AND certificates.name LIKE ? " + (nextChain != null ? nextChain.buildQuery(false) : "");
+        return SQLQuery.BuildQuery.AND_CERTIFICATES_NAME_LIKE + (nextChain != null ? nextChain.buildQuery(false) : "");
     }
 
     @Override

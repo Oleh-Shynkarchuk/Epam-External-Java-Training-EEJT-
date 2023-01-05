@@ -7,7 +7,7 @@ import java.time.Duration;
 
 
 public class GiftCertificatesComplement {
-    public static GiftCertificate complementCertificateOnUpdateByCertificateFromDB(GiftCertificate updateGiftCertificate, GiftCertificate certificateFromDB) {
+    public static GiftCertificate mergingCertificate(GiftCertificate updateGiftCertificate, GiftCertificate certificateFromDB) {
         if (StringUtils.isEmpty(updateGiftCertificate.getName())) {
          updateGiftCertificate.setName(certificateFromDB.getName());   
         }

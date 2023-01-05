@@ -117,12 +117,7 @@ public class GiftCertificate {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         GiftCertificate that = (GiftCertificate) o;
-        return Objects.equals(id, that.id) && Objects.equals(name, that.name) && Objects.equals(description, that.description) && Objects.equals(price, that.price) && Objects.equals(duration, that.duration) && Objects.equals(create_date, that.create_date) && Objects.equals(last_update_date, that.last_update_date) && Objects.equals(tagsList, that.tagsList);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, name, description, price, duration, create_date, last_update_date, tagsList);
+        return Objects.equals(name, that.name);
     }
 
     @Override

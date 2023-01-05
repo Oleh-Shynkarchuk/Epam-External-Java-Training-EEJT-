@@ -1,5 +1,7 @@
 package com.epam.esm.giftcertificates.filter;
 
+import com.epam.esm.integration.sqlrepo.SQLQuery;
+
 import java.util.List;
 
 public class DescriptionSearchChainFilter extends SearchChainFilter {
@@ -14,16 +16,14 @@ public class DescriptionSearchChainFilter extends SearchChainFilter {
 
     String buildQuery(boolean isFirst) {
         if (isFirst) {
-            return " certificates.name LIKE ? " + (nextChain != null ? nextChain.buildQuery(false) : "");
+            return SQLQuery.BuildQuery.DESCRIPTION_LIKE + (nextChain != null ? nextChain.buildQuery(false) : "");
         }
-        return "AND description LIKE ? " + (nextChain != null ? nextChain.buildQuery(false) : "");
+        return SQLQuery.BuildQuery.AND_DESCRIPTION_LIKE + (nextChain != null ? nextChain.buildQuery(false) : "");
     }
 
     @Override
     void buildListParam(List<String> paramList) {
-        System.out.println("before adding|"+paramList);
         paramList.add("%"+description+"%");
-        System.out.println("after adding|"+paramList);
         if (nextChain != null) nextChain.buildListParam(paramList);
     }
 }
