@@ -33,8 +33,8 @@ class MySQLRepositoryTest {
     void setUp() {
         this.db = new EmbeddedDatabaseBuilder()
                 .setType(EmbeddedDatabaseType.H2)
-                .addScript("dbScript/create-db.sql")
-                .addScript("dbScript/insert-data.sql")
+                .addScript("h2schemascript/create-db.sql")
+                .addScript("h2schemascript/insert-data.sql")
                 .build();
         mySQLRepository = new MySQLRepository(new JdbcTemplate(db), new TransactionTemplate(new DataSourceTransactionManager(db)), new GeneratedKeyHolder());
     }
