@@ -37,8 +37,14 @@ public class GiftCertificatesController {
     }
 
     @GetMapping(value = "/search")
-    public ResponseEntity<List<GiftCertificate>> searchGiftCertificates(@RequestParam Map<String,String> requestMap) {
-        return new ResponseEntity<>(giftCertificatesService.readGiftCertificate(requestMap), HttpStatus.OK);
+    public ResponseEntity<List<GiftCertificate>> searchGiftCertificates(@RequestParam(required = false) String tag_name,
+                                                                        @RequestParam(required = false) String gift_name,
+                                                                        @RequestParam(required = false) String description,
+                                                                        @RequestParam(required = false) String sort_date,
+                                                                        @RequestParam(required = false) String sort_name) {
+        return new ResponseEntity<>(giftCertificatesService.readGiftCertificate(
+                Map.of("tag_name",tag_name,"gift_name", gift_name,"description", description,
+                        "sort_date",sort_date,"sort_name",sort_name)), HttpStatus.OK);
     }
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)

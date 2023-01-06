@@ -28,7 +28,7 @@ public class TagsController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> getOneTag(@PathVariable("id") Long id) {
+    public ResponseEntity<?> getTagById(@PathVariable("id") Long id) {
         return new ResponseEntity<>(tagsService.readTag(id), HttpStatus.OK);
     }
 
