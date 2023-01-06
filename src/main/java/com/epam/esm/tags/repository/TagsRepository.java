@@ -8,9 +8,11 @@ import java.util.Optional;
 public interface TagsRepository {
     Optional<Tag> getTagById(Long id);
 
-    List<Tag> getAllTags();
+    Optional<List<Tag>> getAllTags();
 
     Optional<Tag> createNewTag(Tag newTag);
 
     boolean deleteTagById(Long id);
+
+    boolean tagByNameExist(String name);
 }

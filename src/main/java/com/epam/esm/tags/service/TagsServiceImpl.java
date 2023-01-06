@@ -1,8 +1,10 @@
 package com.epam.esm.tags.service;
 
-import com.epam.esm.integration.errorhandle.Validate;
 import com.epam.esm.tags.entity.Tag;
+import com.epam.esm.tags.exception.TagNotFound;
+import com.epam.esm.tags.exception.TagNotRepresent;
 import com.epam.esm.tags.repository.TagsRepository;
+import com.epam.esm.tags.validation.TagValidate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -19,24 +21,29 @@ public class TagsServiceImpl implements TagsService {
 
     @Override
     public Tag readTag(Long id) {
-        Validate.positiveRequestedId(id);
-        return tagsRepository.getTagById(id).orElseThrow();
+        TagValidate.positiveRequestedId(id);
+        return tagsRepository.getTagById(id).orElseThrow(() ->
+                new TagNotFound("Tag not found where ( id = "+id+" )."
+                +" Try again with different request param"));
     }
 
     @Override
     public List<Tag> readAllTags() {
-        return tagsRepository.getAllTags();
+        return tagsRepository.getAllTags().orElseThrow(() ->
+                new TagNotFound("Tags not found."));
     }
 
     @Override
     public Tag createTag(Tag newTag) {
-        Validate.FieldNameOfTagMustBeUnique(newTag.getName(), (tagsRepository.getAllTags()));
-        return tagsRepository.createNewTag(newTag).orElseThrow();
+        TagValidate.FieldNameOfTagMustBeUnique(tagsRepository.tagByNameExist(newTag.getName()),newTag.getName());
+        return tagsRepository.createNewTag(newTag).orElseThrow(()->new TagNotRepresent("Can not represent created tag."));
     }
 
     @Override
-    public boolean deleteTag(Long id) {
+    public void deleteTag(Long id) {
         readTag(id);
-        return tagsRepository.deleteTagById(id);
+        if (!tagsRepository.deleteTagById(id)) {
+         throw new TagNotRepresent("Tag has not been deleted.");
+        }
     }
 }
