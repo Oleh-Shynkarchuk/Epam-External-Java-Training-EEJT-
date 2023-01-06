@@ -18,6 +18,11 @@ import org.springframework.oxm.xstream.XStreamMarshaller;
 import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import springfox.documentation.builders.PathSelectors;
+import springfox.documentation.builders.RequestHandlerSelectors;
+import springfox.documentation.spi.DocumentationType;
+import springfox.documentation.spring.web.plugins.Docket;
+import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 import javax.sql.DataSource;
 import java.util.List;
@@ -27,6 +32,7 @@ import java.util.Objects;
 @Configuration
 @ComponentScan(basePackages = "com.epam.esm")
 @PropertySource("classpath:database.properties")
+@EnableSwagger2
 public class SpringMVCConfig implements WebMvcConfigurer {
     private final Environment environment;
     @Autowired
@@ -74,5 +80,13 @@ public class SpringMVCConfig implements WebMvcConfigurer {
     @Bean
     public KeyHolder keyHolder() {
         return new GeneratedKeyHolder();
+    }
+    @Bean
+    public Docket api() {
+        return new Docket(DocumentationType.SWAGGER_2)
+                .select()
+                .apis(RequestHandlerSelectors.any())
+                .paths(PathSelectors.any())
+                .build();
     }
 }
