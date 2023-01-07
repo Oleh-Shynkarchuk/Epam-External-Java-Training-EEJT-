@@ -46,8 +46,8 @@ public class GiftCertificatesServiceImpl implements GiftCertificatesService {
     public GiftCertificate createGiftCertificate(GiftCertificate createGiftCertificate) {
         GiftValidate.certificateFieldValidation(createGiftCertificate);
         if (giftCertificatesRepository.isGiftCertificateByNameExist(createGiftCertificate.getName())) {
-            throw new CertificateInvalidRequest("Certificate with that name already exist." +
-                    " But that field must be unique, change it and try again.");
+            throw new CertificateInvalidRequest("Certificate with ( name =  "+createGiftCertificate.getName()
+                    +") already exist.That field must be unique, change it and try again.");
         }
         return giftCertificatesRepository.createNewGiftCertificate(createGiftCertificate)
                 .orElseThrow(getCertificateNotRepresentException("Can not represent created certificate."));
