@@ -12,6 +12,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -42,9 +44,13 @@ public class GiftCertificatesController {
                                                                         @RequestParam(required = false) String description,
                                                                         @RequestParam(required = false) String sort_date,
                                                                         @RequestParam(required = false) String sort_name) {
-        return new ResponseEntity<>(giftCertificatesService.readGiftCertificate(
-                Map.of("tag_name",tag_name,"gift_name", gift_name,"description", description,
-                        "sort_date",sort_date,"sort_name",sort_name)), HttpStatus.OK);
+        Map<String, String> tagName = new HashMap<>();
+        tagName.put("tag_name", tag_name);
+        tagName.put("gift_name", gift_name);
+        tagName.put("description", description);
+        tagName.put("sort_date", sort_date);
+        tagName.put("sort_name", sort_name);
+        return new ResponseEntity<>(giftCertificatesService.readGiftCertificate(tagName), HttpStatus.OK);
     }
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)

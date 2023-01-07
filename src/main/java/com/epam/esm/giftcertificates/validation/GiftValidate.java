@@ -3,6 +3,7 @@ package com.epam.esm.giftcertificates.validation;
 import com.epam.esm.giftcertificates.entity.GiftCertificate;
 import com.epam.esm.giftcertificates.exception.CertificateInvalidRequest;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpStatus;
 
 import java.math.BigDecimal;
@@ -21,6 +22,13 @@ public class GiftValidate {
     }
 
     public static void findGiftByFieldsValidation(String sortByDate, String sortByName, String... ech) {
+        System.out.println(sortByDate+""+sortByName+""+ Arrays.toString(ech));
+        System.out.println(Arrays.stream(ech).allMatch(StringUtils::isEmpty));
+        System.out.println(Arrays.stream(ech).noneMatch(StringUtils::isEmpty));
+        if (Arrays.stream(ech).allMatch(StringUtils::isEmpty)&&StringUtils.isEmpty(sortByDate)&&StringUtils.isEmpty(sortByName)) {
+            throw new CertificateInvalidRequest("Invalid request param. At least one param must be entered.",
+                    HttpStatus.BAD_REQUEST.value() * 100 + 2);
+        }
         if (Arrays.stream(ech).filter(Objects::nonNull).anyMatch(String::isBlank)) {
             throw new CertificateInvalidRequest("Invalid request param. Request param value cant be blank.",
                     HttpStatus.BAD_REQUEST.value() * 100 + 2);
