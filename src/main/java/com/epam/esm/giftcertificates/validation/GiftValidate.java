@@ -4,6 +4,7 @@ import com.epam.esm.giftcertificates.entity.GiftCertificate;
 import com.epam.esm.giftcertificates.exception.CertificateInvalidRequest;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.http.HttpStatus;
 
 import java.math.BigDecimal;
@@ -22,10 +23,7 @@ public class GiftValidate {
     }
 
     public static void findGiftByFieldsValidation(String sortByDate, String sortByName, String... ech) {
-        System.out.println(sortByDate+""+sortByName+""+ Arrays.toString(ech));
-        System.out.println(Arrays.stream(ech).allMatch(StringUtils::isEmpty));
-        System.out.println(Arrays.stream(ech).noneMatch(StringUtils::isEmpty));
-        if (Arrays.stream(ech).allMatch(StringUtils::isEmpty)&&StringUtils.isEmpty(sortByDate)&&StringUtils.isEmpty(sortByName)) {
+        if (Arrays.stream(ech).allMatch(StringUtils::isEmpty) && StringUtils.isEmpty(sortByDate) && StringUtils.isEmpty(sortByName)) {
             throw new CertificateInvalidRequest("Invalid request param. At least one param must be entered.",
                     HttpStatus.BAD_REQUEST.value() * 100 + 2);
         }
@@ -45,13 +43,21 @@ public class GiftValidate {
 
     public static void GiftCertificateOnUpdate(Long id, GiftCertificate updateGiftCertificate) {
         positiveRequestedId(id);
-        if (updateGiftCertificate.getPrice()!=null&&updateGiftCertificate.getPrice().compareTo(BigDecimal.ZERO)<=0) {
-            throw new CertificateInvalidRequest("Invalid certificate field price ( price = " + updateGiftCertificate.getPrice()
-                    + "). Price must be positive number!", HttpStatus.BAD_REQUEST.value() * 100 + 2);
+        certificateFieldValidation(updateGiftCertificate);
+    }
+
+    public static void certificateFieldValidation(GiftCertificate updateGiftCertificate) {
+        if (!NumberUtils.isParsable(updateGiftCertificate.getDuration())) {
+            throw new CertificateInvalidRequest("Invalid certificate field  duration ( duration = " + updateGiftCertificate.getDuration()
+                    + "). Duration must be a numeric!", HttpStatus.BAD_REQUEST.value() * 100 + 2);
         }
-        if (Integer.parseInt(updateGiftCertificate.getDuration())<0) {
+        if (updateGiftCertificate.getPrice() != null && updateGiftCertificate.getPrice().compareTo(BigDecimal.ZERO) <= 0) {
+            throw new CertificateInvalidRequest("Invalid certificate field price ( price = " + updateGiftCertificate.getPrice()
+                    + "). Price must be positive a number!", HttpStatus.BAD_REQUEST.value() * 100 + 2);
+        }
+        if (Integer.parseInt(updateGiftCertificate.getDuration()) < 0) {
             throw new CertificateInvalidRequest("Invalid certificate field duration ( duration = " + updateGiftCertificate.getDuration()
-                    + "). Duration can not be negative time!", HttpStatus.BAD_REQUEST.value() * 100 + 2);
+                    + "). Duration cannot be negative time!", HttpStatus.BAD_REQUEST.value() * 100 + 2);
         }
     }
 }

@@ -35,7 +35,7 @@ public class TagsServiceImpl implements TagsService {
 
     @Override
     public Tag createTag(Tag newTag) {
-        TagValidate.FieldNameOfTagMustBeUnique(tagsRepository.tagByNameExist(newTag.getName()),newTag.getName());
+        TagValidate.TagFieldValidation(tagsRepository.tagByNameExist(newTag.getName()),newTag.getName());
         return tagsRepository.createNewTag(newTag).orElseThrow(()->new TagNotRepresent("Can not represent created tag."));
     }
 

@@ -44,6 +44,7 @@ public class GiftCertificatesServiceImpl implements GiftCertificatesService {
 
     @Override
     public GiftCertificate createGiftCertificate(GiftCertificate createGiftCertificate) {
+        GiftValidate.certificateFieldValidation(createGiftCertificate);
         if (giftCertificatesRepository.isGiftCertificateByNameExist(createGiftCertificate.getName())) {
             throw new CertificateInvalidRequest("Certificate with that name already exist." +
                     " But that field must be unique, change it and try again.");
