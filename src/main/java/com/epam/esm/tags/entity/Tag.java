@@ -1,19 +1,9 @@
 package com.epam.esm.tags.entity;
 
-import javax.annotation.processing.Generated;
 import java.util.Objects;
 
 public class Tag {
     private Long id;
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
     private String name;
 
     public Tag() {
@@ -21,6 +11,14 @@ public class Tag {
 
     public Tag(Long id, String name) {
         this.id = id;
+        this.name = name;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public void setName(String name) {
         this.name = name;
     }
 
@@ -33,11 +31,16 @@ public class Tag {
     }
 
     @Override
-    public boolean equals(Object obj) {
-        if (obj == this) return true;
-        if (obj == null || obj.getClass() != this.getClass()) return false;
-        var that = (Tag) obj;
-        return Objects.equals(this.name, that.name);
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Tag tag = (Tag) o;
+        return Objects.equals(id, tag.id) && Objects.equals(name, tag.name);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, name);
     }
 
     @Override
@@ -46,5 +49,4 @@ public class Tag {
                 "id=" + id + ", " +
                 "name=" + name + ']';
     }
-
 }
