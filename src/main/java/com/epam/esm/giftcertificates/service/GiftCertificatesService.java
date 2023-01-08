@@ -1,9 +1,9 @@
 package com.epam.esm.giftcertificates.service;
 
 import com.epam.esm.giftcertificates.entity.GiftCertificate;
+import com.epam.esm.giftcertificates.filter.entity.SearchParams;
 
 import java.util.List;
-import java.util.Map;
 
 public interface GiftCertificatesService {
     List<GiftCertificate> readAllGiftCertificates();
@@ -13,5 +13,5 @@ public interface GiftCertificatesService {
 
     GiftCertificate readGiftCertificate(Long id);
 
-    List<GiftCertificate> readGiftCertificate(Map<String,String> requestmap);
+    List<GiftCertificate> readGiftCertificate(SearchParams searchParams);
 }

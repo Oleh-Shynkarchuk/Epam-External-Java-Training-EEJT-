@@ -2,30 +2,27 @@ package com.epam.esm.giftcertificates.controller;
 
 
 import com.epam.esm.giftcertificates.entity.GiftCertificate;
+import com.epam.esm.giftcertificates.filter.entity.SearchParams;
+import com.epam.esm.giftcertificates.filter.entity.SearchParamsBuilder;
 import com.epam.esm.giftcertificates.service.GiftCertificatesService;
-
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping(value = "/gifts", produces = MediaType.APPLICATION_JSON_VALUE)
 public class GiftCertificatesController {
-
     private final GiftCertificatesService giftCertificatesService;
+    private final SearchParamsBuilder searchParamsBuilder;
 
     @Autowired
-    public GiftCertificatesController(GiftCertificatesService giftCertificatesService) {
+    public GiftCertificatesController(GiftCertificatesService giftCertificatesService, SearchParamsBuilder searchParamsBuilder) {
         this.giftCertificatesService = giftCertificatesService;
+        this.searchParamsBuilder = searchParamsBuilder;
     }
 
     @GetMapping
@@ -39,18 +36,15 @@ public class GiftCertificatesController {
     }
 
     @GetMapping(value = "/search")
-    public ResponseEntity<List<GiftCertificate>> searchGiftCertificates(@RequestParam(required = false) String tag_name,
-                                                                        @RequestParam(required = false) String gift_name,
-                                                                        @RequestParam(required = false) String description,
-                                                                        @RequestParam(required = false) String sort_date,
-                                                                        @RequestParam(required = false) String sort_name) {
-        Map<String, String> tagName = new HashMap<>();
-        tagName.put("tag_name", tag_name);
-        tagName.put("gift_name", gift_name);
-        tagName.put("description", description);
-        tagName.put("sort_date", sort_date);
-        tagName.put("sort_name", sort_name);
-        return new ResponseEntity<>(giftCertificatesService.readGiftCertificate(tagName), HttpStatus.OK);
+    public ResponseEntity<List<GiftCertificate>> searchGiftCertificates(
+            @RequestParam(required = false) String tagName,
+            @RequestParam(required = false) String giftName,
+            @RequestParam(required = false) String description,
+            @RequestParam(required = false) String sortDate,
+            @RequestParam(required = false) String sortName) {
+        SearchParams searchParams = searchParamsBuilder.setTagName(tagName).setGiftName(giftName)
+                .setDescription(description).setSortDate(sortDate).setSortName(sortName).create();
+        return new ResponseEntity<>(giftCertificatesService.readGiftCertificate(searchParams), HttpStatus.OK);
     }
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)

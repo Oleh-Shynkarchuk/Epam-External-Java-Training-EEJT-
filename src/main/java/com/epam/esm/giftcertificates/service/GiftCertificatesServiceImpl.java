@@ -1,18 +1,18 @@
 package com.epam.esm.giftcertificates.service;
 
-import com.epam.esm.giftcertificates.filter.Chain;
-import com.epam.esm.giftcertificates.utils.GiftCertificatesComplement;
 import com.epam.esm.giftcertificates.entity.GiftCertificate;
-import com.epam.esm.giftcertificates.repo.GiftCertificatesRepository;
+import com.epam.esm.giftcertificates.exception.CertificateInvalidRequestException;
+import com.epam.esm.giftcertificates.exception.CertificateNotFoundException;
 import com.epam.esm.giftcertificates.exception.CertificateNotRepresent;
-import com.epam.esm.giftcertificates.exception.CertificateInvalidRequest;
-import com.epam.esm.giftcertificates.exception.CertificateNotFound;
+import com.epam.esm.giftcertificates.filter.ChainProcessor;
+import com.epam.esm.giftcertificates.filter.entity.SearchParams;
+import com.epam.esm.giftcertificates.repo.GiftCertificatesRepository;
+import com.epam.esm.giftcertificates.utils.GiftCertificatesComplement;
 import com.epam.esm.giftcertificates.validation.GiftValidate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Map;
 import java.util.function.Supplier;
 
 @Service
@@ -26,13 +26,10 @@ public class GiftCertificatesServiceImpl implements GiftCertificatesService {
     }
 
     @Override
-    public List<GiftCertificate> readGiftCertificate(Map<String, String> requestmap) {
-        GiftValidate.findGiftByFieldsValidation(
-                requestmap.get("sort_date"), requestmap.get("sort_name"),
-                requestmap.get("tag_name"), requestmap.get("gift_name"),
-                requestmap.get("description"));
-        Chain chain = new Chain(requestmap);
-        return giftCertificatesRepository.getGiftCertificateByParam(chain.buildQuery(), chain.buildParamList())
+    public List<GiftCertificate> readGiftCertificate(SearchParams searchParams) {
+        GiftValidate.findGiftByFieldsValidation(searchParams);
+        ChainProcessor chainProcessor = new ChainProcessor(searchParams);
+        return giftCertificatesRepository.getGiftCertificateByParam(chainProcessor.buildQuery(), chainProcessor.buildParamList())
                 .orElseThrow(getCertificateNotFoundException("No item was found for specified parameters."));
     }
 
@@ -46,8 +43,8 @@ public class GiftCertificatesServiceImpl implements GiftCertificatesService {
     public GiftCertificate createGiftCertificate(GiftCertificate createGiftCertificate) {
         GiftValidate.certificateFieldValidation(createGiftCertificate);
         if (giftCertificatesRepository.isGiftCertificateByNameExist(createGiftCertificate.getName())) {
-            throw new CertificateInvalidRequest("Certificate with ( name =  "+createGiftCertificate.getName()
-                    +") already exist.That field must be unique, change it and try again.");
+            throw new CertificateInvalidRequestException("Certificate with ( name =  " + createGiftCertificate.getName()
+                    + ") already exist.That field must be unique, change it and try again.");
         }
         return giftCertificatesRepository.createNewGiftCertificate(createGiftCertificate)
                 .orElseThrow(getCertificateNotRepresentException("Can not represent created certificate."));
@@ -80,7 +77,7 @@ public class GiftCertificatesServiceImpl implements GiftCertificatesService {
     }
 
     private static Supplier<RuntimeException> getCertificateNotFoundException(String message) {
-        return () -> new CertificateNotFound(message);
+        return () -> new CertificateNotFoundException(message);
     }
     private static Supplier<RuntimeException> getCertificateNotRepresentException(String message) {
         return () -> new CertificateNotRepresent(message);

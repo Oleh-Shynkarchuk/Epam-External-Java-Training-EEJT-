@@ -1,13 +1,12 @@
 package com.epam.esm.giftcertificates.validation;
 
 import com.epam.esm.giftcertificates.entity.GiftCertificate;
-import com.epam.esm.giftcertificates.exception.CertificateInvalidRequest;
-
+import com.epam.esm.giftcertificates.exception.CertificateInvalidRequestException;
+import com.epam.esm.giftcertificates.filter.entity.SearchParams;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 
 import java.math.BigDecimal;
-import java.util.Arrays;
 import java.util.Locale;
 import java.util.Objects;
 
@@ -17,26 +16,26 @@ public class GiftValidate {
 
     public static void positiveRequestedId(Long id) {
         if (id <= 0L)
-            throw new CertificateInvalidRequest("Invalid id ( request id = " + id
+            throw new CertificateInvalidRequestException("Invalid id ( request id = " + id
                     + " ). ID must be positive number.");
     }
 
-    public static void findGiftByFieldsValidation(String sortByDate, String sortByName, String... ech) {
-        if (Arrays.stream(ech).allMatch(StringUtils::isEmpty) && StringUtils.isEmpty(sortByDate) && StringUtils.isEmpty(sortByName)) {
-            throw new CertificateInvalidRequest("Invalid request param. At least one param must be entered."
-            );
+    public static void findGiftByFieldsValidation(SearchParams searchParams) {
+        if (searchParams.getAllParams().stream().allMatch(StringUtils::isEmpty)) {
+            throw new CertificateInvalidRequestException("Invalid request param. At least one param must be entered.");
         }
-        if (Arrays.stream(ech).filter(Objects::nonNull).anyMatch(String::isBlank)) {
-            throw new CertificateInvalidRequest("Invalid request param. Request param value cant be blank."
-            );
+        if (searchParams.getAllParams().stream().filter(Objects::nonNull).anyMatch(StringUtils::isBlank)) {
+            throw new CertificateInvalidRequestException("Invalid request param. Request param value cant be blank.");
         }
-        if (sortByDate != null && (!sortByDate.toUpperCase(Locale.ROOT).equals(ASC) && !sortByDate.toUpperCase(Locale.ROOT).equals(DESC))) {
-            throw new CertificateInvalidRequest("Invalid request param sortByDate ( request = " + sortByDate
-                    + "). Valid values (ASC,DESC)");
+        if (StringUtils.isNotEmpty(searchParams.getSortDate()) && (!searchParams.getSortDate().toUpperCase(Locale.ROOT)
+                .equals(ASC) && !searchParams.getSortDate().toUpperCase(Locale.ROOT).equals(DESC))) {
+            throw new CertificateInvalidRequestException("Invalid request param sortDate ( request = " +
+                    searchParams.getSortDate() + "). Valid values (ASC,DESC)");
         }
-        if (sortByName != null && (!sortByName.toUpperCase(Locale.ROOT).equals(ASC) && !sortByName.toUpperCase(Locale.ROOT).equals(DESC))) {
-            throw new CertificateInvalidRequest("Invalid request param sortByName ( request = " + sortByName
-                    + "). Valid values (ASC,DESC)");
+        if (StringUtils.isNotEmpty(searchParams.getSortName()) && (!searchParams.getSortName().toUpperCase(Locale.ROOT)
+                .equals(ASC) && !searchParams.getSortName().toUpperCase(Locale.ROOT).equals(DESC))) {
+            throw new CertificateInvalidRequestException("Invalid request param sortName ( request = " +
+                    searchParams.getSortName() + "). Valid values (ASC,DESC)");
         }
     }
 
@@ -47,15 +46,15 @@ public class GiftValidate {
 
     public static void certificateFieldValidation(GiftCertificate updateGiftCertificate) {
         if (!NumberUtils.isParsable(updateGiftCertificate.getDuration())) {
-            throw new CertificateInvalidRequest("Invalid certificate field  duration ( duration = " + updateGiftCertificate.getDuration()
+            throw new CertificateInvalidRequestException("Invalid certificate field  duration ( duration = " + updateGiftCertificate.getDuration()
                     + "). Duration must be a numeric!");
         }
         if (updateGiftCertificate.getPrice() != null && updateGiftCertificate.getPrice().compareTo(BigDecimal.ZERO) <= 0) {
-            throw new CertificateInvalidRequest("Invalid certificate field price ( price = " + updateGiftCertificate.getPrice()
+            throw new CertificateInvalidRequestException("Invalid certificate field price ( price = " + updateGiftCertificate.getPrice()
                     + "). Price must be positive a number!");
         }
         if (Integer.parseInt(updateGiftCertificate.getDuration()) < 0) {
-            throw new CertificateInvalidRequest("Invalid certificate field duration ( duration = " + updateGiftCertificate.getDuration()
+            throw new CertificateInvalidRequestException("Invalid certificate field duration ( duration = " + updateGiftCertificate.getDuration()
                     + "). Duration cannot be negative time!");
         }
     }

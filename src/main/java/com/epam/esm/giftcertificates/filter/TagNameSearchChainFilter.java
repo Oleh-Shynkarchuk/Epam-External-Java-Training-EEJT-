@@ -1,25 +1,30 @@
 package com.epam.esm.giftcertificates.filter;
 
-import com.epam.esm.integration.sqlrepo.SQLQuery;
+import com.epam.esm.integration.sqlrepo.Constants;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
 
 public class TagNameSearchChainFilter extends SearchChainFilter {
     private final SearchChainFilter nextChain;
-    private final String tag_name;
+    private final String tagName;
 
-    public TagNameSearchChainFilter(SearchChainFilter nextChain, String tag_name) {
+    private TagNameSearchChainFilter(SearchChainFilter nextChain, String tagName) {
         this.nextChain = nextChain;
-        this.tag_name = tag_name;
+        this.tagName = tagName;
     }
 
-    String buildQuery(boolean isFirst) {
-        return SQLQuery.BuildQuery.SEARCH_TAG_NAME_QUERY_PART + (nextChain != null ? nextChain.buildQuery(false) : "");
+    protected static SearchChainFilter createChain(SearchChainFilter chainFilter, String parameters) {
+        return StringUtils.isNotEmpty(parameters) ? new TagNameSearchChainFilter(chainFilter, parameters) : null;
+    }
+
+    protected String buildQuery(boolean isFirst) {
+        return Constants.BuildQuery.SEARCH_TAG_NAME_QUERY_PART + (nextChain != null ? nextChain.buildQuery(false) : "");
     }
 
     @Override
-    void buildListParam(List<String> paramList) {
-        paramList.add(tag_name);
+    protected void buildListParam(List<String> paramList) {
+        paramList.add(tagName);
         if (nextChain != null) nextChain.buildListParam(paramList);
     }
 }
