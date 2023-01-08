@@ -77,6 +77,12 @@ class MySQLRepositoryTest {
     }
 
     @Test
+    void getGiftCertificateByIdShouldReturnOptionalEmptyIfNotExist() {
+        assertEquals(Optional.empty(), mySQLRepository.getGiftCertificateById(0L));
+        assertEquals(Optional.empty(), mySQLRepository.getGiftCertificateById(-1L));
+    }
+
+    @Test
     void getGiftCertificateById() {
         GiftCertificate firstExpectedCertificate = new GiftCertificate(1L, "testCertificate1",
                 "first description", BigDecimal.valueOf(210.24), "10",
