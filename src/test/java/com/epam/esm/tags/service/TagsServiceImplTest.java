@@ -1,11 +1,10 @@
 package com.epam.esm.tags.service;
 
-import com.epam.esm.tags.entity.*;
 import com.epam.esm.integration.sqlrepo.MySQLRepository;
-import com.epam.esm.tags.exception.TagInvalidRequest;
-import com.epam.esm.tags.exception.TagNotFound;
-
-import com.epam.esm.tags.exception.TagNotRepresent;
+import com.epam.esm.tags.entity.Tag;
+import com.epam.esm.tags.exception.TagInvalidRequestException;
+import com.epam.esm.tags.exception.TagNotFoundException;
+import com.epam.esm.tags.exception.TagNotRepresentException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -16,8 +15,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @ExtendWith(MockitoExtension.class)
 class TagsServiceImplTest {
@@ -28,9 +27,9 @@ class TagsServiceImplTest {
 
     @Test
     void readTagShouldThrowInvalidRequestCuzNegativeOrZeroID() {
-        assertThrows(TagInvalidRequest.class, () -> tagsService.readTag(0L));
+        assertThrows(TagInvalidRequestException.class, () -> tagsService.readTag(0L));
 
-        assertThrows(TagInvalidRequest.class, () -> tagsService.readTag(-4L));
+        assertThrows(TagInvalidRequestException.class, () -> tagsService.readTag(-4L));
     }
 
     @Test
@@ -38,7 +37,7 @@ class TagsServiceImplTest {
         long positiveId = 1L;
         Mockito.when(tagRepository.getTagById(positiveId)).thenReturn(Optional.empty());
 
-        assertThrows(TagNotFound.class, () -> tagsService.readTag(positiveId));
+        assertThrows(TagNotFoundException.class, () -> tagsService.readTag(positiveId));
 
     }
 
@@ -55,7 +54,7 @@ class TagsServiceImplTest {
 
         Mockito.when(tagRepository.getAllTags()).thenReturn(Optional.empty());
 
-        assertThrows(TagNotFound.class, () -> tagsService.readAllTags());
+        assertThrows(TagNotFoundException.class, () -> tagsService.readAllTags());
     }
 
     @Test
@@ -69,7 +68,7 @@ class TagsServiceImplTest {
     void createTagShouldThrowInvalidRequestIfNameNotUnique() {
         Tag newTagExist = new Tag(null,"nameExist");
         Mockito.when(tagRepository.tagByNameExist(newTagExist.getName())).thenReturn(true);
-        assertThrows(TagInvalidRequest.class, () -> tagsService.createTag(newTagExist));
+        assertThrows(TagInvalidRequestException.class, () -> tagsService.createTag(newTagExist));
     }
     @Test
     void createTagShouldThrowNotRepresent() {
@@ -78,7 +77,7 @@ class TagsServiceImplTest {
         Mockito.when(tagRepository.tagByNameExist(newTag.getName())).thenReturn(false);
         Mockito.when(tagRepository.createNewTag(newTag)).thenReturn(Optional.empty());
 
-        assertThrows(TagNotRepresent.class, () -> tagsService.createTag(newTag));
+        assertThrows(TagNotRepresentException.class, () -> tagsService.createTag(newTag));
     }
     @Test
     void createTagShouldReturnCreatedTag() {
@@ -92,16 +91,16 @@ class TagsServiceImplTest {
 
     @Test
     void deleteTagThrowInvalidRequestCuzNegativeOrZeroID() {
-        assertThrows(TagInvalidRequest.class, () -> tagsService.deleteTag(0L));
+        assertThrows(TagInvalidRequestException.class, () -> tagsService.deleteTag(0L));
 
-        assertThrows(TagInvalidRequest.class, () -> tagsService.deleteTag(-4L));
+        assertThrows(TagInvalidRequestException.class, () -> tagsService.deleteTag(-4L));
     }
     @Test
     void deleteTagThrowTagNotFound() {
         long positiveId = 1L;
         Mockito.when(tagRepository.getTagById(positiveId)).thenReturn(Optional.empty());
 
-        assertThrows(TagNotFound.class, () -> tagsService.deleteTag(positiveId));
+        assertThrows(TagNotFoundException.class, () -> tagsService.deleteTag(positiveId));
     }
     @Test
     void deleteTagThrowTagNotRepresent() {
@@ -109,7 +108,7 @@ class TagsServiceImplTest {
         Tag expected = new Tag(positiveId, "testName");
         Mockito.when(tagRepository.getTagById(positiveId)).thenReturn(Optional.of(expected));
         Mockito.when(tagRepository.deleteTagById(1L)).thenReturn(false);
-        assertThrows(TagNotRepresent.class, () -> tagsService.deleteTag(positiveId));
+        assertThrows(TagNotRepresentException.class, () -> tagsService.deleteTag(positiveId));
     }
     @Test
     void deleteTag() {

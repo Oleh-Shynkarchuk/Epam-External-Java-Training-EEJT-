@@ -1,11 +1,12 @@
 package com.epam.esm.giftcertificates.service;
 
 import com.epam.esm.giftcertificates.entity.GiftCertificate;
+import com.epam.esm.giftcertificates.exception.CertificateInvalidRequestException;
+import com.epam.esm.giftcertificates.exception.CertificateNotFoundException;
 import com.epam.esm.giftcertificates.exception.CertificateNotRepresent;
-import com.epam.esm.giftcertificates.exception.CertificateInvalidRequest;
-import com.epam.esm.giftcertificates.exception.CertificateNotFound;
+import com.epam.esm.giftcertificates.filter.entity.SearchParamsBuilder;
+import com.epam.esm.integration.sqlrepo.Constants;
 import com.epam.esm.integration.sqlrepo.MySQLRepository;
-import com.epam.esm.integration.sqlrepo.SQLQuery;
 import com.epam.esm.tags.entity.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -16,9 +17,11 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @ExtendWith(MockitoExtension.class)
 class GiftCertificatesServiceTest {
@@ -31,37 +34,43 @@ class GiftCertificatesServiceTest {
 
     @Test
     public void readGiftCertificateByMapOfRequestParamShouldThrowInvalidRequest() {
-        assertThrows(CertificateInvalidRequest.class, () -> giftCertificatesService.readGiftCertificate(Map.of("tag_name", "")));
+        SearchParamsBuilder searchParamsBuilder = new SearchParamsBuilder();
+        assertThrows(CertificateInvalidRequestException.class, () -> giftCertificatesService.readGiftCertificate
+                (searchParamsBuilder.setTagName("").create()));
 
-        assertThrows(CertificateInvalidRequest.class, () -> giftCertificatesService.readGiftCertificate(Map.of("gift_name", "         ")));
+        assertThrows(CertificateInvalidRequestException.class, () -> giftCertificatesService.readGiftCertificate
+                (searchParamsBuilder.setGiftName("        ").create()));
 
-        assertThrows(CertificateInvalidRequest.class, () -> giftCertificatesService.readGiftCertificate(Map.of("description", " ")));
+        assertThrows(CertificateInvalidRequestException.class, () -> giftCertificatesService.readGiftCertificate
+                (searchParamsBuilder.setDescription(" ").create()));
 
-        assertThrows(CertificateInvalidRequest.class, () -> giftCertificatesService.readGiftCertificate(Map.of("sort_date", "notASCorDESC")));
+        assertThrows(CertificateInvalidRequestException.class, () -> giftCertificatesService.readGiftCertificate
+                (searchParamsBuilder.setSortDate("fASCf").create()));
 
-        assertThrows(CertificateInvalidRequest.class, () -> giftCertificatesService.readGiftCertificate(Map.of("sort_name", "ergergtg")));
+        assertThrows(CertificateInvalidRequestException.class, () -> giftCertificatesService.readGiftCertificate(
+                searchParamsBuilder.setSortName("fdescq").create()));
     }
 
     @Test
     public void readGiftCertificateByMapOfRequestParamShouldThrowItemNotFound() {
-
+        SearchParamsBuilder searchParamsBuilder = new SearchParamsBuilder();
         Mockito.when(giftCertificatesRepository.getGiftCertificateByParam(
-                SQLQuery.BuildQuery.SEARCH_BASE_QUERY + SQLQuery.BuildQuery.SEARCH_TAG_NAME_QUERY_PART,
+                Constants.BuildQuery.SEARCH_BASE_QUERY + Constants.BuildQuery.SEARCH_TAG_NAME_QUERY_PART,
                 List.of("tag1"))).thenReturn(Optional.empty());
 
-        assertThrows(CertificateNotFound.class, () -> giftCertificatesService.readGiftCertificate(Map.of("tag_name", "tag1")));
+        assertThrows(CertificateNotFoundException.class, () -> giftCertificatesService.readGiftCertificate(searchParamsBuilder.setTagName("tag1").create()));
     }
 
     @Test
     public void readGiftCertificateByMapOfRequestParamShouldReturnCertificatesWithTags() {
-
+        SearchParamsBuilder searchParamsBuilder = new SearchParamsBuilder();
         GiftCertificate expected = new GiftCertificate(4L, "testCertfName", "testDescription",
                 BigDecimal.valueOf(125.25), "15", LocalDateTime.now().toString(), null, List.of(new Tag(2L, "testTag1"), new Tag(3L, "AnotherTagName")));
 
-        Mockito.when(giftCertificatesRepository.getGiftCertificateByParam(SQLQuery.BuildQuery.SEARCH_BASE_QUERY
-                + SQLQuery.BuildQuery.SEARCH_TAG_NAME_QUERY_PART + SQLQuery.BuildQuery.AND_DESCRIPTION_LIKE, List.of("testTag1", "%script%"))).thenReturn(Optional.of(List.of(expected)));
+        Mockito.when(giftCertificatesRepository.getGiftCertificateByParam(Constants.BuildQuery.SEARCH_BASE_QUERY
+                + Constants.BuildQuery.SEARCH_TAG_NAME_QUERY_PART + Constants.BuildQuery.AND_DESCRIPTION_LIKE, List.of("testTag1", "%script%"))).thenReturn(Optional.of(List.of(expected)));
 
-        assertEquals(List.of(expected), giftCertificatesService.readGiftCertificate(Map.of("tag_name", "testTag1", "description", "script")));
+        assertEquals(List.of(expected), giftCertificatesService.readGiftCertificate(searchParamsBuilder.setTagName("testTag1").setDescription("script").create()));
     }
 
     @Test
@@ -69,7 +78,7 @@ class GiftCertificatesServiceTest {
 
         Mockito.when(giftCertificatesRepository.getAllGiftCertificates()).thenReturn(Optional.empty());
 
-        assertThrows(CertificateNotFound.class, () -> giftCertificatesService.readAllGiftCertificates());
+        assertThrows(CertificateNotFoundException.class, () -> giftCertificatesService.readAllGiftCertificates());
     }
 
     @Test
@@ -95,7 +104,7 @@ class GiftCertificatesServiceTest {
 
         Mockito.when(giftCertificatesRepository.isGiftCertificateByNameExist(nameExist.getName())).thenReturn(true);
 
-        assertThrows(CertificateInvalidRequest.class, () -> giftCertificatesService.createGiftCertificate(nameExist));
+        assertThrows(CertificateInvalidRequestException.class, () -> giftCertificatesService.createGiftCertificate(nameExist));
     }
 
     @Test
@@ -125,9 +134,9 @@ class GiftCertificatesServiceTest {
     @Test
     public void deleteGiftCertificateShouldThrowInvalidRequestCuzNegativeOrZeroID() {
 
-        assertThrows(CertificateInvalidRequest.class, () -> giftCertificatesService.deleteGiftCertificate(0L));
+        assertThrows(CertificateInvalidRequestException.class, () -> giftCertificatesService.deleteGiftCertificate(0L));
 
-        assertThrows(CertificateInvalidRequest.class, () -> giftCertificatesService.deleteGiftCertificate(-10L));
+        assertThrows(CertificateInvalidRequestException.class, () -> giftCertificatesService.deleteGiftCertificate(-10L));
     }
 
     @Test
@@ -136,7 +145,7 @@ class GiftCertificatesServiceTest {
         long deleteId = 1L;
         Mockito.when(giftCertificatesRepository.getGiftCertificateById(deleteId)).thenReturn(Optional.empty());
 
-        assertThrows(CertificateNotFound.class, () -> giftCertificatesService.deleteGiftCertificate(deleteId));
+        assertThrows(CertificateNotFoundException.class, () -> giftCertificatesService.deleteGiftCertificate(deleteId));
     }
 
     @Test
@@ -166,9 +175,9 @@ class GiftCertificatesServiceTest {
 
     @Test
     public void readGiftCertificateByIdShouldThrowInvalidRequestCuzNegativeOrZeroID() {
-        assertThrows(CertificateInvalidRequest.class, () -> giftCertificatesService.readGiftCertificate(0L));
+        assertThrows(CertificateInvalidRequestException.class, () -> giftCertificatesService.readGiftCertificate(0L));
 
-        assertThrows(CertificateInvalidRequest.class, () -> giftCertificatesService.readGiftCertificate(-4L));
+        assertThrows(CertificateInvalidRequestException.class, () -> giftCertificatesService.readGiftCertificate(-4L));
     }
 
     @Test
@@ -176,7 +185,7 @@ class GiftCertificatesServiceTest {
 
         Mockito.when(giftCertificatesRepository.getGiftCertificateById(1L)).thenReturn(Optional.empty());
 
-        assertThrows(CertificateNotFound.class, () -> giftCertificatesService.readGiftCertificate(1L));
+        assertThrows(CertificateNotFoundException.class, () -> giftCertificatesService.readGiftCertificate(1L));
     }
 
     @Test
@@ -196,9 +205,9 @@ class GiftCertificatesServiceTest {
         long zeroId = -1L;
         GiftCertificate newCertificate = new GiftCertificate(null, "name", "description", BigDecimal.valueOf(241.45), "1", null, null, null);
 
-        assertThrows(CertificateInvalidRequest.class, () -> giftCertificatesService.updateGiftCertificate(negativeId, newCertificate));
+        assertThrows(CertificateInvalidRequestException.class, () -> giftCertificatesService.updateGiftCertificate(negativeId, newCertificate));
 
-        assertThrows(CertificateInvalidRequest.class, () -> giftCertificatesService.updateGiftCertificate(zeroId, newCertificate));
+        assertThrows(CertificateInvalidRequestException.class, () -> giftCertificatesService.updateGiftCertificate(zeroId, newCertificate));
 
     }
 
@@ -209,8 +218,8 @@ class GiftCertificatesServiceTest {
 
         GiftCertificate newCertificateNegativeDuration = new GiftCertificate(null, "name", "description", BigDecimal.valueOf(541.45), "-15", null, null, null);
 
-        assertThrows(CertificateInvalidRequest.class, () -> giftCertificatesService.updateGiftCertificate(positiveId, newCertificateNegativePrice));
-        assertThrows(CertificateInvalidRequest.class, () -> giftCertificatesService.updateGiftCertificate(positiveId, newCertificateNegativeDuration));
+        assertThrows(CertificateInvalidRequestException.class, () -> giftCertificatesService.updateGiftCertificate(positiveId, newCertificateNegativePrice));
+        assertThrows(CertificateInvalidRequestException.class, () -> giftCertificatesService.updateGiftCertificate(positiveId, newCertificateNegativeDuration));
 
     }
 
@@ -221,7 +230,7 @@ class GiftCertificatesServiceTest {
 
         Mockito.when(giftCertificatesRepository.getGiftCertificateById(positiveId)).thenReturn(Optional.empty());
 
-        assertThrows(CertificateNotFound.class, () -> giftCertificatesService.updateGiftCertificate(positiveId, newCertificate));
+        assertThrows(CertificateNotFoundException.class, () -> giftCertificatesService.updateGiftCertificate(positiveId, newCertificate));
     }
 
     @Test
@@ -244,13 +253,12 @@ class GiftCertificatesServiceTest {
 
         GiftCertificate expectedCertificate = new GiftCertificate(oldCertificate.getId(), updateCertificate.getName(),
                 oldCertificate.getDescription(), updateCertificate.getPrice(), updateCertificate.getDuration(),
-                oldCertificate.getCreate_date(), updateCertificate.getLast_update_date(),
+                oldCertificate.getCreateDate(), updateCertificate.getLastUpdateDate(),
                 oldCertificate.getTagsList());
 
 
         Mockito.when(giftCertificatesRepository.getGiftCertificateById(oldCertificate.getId())).thenReturn(Optional.of(oldCertificate));
-        Mockito.when(giftCertificatesRepository.updateGiftCertificateById(oldCertificate.getId(), expectedCertificate)).thenReturn(Optional.of(expectedCertificate));
-
+        Mockito.when(giftCertificatesRepository.updateGiftCertificateById(oldCertificate.getId(), updateCertificate)).thenReturn(Optional.of(expectedCertificate));
         assertEquals(expectedCertificate, giftCertificatesService.updateGiftCertificate(oldCertificate.getId(), updateCertificate));
     }
 }

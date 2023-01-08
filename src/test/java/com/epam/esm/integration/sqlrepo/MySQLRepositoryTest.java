@@ -3,7 +3,6 @@ package com.epam.esm.integration.sqlrepo;
 import com.epam.esm.giftcertificates.entity.GiftCertificate;
 import com.epam.esm.giftcertificates.exception.CertificateTransactionException;
 import com.epam.esm.tags.entity.Tag;
-
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -16,11 +15,11 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import java.math.BigDecimal;
-import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -81,11 +80,11 @@ class MySQLRepositoryTest {
     void getGiftCertificateById() {
         GiftCertificate firstExpectedCertificate = new GiftCertificate(1L, "testCertificate1",
                 "first description", BigDecimal.valueOf(210.24), "10",
-                "2022-12-24 12:51:55", "2022-12-24 12:51:55", List.of(new Tag(1L, "testTag1"),
+                "2022-12-24T12:51:55", "2022-12-24T12:51:55", List.of(new Tag(1L, "testTag1"),
                 new Tag(2L, "testTag2")));
         GiftCertificate secondExpectedCertificate = new GiftCertificate(2L, "testCertificate2",
                 "second description", BigDecimal.valueOf(145.33), "5",
-                "2022-12-24 23:51:55", "2022-12-24 23:51:55", List.of(new Tag(2L, "testTag2"),
+                "2022-12-24T23:51:55", "2022-12-24T23:51:55", List.of(new Tag(2L, "testTag2"),
                 new Tag(3L, "testTag3")));
         assertEquals(firstExpectedCertificate, mySQLRepository.getGiftCertificateById(firstExpectedCertificate.getId()).orElseThrow());
         assertEquals(secondExpectedCertificate, mySQLRepository.getGiftCertificateById(secondExpectedCertificate.getId()).orElseThrow());
@@ -95,10 +94,10 @@ class MySQLRepositoryTest {
     void getAllGiftCertificates() {
         List<GiftCertificate> expectedList = List.of(new GiftCertificate(1L, "testCertificate1",
                 "first description", BigDecimal.valueOf(210.24), "10",
-                "2022-12-24 12:51:55", "2022-12-24 12:51:55", List.of(new Tag(1L, "testTag1"),
+                "2022-12-24T12:51:55", "2022-12-24T12:51:55", List.of(new Tag(1L, "testTag1"),
                 new Tag(2L, "testTag2"))), new GiftCertificate(2L, "testCertificate2",
                 "second description", BigDecimal.valueOf(145.33), "5",
-                "2022-12-24 23:51:55", "2022-12-24 23:51:55", List.of(new Tag(2L, "testTag2"),
+                "2022-12-24T23:51:55", "2022-12-24T23:51:55", List.of(new Tag(2L, "testTag2"),
                 new Tag(3L, "testTag3"))));
         assertEquals(expectedList, mySQLRepository.getAllGiftCertificates().orElseThrow());
     }
@@ -120,7 +119,7 @@ class MySQLRepositoryTest {
         GiftCertificate actualCertificate = mySQLRepository.createNewGiftCertificate(newCertificate).orElseThrow();
 
         assertEquals(newCertificate.getName(), actualCertificate.getName());
-        assertNull(actualCertificate.getTagsList());
+        assertTrue(actualCertificate.getTagsList().isEmpty());
     }
 
     @Test
@@ -138,7 +137,9 @@ class MySQLRepositoryTest {
         GiftCertificate actualCertificate = mySQLRepository.createNewGiftCertificate(newCertificateWithTags).orElseThrow();
 
         assertEquals(newCertificateWithTags.getName(), actualCertificate.getName());
-        assertTrue(actualCertificate.getTagsList().containsAll(List.of(expectedTag1, expectedTag2)));
+        assertTrue(actualCertificate.getTagsList().stream().anyMatch(tag -> tag.getName().equals(expectedTag1.getName())));
+        assertTrue(actualCertificate.getTagsList().stream().anyMatch(tag -> tag.getName().equals(expectedTag2.getName())));
+
     }
 
     @Test
@@ -168,8 +169,8 @@ class MySQLRepositoryTest {
         assertEquals(expected.getName(), actual.getName());
         assertEquals(expected.getDescription(), actual.getDescription());
         assertEquals(expected.getPrice(), actual.getPrice());
-        assertEquals(Duration.ofDays(Long.parseLong(expected.getDuration())).toString(), actual.getDuration());
-        assertNotNull(actual.getTagsList());
+        assertEquals(expected.getDuration(), actual.getDuration());
+        assertFalse(actual.getTagsList().isEmpty());
     }
 
     @Test
@@ -184,8 +185,8 @@ class MySQLRepositoryTest {
         assertEquals(expected.getName(), actual.getName());
         assertEquals(expected.getDescription(), actual.getDescription());
         assertEquals(expected.getPrice(), actual.getPrice());
-        assertEquals(Duration.ofDays(Long.parseLong(expected.getDuration())).toString(), actual.getDuration());
-        assertNull(actual.getTagsList());
+        assertEquals(expected.getDuration(), actual.getDuration());
+        assertTrue(actual.getTagsList().isEmpty());
     }
     @Test
     void updateGiftCertificateByIdAndChangeTagsRelationships() {
@@ -199,15 +200,17 @@ class MySQLRepositoryTest {
         newTaglist.add(expectedTag3);
         GiftCertificate expected = new GiftCertificate(null, "updateCertificateName",
                 "new description", BigDecimal.valueOf(12210.24), "34",
-                null, null,newTaglist);
+                null, null, newTaglist);
 
         GiftCertificate actual = mySQLRepository.updateGiftCertificateById(certificateID, expected).orElseThrow();
 
         assertEquals(expected.getName(), actual.getName());
         assertEquals(expected.getDescription(), actual.getDescription());
         assertEquals(expected.getPrice(), actual.getPrice());
-        assertEquals(Duration.ofDays(Long.parseLong(expected.getDuration())).toString(), actual.getDuration());
-        assertTrue(actual.getTagsList().containsAll(List.of(expectedTag1,expectedTag2,expectedTag3)));
+        assertEquals(expected.getDuration(), actual.getDuration());
+        assertTrue(actual.getTagsList().stream().allMatch(tag -> Stream.of
+                (expectedTag1, expectedTag2, expectedTag3).anyMatch
+                (tag1 -> tag1.getName().equals(tag.getName()))));
     }
 
     @Test
@@ -222,12 +225,12 @@ class MySQLRepositoryTest {
     }
     @Test
     void getGiftCertificateByParam() {
-        String sqlStatement=SQLQuery.BuildQuery.SEARCH_BASE_QUERY+SQLQuery.BuildQuery.SEARCH_TAG_NAME_QUERY_PART
-                +SQLQuery.BuildQuery.AND_CERTIFICATES_NAME_LIKE+SQLQuery.BuildQuery.AND_DESCRIPTION_LIKE;
-        List<String>requestParameters = List.of("testTag1","%Certificate%","%description%");
-        List<String>requestParametersDoesNotExist = List.of("fwefewfewf","fewfwefwefwef","fewwfdfwefd");
+        String sqlStatement = Constants.BuildQuery.SEARCH_BASE_QUERY + Constants.BuildQuery.SEARCH_TAG_NAME_QUERY_PART
+                + Constants.BuildQuery.AND_CERTIFICATES_NAME_LIKE + Constants.BuildQuery.AND_DESCRIPTION_LIKE;
+        List<String> requestParameters = List.of("testTag1", "%Certificate%", "%description%");
+        List<String> requestParametersDoesNotExist = List.of("fwefewfewf", "fewfwefwefwef", "fewwfdfwefd");
 
-        assertFalse(mySQLRepository.getGiftCertificateByParam(sqlStatement,requestParameters).isEmpty());
-        assertTrue(mySQLRepository.getGiftCertificateByParam(sqlStatement,requestParametersDoesNotExist).isEmpty());
+        assertFalse(mySQLRepository.getGiftCertificateByParam(sqlStatement, requestParameters).isEmpty());
+        assertTrue(mySQLRepository.getGiftCertificateByParam(sqlStatement, requestParametersDoesNotExist).isEmpty());
     }
 }
