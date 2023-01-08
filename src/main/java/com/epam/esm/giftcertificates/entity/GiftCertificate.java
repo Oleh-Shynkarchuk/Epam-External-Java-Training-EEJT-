@@ -11,11 +11,8 @@ public class GiftCertificate {
     private String name;
     private String description;
     private BigDecimal price;
-
     private String duration;
-
     private String createDate;
-
     private String lastUpdateDate;
     private List<Tag> tagsList;
 
