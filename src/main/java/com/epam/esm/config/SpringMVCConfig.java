@@ -1,5 +1,6 @@
 package com.epam.esm.config;
 
+import com.epam.esm.giftcertificates.filter.entity.SearchParamsBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -35,10 +36,12 @@ import java.util.Objects;
 @EnableSwagger2
 public class SpringMVCConfig implements WebMvcConfigurer {
     private final Environment environment;
+
     @Autowired
     public SpringMVCConfig(Environment environment) {
         this.environment = environment;
     }
+
     @Override
     public void configureMessageConverters(List<HttpMessageConverter<?>> messageConverters) {
         messageConverters.add(createXmlHttpMessageConverter());
@@ -54,6 +57,7 @@ public class SpringMVCConfig implements WebMvcConfigurer {
 
         return xmlConverter;
     }
+
     @Bean
     public DataSource mysqlDataSource() {
         DriverManagerDataSource dataSource = new DriverManagerDataSource();
@@ -68,10 +72,12 @@ public class SpringMVCConfig implements WebMvcConfigurer {
     public JdbcTemplate jdbcTemplate() {
         return new JdbcTemplate(mysqlDataSource());
     }
+
     @Bean
     public DataSourceTransactionManager dataSourceTransactionManager(DataSource dataSource) {
         return new DataSourceTransactionManager(dataSource);
     }
+
     @Bean
     public TransactionTemplate transactionTemplate() {
         return new TransactionTemplate(dataSourceTransactionManager(mysqlDataSource()));
@@ -81,6 +87,12 @@ public class SpringMVCConfig implements WebMvcConfigurer {
     public KeyHolder keyHolder() {
         return new GeneratedKeyHolder();
     }
+
+    @Bean
+    public SearchParamsBuilder searchParamsBuilder() {
+        return new SearchParamsBuilder();
+    }
+
     @Bean
     public Docket api() {
         return new Docket(DocumentationType.SWAGGER_2)
