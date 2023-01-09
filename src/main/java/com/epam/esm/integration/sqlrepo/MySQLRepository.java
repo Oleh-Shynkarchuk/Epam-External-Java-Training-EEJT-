@@ -12,6 +12,7 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.support.TransactionTemplate;
 
+import java.math.BigDecimal;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -28,6 +29,7 @@ public class MySQLRepository implements TagsRepository, GiftCertificatesReposito
     private final JdbcTemplate jdbcTemplate;
     private final TransactionTemplate transactionTemplate;
     private final KeyHolder keyHolder;
+
     @Autowired
     public MySQLRepository(JdbcTemplate jdbcTemplate, TransactionTemplate transactionTemplate, KeyHolder keyHolder) {
         this.jdbcTemplate = jdbcTemplate;
@@ -38,8 +40,7 @@ public class MySQLRepository implements TagsRepository, GiftCertificatesReposito
     @Override
     public Optional<Tag> getTagById(Long id) {
         return jdbcTemplate.query(Constants.SqlQuery.SELECT_FROM_TAGS_WHERE_ID, rs -> rs.next() ?
-                Optional.of(new Tag(rs.getLong(Constants.TableColumnsName.ID),
-                        rs.getString(Constants.TableColumnsName.NAME))) : Optional.empty(), id);
+                Optional.of(new Tag(getId(rs), getName(rs))) : Optional.empty(), id);
     }
 
     @Override
@@ -65,33 +66,24 @@ public class MySQLRepository implements TagsRepository, GiftCertificatesReposito
 
     @Override
     public Optional<List<Tag>> getAllTags() {
-        return Optional.of(jdbcTemplate.query(Constants.SqlQuery.SELECT_FROM_TAGS, (ResultSet resultset, int i) ->
-                new Tag(resultset.getLong(Constants.TableColumnsName.ID),
-                        resultset.getString(Constants.TableColumnsName.NAME))));
+        return Optional.of(jdbcTemplate.query(Constants.SqlQuery.SELECT_FROM_TAGS, (ResultSet rs, int i) ->
+                new Tag(getId(rs), getName(rs))));
     }
 
     @Override
     public Optional<GiftCertificate> getGiftCertificateById(Long id) {
-        return jdbcTemplate.query(Constants.SqlQuery.SELECT_FROM_CERTIFICATES_WITH_TAGS_BY_ID, rs -> rs.next() ? Optional.of(new GiftCertificate(
-                rs.getLong(Constants.TableColumnsName.ID),
-                rs.getString(Constants.TableColumnsName.NAME),
-                rs.getString(Constants.TableColumnsName.DESCRIPTION),
-                rs.getBigDecimal(Constants.TableColumnsName.PRICE),
-                String.valueOf(rs.getLong(Constants.TableColumnsName.DURATION)),
-                rs.getTimestamp(Constants.TableColumnsName.CREATE_DATE).toLocalDateTime().toString(),
-                rs.getTimestamp(Constants.TableColumnsName.LAST_UPDATE_DATE).toLocalDateTime().toString(),
-                new ArrayList<>() {{
-                    String tagExist = rs.getString(Constants.TableColumnsName.TAGS_NAME);
-                    if (StringUtils.isNotEmpty(tagExist)) {
-                        add(new Tag(rs.getLong(Constants.TableColumnsName.TAGS_ID), tagExist));
-                    }
-                    while (rs.next()) {
-                        tagExist = rs.getString(Constants.TableColumnsName.TAGS_NAME);
-                        if (StringUtils.isNotEmpty(tagExist)) {
-                            add(new Tag(rs.getLong(Constants.TableColumnsName.TAGS_ID), tagExist));
-                        }
-                    }
-                }})) : Optional.empty(), id);
+        return jdbcTemplate.query(Constants.SqlQuery.SELECT_FROM_CERTIFICATES_WITH_TAGS_BY_ID, rs -> {
+            GiftCertificate giftCertificate = null;
+            while (rs.next()) {
+                if (giftCertificate == null) {
+                    giftCertificate = new GiftCertificate(
+                            getId(rs), getName(rs), getDescription(rs), getPrice(rs), getDuration(rs),
+                            getCreateDate(rs), getLastUpdateDate(rs), new ArrayList<>());
+                }
+                addTagToCertificateListIfExist(rs, giftCertificate);
+            }
+            return giftCertificate == null ? Optional.empty() : Optional.of(giftCertificate);
+        }, id);
     }
 
     @Override
@@ -106,13 +98,14 @@ public class MySQLRepository implements TagsRepository, GiftCertificatesReposito
             try {
                 createCertificateInTransaction(giftCertificate, keyHolder);
                 long giftCertificate_id = (Objects.requireNonNull(keyHolder.getKey())).longValue();
-                if (giftCertificate.getTagsList() != null && !giftCertificate.getTagsList().isEmpty()) {
+                if (TagListIsNotEmpty(giftCertificate)) {
                     addEachNewTagToDbAndCreateRelationships(giftCertificate_id, giftCertificate, keyHolder);
                 }
                 return getGiftCertificateById(giftCertificate_id);
             } catch (Exception e) {
                 status.setRollbackOnly();
-                throw new CertificateTransactionException("Exception during create certificate. Certificate has not been created.");
+                throw new CertificateTransactionException("Exception during create certificate." +
+                        " Certificate has not been created.");
             }
         });
     }
@@ -147,7 +140,8 @@ public class MySQLRepository implements TagsRepository, GiftCertificatesReposito
                 return getGiftCertificateById(id);
             } catch (Exception e) {
                 status.setRollbackOnly();
-                throw new CertificateTransactionException("Exception during update certificate. Certificate has not been updated.");
+                throw new CertificateTransactionException("Exception during update certificate." +
+                        " Certificate has not been updated.");
             }
         });
     }
@@ -213,23 +207,67 @@ public class MySQLRepository implements TagsRepository, GiftCertificatesReposito
     private static Optional<List<GiftCertificate>> getGiftCertificateList(ResultSet rs) throws SQLException {
         ArrayList<GiftCertificate> list = new ArrayList<>();
         while (rs.next()) {
-            long idForCheck = rs.getLong(Constants.TableColumnsName.ID);
-            if (list.stream().noneMatch(giftCertificate -> giftCertificate.getId().equals(idForCheck))) {
-                list.add(new GiftCertificate(
-                        idForCheck,
-                        rs.getString(Constants.TableColumnsName.NAME),
-                        rs.getString(Constants.TableColumnsName.DESCRIPTION),
-                        rs.getBigDecimal(Constants.TableColumnsName.PRICE),
-                        String.valueOf(rs.getLong(Constants.TableColumnsName.DURATION)),
-                        rs.getTimestamp(Constants.TableColumnsName.CREATE_DATE).toLocalDateTime().toString(),
-                        rs.getTimestamp(Constants.TableColumnsName.LAST_UPDATE_DATE).toLocalDateTime().toString(),
-                        new ArrayList<>()));
+            long idForCheck = getId(rs);
+            if (isaNextCertificate(list, idForCheck)) {
+                list.add(new GiftCertificate(idForCheck, getName(rs), getDescription(rs), getPrice(rs),
+                        getDuration(rs), getCreateDate(rs), getLastUpdateDate(rs), new ArrayList<>()));
             }
             Optional<GiftCertificate> certificate = list.stream().filter(giftCertificate -> giftCertificate.getId().equals(idForCheck)).findFirst();
             if (certificate.isPresent()) {
-                certificate.get().getTagsList().add(new Tag(rs.getLong(Constants.TableColumnsName.TAGS_ID), rs.getString(Constants.TableColumnsName.TAGS_NAME)));
+                certificate.get().getTagsList().add(new Tag(getTagsId(rs), getTagName(rs)));
             }
         }
         return list.isEmpty() ? Optional.empty() : Optional.of(list);
+    }
+
+    private static long getTagsId(ResultSet rs) throws SQLException {
+        return rs.getLong(Constants.TableColumnsName.TAGS_ID);
+    }
+
+    private static String getTagName(ResultSet rs) throws SQLException {
+        return rs.getString(Constants.TableColumnsName.TAGS_NAME);
+    }
+
+    private static long getId(ResultSet rs) throws SQLException {
+        return rs.getLong(Constants.TableColumnsName.ID);
+    }
+
+    private static String getName(ResultSet rs) throws SQLException {
+        return rs.getString(Constants.TableColumnsName.NAME);
+    }
+
+    private static String getDescription(ResultSet rs) throws SQLException {
+        return rs.getString(Constants.TableColumnsName.DESCRIPTION);
+    }
+
+    private static BigDecimal getPrice(ResultSet rs) throws SQLException {
+        return rs.getBigDecimal(Constants.TableColumnsName.PRICE);
+    }
+
+    private static String getDuration(ResultSet rs) throws SQLException {
+        return String.valueOf(rs.getLong(Constants.TableColumnsName.DURATION));
+    }
+
+    private static String getCreateDate(ResultSet rs) throws SQLException {
+        return rs.getTimestamp(Constants.TableColumnsName.CREATE_DATE).toLocalDateTime().toString();
+    }
+
+    private static String getLastUpdateDate(ResultSet rs) throws SQLException {
+        return rs.getTimestamp(Constants.TableColumnsName.LAST_UPDATE_DATE).toLocalDateTime().toString();
+    }
+
+    private static boolean isaNextCertificate(ArrayList<GiftCertificate> list, long idForCheck) {
+        return list.stream().noneMatch(giftCertificate -> giftCertificate.getId().equals(idForCheck));
+    }
+
+    private static boolean TagListIsNotEmpty(GiftCertificate giftCertificate) {
+        return giftCertificate.getTagsList() != null && !giftCertificate.getTagsList().isEmpty();
+    }
+
+    private static void addTagToCertificateListIfExist(ResultSet rs, GiftCertificate giftCertificate) throws SQLException {
+        String tagName = getTagName(rs);
+        if (StringUtils.isNotEmpty(tagName)) {
+            giftCertificate.getTagsList().add(new Tag(getTagsId(rs), tagName));
+        }
     }
 }
