@@ -20,7 +20,7 @@ public class GiftValidate {
                     + " ). ID must be positive number.");
     }
 
-    public static void findGiftByFieldsValidation(SearchParams searchParams) {
+    public static void findCertificateByFieldsValidation(SearchParams searchParams) {
         if (searchParams.getAllParams().stream().allMatch(StringUtils::isEmpty)) {
             throw new CertificateInvalidRequestException("Invalid request param. At least one param must be entered.");
         }
@@ -39,21 +39,22 @@ public class GiftValidate {
         }
     }
 
-    public static void GiftCertificateOnUpdate(Long id, GiftCertificate updateGiftCertificate) {
+    public static void certificateOnUpdate(Long id, GiftCertificate updateGiftCertificate) {
         positiveRequestedId(id);
         certificateFieldValidation(updateGiftCertificate);
     }
 
     public static void certificateFieldValidation(GiftCertificate updateGiftCertificate) {
-        if (!NumberUtils.isParsable(updateGiftCertificate.getDuration())) {
+
+        if (!NumberUtils.isDigits(updateGiftCertificate.getDuration()) && Objects.nonNull(updateGiftCertificate.getDuration())) {
             throw new CertificateInvalidRequestException("Invalid certificate field  duration ( duration = " + updateGiftCertificate.getDuration()
                     + "). Duration must be a numeric!");
         }
-        if (updateGiftCertificate.getPrice() != null && updateGiftCertificate.getPrice().compareTo(BigDecimal.ZERO) <= 0) {
+        if (updateGiftCertificate.getPrice().compareTo(BigDecimal.ZERO) <= 0 && Objects.nonNull(updateGiftCertificate.getPrice())) {
             throw new CertificateInvalidRequestException("Invalid certificate field price ( price = " + updateGiftCertificate.getPrice()
                     + "). Price must be positive a number!");
         }
-        if (Integer.parseInt(updateGiftCertificate.getDuration()) < 0) {
+        if (Integer.parseInt(updateGiftCertificate.getDuration()) < 0 && Objects.nonNull(updateGiftCertificate.getDuration())) {
             throw new CertificateInvalidRequestException("Invalid certificate field duration ( duration = " + updateGiftCertificate.getDuration()
                     + "). Duration cannot be negative time!");
         }

@@ -15,7 +15,7 @@ public class DescriptionSearchChainFilter extends SearchChainFilter {
     }
 
     protected static SearchChainFilter createChain(SearchChainFilter chainFilter, String parameters) {
-        return StringUtils.isNotEmpty(parameters) ? new DescriptionSearchChainFilter(chainFilter, parameters) : null;
+        return StringUtils.isNotEmpty(parameters) ? new DescriptionSearchChainFilter(chainFilter, parameters) : chainFilter;
     }
 
 

@@ -1,6 +1,6 @@
 package com.epam.esm.giftcertificates.filter.entity;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class SearchParams {
@@ -54,14 +54,6 @@ public class SearchParams {
     }
 
     public List<String> getAllParams() {
-        return new ArrayList<>() {
-            {
-                add(tagName);
-                add(giftName);
-                add(description);
-                add(sortDate);
-                add(sortName);
-            }
-        };
+        return Arrays.asList(tagName, giftName, description, sortDate, sortName);
     }
 }

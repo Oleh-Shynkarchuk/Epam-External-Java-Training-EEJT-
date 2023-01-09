@@ -17,16 +17,11 @@ public class ChainProcessor {
     }
 
     private void buildChain() {
-        SearchChainFilter tempChainFilter = NameSortSearchChainFilter.createChain(chainFilter, params.getSortName());
-        chainFilter = tempChainFilter == null ? chainFilter : tempChainFilter;
-        tempChainFilter = DateSortSearchChainFilter.createChain(chainFilter, params.getSortDate());
-        chainFilter = tempChainFilter == null ? chainFilter : tempChainFilter;
-        tempChainFilter = DescriptionSearchChainFilter.createChain(chainFilter, params.getDescription());
-        chainFilter = tempChainFilter == null ? chainFilter : tempChainFilter;
-        tempChainFilter = GiftNameSearchChainFilter.createChain(chainFilter, params.getGiftName());
-        chainFilter = tempChainFilter == null ? chainFilter : tempChainFilter;
-        tempChainFilter = TagNameSearchChainFilter.createChain(chainFilter, params.getTagName());
-        chainFilter = tempChainFilter == null ? chainFilter : tempChainFilter;
+        chainFilter = NameSortSearchChainFilter.createChain(chainFilter, params.getSortName());
+        chainFilter = DateSortSearchChainFilter.createChain(chainFilter, params.getSortDate());
+        chainFilter = DescriptionSearchChainFilter.createChain(chainFilter, params.getDescription());
+        chainFilter = GiftNameSearchChainFilter.createChain(chainFilter, params.getGiftName());
+        chainFilter = TagNameSearchChainFilter.createChain(chainFilter, params.getTagName());
     }
 
     public String buildQuery() {

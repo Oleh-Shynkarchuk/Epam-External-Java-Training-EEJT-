@@ -16,7 +16,7 @@ public class DateSortSearchChainFilter extends SearchChainFilter {
     }
 
     protected static SearchChainFilter createChain(SearchChainFilter chainFilter, String parameters) {
-        return StringUtils.isNotEmpty(parameters) ? new DateSortSearchChainFilter(chainFilter, parameters) : null;
+        return StringUtils.isNotEmpty(parameters) ? new DateSortSearchChainFilter(chainFilter, parameters) : chainFilter;
     }
 
     protected String buildQuery(boolean isFirst) {

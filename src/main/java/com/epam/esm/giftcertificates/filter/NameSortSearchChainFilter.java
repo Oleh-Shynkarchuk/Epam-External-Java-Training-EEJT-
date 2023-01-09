@@ -17,7 +17,7 @@ public class NameSortSearchChainFilter extends SearchChainFilter {
     }
 
     protected static SearchChainFilter createChain(SearchChainFilter chainFilter, String parameters) {
-        return StringUtils.isNotEmpty(parameters) ? new NameSortSearchChainFilter(chainFilter, parameters) : null;
+        return StringUtils.isNotEmpty(parameters) ? new NameSortSearchChainFilter(chainFilter, parameters) : chainFilter;
     }
 
     protected String buildQuery(boolean isFirst) {

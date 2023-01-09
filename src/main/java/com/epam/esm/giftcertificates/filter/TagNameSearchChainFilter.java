@@ -15,7 +15,7 @@ public class TagNameSearchChainFilter extends SearchChainFilter {
     }
 
     protected static SearchChainFilter createChain(SearchChainFilter chainFilter, String parameters) {
-        return StringUtils.isNotEmpty(parameters) ? new TagNameSearchChainFilter(chainFilter, parameters) : null;
+        return StringUtils.isNotEmpty(parameters) ? new TagNameSearchChainFilter(chainFilter, parameters) : chainFilter;
     }
 
     protected String buildQuery(boolean isFirst) {
