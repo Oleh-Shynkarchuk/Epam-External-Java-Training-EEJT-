@@ -20,8 +20,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(MockitoExtension.class)
 class GiftCertificatesServiceTest {
@@ -260,5 +259,25 @@ class GiftCertificatesServiceTest {
         Mockito.when(giftCertificatesRepository.getGiftCertificateById(oldCertificate.getId())).thenReturn(Optional.of(oldCertificate));
         Mockito.when(giftCertificatesRepository.updateGiftCertificateById(oldCertificate.getId(), updateCertificate)).thenReturn(Optional.of(expectedCertificate));
         assertEquals(expectedCertificate, giftCertificatesService.updateGiftCertificate(oldCertificate.getId(), updateCertificate));
+    }
+
+    @Test
+    public void updateGiftCertificateByIdShouldReturnCertificateOnlyDescriptionChange() {
+        GiftCertificate oldCertificate = new GiftCertificate(4L, "testName", "testDescription",
+                BigDecimal.valueOf(125.25), "15", LocalDateTime.now().toString(), null, List.of(new Tag(2L, "testTag1"), new Tag(3L, "AnotherTagName")));
+
+        GiftCertificate updateCertificate = new GiftCertificate(null, null, "UpdateDescription",
+                null, null, null, LocalDateTime.now().toString(), null);
+
+        GiftCertificate expectedCertificate = new GiftCertificate(oldCertificate.getId(), oldCertificate.getName(),
+                updateCertificate.getDescription(), oldCertificate.getPrice(), oldCertificate.getDuration(),
+                oldCertificate.getCreateDate(), oldCertificate.getLastUpdateDate(),
+                oldCertificate.getTagsList());
+
+
+        Mockito.when(giftCertificatesRepository.getGiftCertificateById(oldCertificate.getId())).thenReturn(Optional.of(oldCertificate));
+        Mockito.when(giftCertificatesRepository.updateGiftCertificateById(oldCertificate.getId(), updateCertificate)).thenReturn(Optional.of(expectedCertificate));
+        assertEquals(expectedCertificate, giftCertificatesService.updateGiftCertificate(oldCertificate.getId(), updateCertificate));
+        assertNotEquals(oldCertificate.getDescription(), expectedCertificate.getDescription());
     }
 }

@@ -44,9 +44,17 @@ public class TagsControllerTest {
 
     @Test
     public void ShouldReturnJSONWhenGetTagByIdAndOKStatus() throws Exception {
+        long id = 1L;
+        Tag expected = new Tag(id, "Tag");
+
+        when(tagsService.readTag(id)).thenReturn(expected);
+
         mockMvc.perform(MockMvcRequestBuilders.get("/tags/1"))
                 .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON));
+                .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(content().string(jsonMapper.writeValueAsString(expected)));
+
+        Mockito.verify(tagsService).readTag(id);
     }
 
     @Test
