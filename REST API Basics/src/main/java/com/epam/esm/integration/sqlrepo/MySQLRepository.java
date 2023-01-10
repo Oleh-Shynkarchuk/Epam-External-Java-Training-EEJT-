@@ -89,7 +89,7 @@ public class MySQLRepository implements TagsRepository, GiftCertificatesReposito
     @Override
     public Optional<List<GiftCertificate>> getAllGiftCertificates() {
         String SELECT_FROM_GiftCertificates = Constants.SqlQuery.SELECT_FROM_CERTIFICATES;
-        return jdbcTemplate.query(SELECT_FROM_GiftCertificates, MySQLRepository::getGiftCertificateList);
+        return jdbcTemplate.query(SELECT_FROM_GiftCertificates, this::getGiftCertificateList);
     }
 
     @Override
@@ -155,7 +155,7 @@ public class MySQLRepository implements TagsRepository, GiftCertificatesReposito
 
     @Override
     public Optional<List<GiftCertificate>> getGiftCertificateByParam(String statementQuery, List<String> paramList) {
-        return jdbcTemplate.query(statementQuery, MySQLRepository::getGiftCertificateList, paramList.toArray());
+        return jdbcTemplate.query(statementQuery, this::getGiftCertificateList, paramList.toArray());
     }
 
     private void addEachNewTagToDbAndCreateRelationships(Long id, GiftCertificate giftCertificate, KeyHolder keyHolder) {
@@ -204,7 +204,7 @@ public class MySQLRepository implements TagsRepository, GiftCertificatesReposito
         }, keyHolder);
     }
 
-    private static Optional<List<GiftCertificate>> getGiftCertificateList(ResultSet rs) throws SQLException {
+    private Optional<List<GiftCertificate>> getGiftCertificateList(ResultSet rs) throws SQLException {
         ArrayList<GiftCertificate> list = new ArrayList<>();
         while (rs.next()) {
             long idForCheck = getId(rs);
@@ -214,57 +214,57 @@ public class MySQLRepository implements TagsRepository, GiftCertificatesReposito
             }
             Optional<GiftCertificate> certificate = list.stream().filter(giftCertificate -> giftCertificate.getId().equals(idForCheck)).findFirst();
             if (certificate.isPresent()) {
-                certificate.get().getTagsList().add(new Tag(getTagsId(rs), getTagName(rs)));
+                addTagToCertificateListIfExist(rs, certificate.get());
             }
         }
         return list.isEmpty() ? Optional.empty() : Optional.of(list);
     }
 
-    private static long getTagsId(ResultSet rs) throws SQLException {
+    private long getTagsId(ResultSet rs) throws SQLException {
         return rs.getLong(Constants.TableColumnsName.TAGS_ID);
     }
 
-    private static String getTagName(ResultSet rs) throws SQLException {
+    private String getTagName(ResultSet rs) throws SQLException {
         return rs.getString(Constants.TableColumnsName.TAGS_NAME);
     }
 
-    private static long getId(ResultSet rs) throws SQLException {
+    private long getId(ResultSet rs) throws SQLException {
         return rs.getLong(Constants.TableColumnsName.ID);
     }
 
-    private static String getName(ResultSet rs) throws SQLException {
+    private String getName(ResultSet rs) throws SQLException {
         return rs.getString(Constants.TableColumnsName.NAME);
     }
 
-    private static String getDescription(ResultSet rs) throws SQLException {
+    private String getDescription(ResultSet rs) throws SQLException {
         return rs.getString(Constants.TableColumnsName.DESCRIPTION);
     }
 
-    private static BigDecimal getPrice(ResultSet rs) throws SQLException {
+    private BigDecimal getPrice(ResultSet rs) throws SQLException {
         return rs.getBigDecimal(Constants.TableColumnsName.PRICE);
     }
 
-    private static String getDuration(ResultSet rs) throws SQLException {
+    private String getDuration(ResultSet rs) throws SQLException {
         return String.valueOf(rs.getLong(Constants.TableColumnsName.DURATION));
     }
 
-    private static String getCreateDate(ResultSet rs) throws SQLException {
+    private String getCreateDate(ResultSet rs) throws SQLException {
         return rs.getTimestamp(Constants.TableColumnsName.CREATE_DATE).toLocalDateTime().toString();
     }
 
-    private static String getLastUpdateDate(ResultSet rs) throws SQLException {
+    private String getLastUpdateDate(ResultSet rs) throws SQLException {
         return rs.getTimestamp(Constants.TableColumnsName.LAST_UPDATE_DATE).toLocalDateTime().toString();
     }
 
-    private static boolean isaNextCertificate(ArrayList<GiftCertificate> list, long idForCheck) {
+    private boolean isaNextCertificate(ArrayList<GiftCertificate> list, long idForCheck) {
         return list.stream().noneMatch(giftCertificate -> giftCertificate.getId().equals(idForCheck));
     }
 
-    private static boolean TagListIsNotEmpty(GiftCertificate giftCertificate) {
+    private boolean TagListIsNotEmpty(GiftCertificate giftCertificate) {
         return giftCertificate.getTagsList() != null && !giftCertificate.getTagsList().isEmpty();
     }
 
-    private static void addTagToCertificateListIfExist(ResultSet rs, GiftCertificate giftCertificate) throws SQLException {
+    private void addTagToCertificateListIfExist(ResultSet rs, GiftCertificate giftCertificate) throws SQLException {
         String tagName = getTagName(rs);
         if (StringUtils.isNotEmpty(tagName)) {
             giftCertificate.getTagsList().add(new Tag(getTagsId(rs), tagName));
