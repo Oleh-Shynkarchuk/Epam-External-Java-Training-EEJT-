@@ -1,6 +1,7 @@
 package com.epam.esm.giftcertificates.entity;
 
 import com.epam.esm.tags.entity.Tag;
+import org.apache.commons.lang3.StringUtils;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -62,7 +63,6 @@ public class GiftCertificate {
         return tagsList;
     }
 
-
     public void setId(Long id) {
         this.id = id;
     }
@@ -81,6 +81,22 @@ public class GiftCertificate {
 
     public void setDuration(String duration) {
         this.duration = duration;
+    }
+
+    public GiftCertificate merge(GiftCertificate sourceCertificate) {
+        if (StringUtils.isEmpty(this.getName())) {
+            this.setName(sourceCertificate.getName());
+        }
+        if (StringUtils.isEmpty(this.getDescription())) {
+            this.setDescription(sourceCertificate.getDescription());
+        }
+        if (StringUtils.isEmpty(this.getDuration())) {
+            this.setDuration(sourceCertificate.getDuration());
+        }
+        if (Objects.nonNull(this.getPrice())) {
+            this.setPrice(sourceCertificate.getPrice());
+        }
+        return this;
     }
 
     @Override

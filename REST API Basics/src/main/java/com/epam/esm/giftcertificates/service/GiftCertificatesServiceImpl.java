@@ -8,12 +8,10 @@ import com.epam.esm.giftcertificates.filter.ChainProcessor;
 import com.epam.esm.giftcertificates.filter.entity.SearchParams;
 import com.epam.esm.giftcertificates.repo.GiftCertificatesRepository;
 import com.epam.esm.giftcertificates.validation.GiftValidate;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.function.Supplier;
 
 @Service
@@ -72,8 +70,7 @@ public class GiftCertificatesServiceImpl implements GiftCertificatesService {
     public GiftCertificate updateGiftCertificate(Long id, GiftCertificate updateGiftCertificate) {
         GiftValidate.certificateOnUpdate(id, updateGiftCertificate);
         GiftCertificate previousCertificate = readGiftCertificate(id);
-        return giftCertificatesRepository.updateGiftCertificateById(id, mergingCertificate(updateGiftCertificate,
-                        previousCertificate))
+        return giftCertificatesRepository.updateGiftCertificateById(id, updateGiftCertificate.merge(previousCertificate))
                 .orElseThrow(getCertificateNotRepresentException("Can not represent updated item."));
     }
 
@@ -83,21 +80,5 @@ public class GiftCertificatesServiceImpl implements GiftCertificatesService {
 
     private static Supplier<RuntimeException> getCertificateNotRepresentException(String message) {
         return () -> new CertificateNotRepresent(message);
-    }
-
-    private static GiftCertificate mergingCertificate(GiftCertificate updateGiftCertificate, GiftCertificate certificateFromDB) {
-        if (StringUtils.isEmpty(updateGiftCertificate.getName())) {
-            updateGiftCertificate.setName(certificateFromDB.getName());
-        }
-        if (StringUtils.isEmpty(updateGiftCertificate.getDescription())) {
-            updateGiftCertificate.setDescription(certificateFromDB.getDescription());
-        }
-        if (StringUtils.isEmpty(updateGiftCertificate.getDuration())) {
-            updateGiftCertificate.setDuration(certificateFromDB.getDuration());
-        }
-        if (Objects.nonNull(updateGiftCertificate.getPrice())) {
-            updateGiftCertificate.setPrice(certificateFromDB.getPrice());
-        }
-        return updateGiftCertificate;
     }
 }
