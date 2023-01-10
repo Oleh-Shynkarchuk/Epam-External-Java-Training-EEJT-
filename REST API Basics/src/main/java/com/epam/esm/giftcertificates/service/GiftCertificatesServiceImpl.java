@@ -3,7 +3,7 @@ package com.epam.esm.giftcertificates.service;
 import com.epam.esm.giftcertificates.entity.GiftCertificate;
 import com.epam.esm.giftcertificates.exception.CertificateInvalidRequestException;
 import com.epam.esm.giftcertificates.exception.CertificateNotFoundException;
-import com.epam.esm.giftcertificates.exception.CertificateNotRepresent;
+import com.epam.esm.giftcertificates.exception.CertificateNotRepresentException;
 import com.epam.esm.giftcertificates.filter.ChainProcessor;
 import com.epam.esm.giftcertificates.filter.entity.SearchParams;
 import com.epam.esm.giftcertificates.repo.GiftCertificatesRepository;
@@ -53,7 +53,7 @@ public class GiftCertificatesServiceImpl implements GiftCertificatesService {
     public void deleteGiftCertificate(Long id) {
         readGiftCertificate(id);
         if (!giftCertificatesRepository.deleteGiftCertificateById(id)) {
-            throw new CertificateNotRepresent("Certificate has not been deleted.");
+            throw new CertificateNotRepresentException("Certificate has not been deleted.");
         }
     }
 
@@ -79,6 +79,6 @@ public class GiftCertificatesServiceImpl implements GiftCertificatesService {
     }
 
     private static Supplier<RuntimeException> getCertificateNotRepresentException(String message) {
-        return () -> new CertificateNotRepresent(message);
+        return () -> new CertificateNotRepresentException(message);
     }
 }

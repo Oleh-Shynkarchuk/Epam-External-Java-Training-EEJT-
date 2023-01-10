@@ -3,7 +3,7 @@ package com.epam.esm.giftcertificates.service;
 import com.epam.esm.giftcertificates.entity.GiftCertificate;
 import com.epam.esm.giftcertificates.exception.CertificateInvalidRequestException;
 import com.epam.esm.giftcertificates.exception.CertificateNotFoundException;
-import com.epam.esm.giftcertificates.exception.CertificateNotRepresent;
+import com.epam.esm.giftcertificates.exception.CertificateNotRepresentException;
 import com.epam.esm.giftcertificates.filter.entity.SearchParamsBuilder;
 import com.epam.esm.integration.sqlrepo.Constants;
 import com.epam.esm.integration.sqlrepo.MySQLRepository;
@@ -115,7 +115,7 @@ class GiftCertificatesServiceTest {
         Mockito.when(giftCertificatesRepository.isGiftCertificateByNameExist(newCertificate.getName())).thenReturn(false);
         Mockito.when(giftCertificatesRepository.createNewGiftCertificate(newCertificate)).thenReturn(Optional.empty());
 
-        assertThrows(CertificateNotRepresent.class, () -> giftCertificatesService.createGiftCertificate(newCertificate));
+        assertThrows(CertificateNotRepresentException.class, () -> giftCertificatesService.createGiftCertificate(newCertificate));
     }
 
     @Test
@@ -155,7 +155,7 @@ class GiftCertificatesServiceTest {
         Mockito.when(giftCertificatesRepository.getGiftCertificateById(deleteCertificate.getId())).thenReturn(Optional.of(deleteCertificate));
         Mockito.when(giftCertificatesRepository.deleteGiftCertificateById(deleteCertificate.getId())).thenReturn(false);
 
-        assertThrows(CertificateNotRepresent.class, () -> giftCertificatesService.deleteGiftCertificate(deleteCertificate.getId()));
+        assertThrows(CertificateNotRepresentException.class, () -> giftCertificatesService.deleteGiftCertificate(deleteCertificate.getId()));
     }
 
     @Test
@@ -239,7 +239,7 @@ class GiftCertificatesServiceTest {
         Mockito.when(giftCertificatesRepository.getGiftCertificateById(1L)).thenReturn(Optional.of(newCertificate));
         Mockito.when(giftCertificatesRepository.updateGiftCertificateById(1L, newCertificate)).thenReturn(Optional.empty());
 
-        assertThrows(CertificateNotRepresent.class, () -> giftCertificatesService.updateGiftCertificate(1L, newCertificate));
+        assertThrows(CertificateNotRepresentException.class, () -> giftCertificatesService.updateGiftCertificate(1L, newCertificate));
     }
 
     @Test
