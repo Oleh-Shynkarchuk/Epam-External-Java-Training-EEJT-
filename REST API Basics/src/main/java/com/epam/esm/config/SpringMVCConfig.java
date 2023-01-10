@@ -36,7 +36,6 @@ import java.util.Objects;
 @EnableSwagger2
 public class SpringMVCConfig implements WebMvcConfigurer {
     private final Environment environment;
-
     @Autowired
     public SpringMVCConfig(Environment environment) {
         this.environment = environment;

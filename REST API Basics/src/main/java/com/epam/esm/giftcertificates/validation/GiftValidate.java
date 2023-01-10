@@ -46,17 +46,17 @@ public class GiftValidate {
 
     public static void certificateFieldValidation(GiftCertificate updateGiftCertificate) {
 
-        if (Objects.nonNull(updateGiftCertificate.getDuration()) && !NumberUtils.isDigits(updateGiftCertificate.getDuration())) {
+        if (StringUtils.isNotEmpty(updateGiftCertificate.getDuration()) && !NumberUtils.isDigits(updateGiftCertificate.getDuration())) {
             throw new CertificateInvalidRequestException("Invalid certificate field  duration ( duration = " + updateGiftCertificate.getDuration()
-                    + "). Duration must be a numeric!");
+                    + "). Duration must be positive number!");
         }
-        if (Objects.nonNull(updateGiftCertificate.getPrice()) && updateGiftCertificate.getPrice().compareTo(BigDecimal.ZERO) <= 0) {
+        if (updateGiftCertificate.getPrice() != null && updateGiftCertificate.getPrice().compareTo(BigDecimal.ZERO) < 0) {
             throw new CertificateInvalidRequestException("Invalid certificate field price ( price = " + updateGiftCertificate.getPrice()
-                    + "). Price must be positive a number!");
+                    + "). Price must be positive or zero!");
         }
-        if (Objects.nonNull(updateGiftCertificate.getDuration()) && Integer.parseInt(updateGiftCertificate.getDuration()) < 0) {
+        if (StringUtils.isNotEmpty(updateGiftCertificate.getDuration()) && !(Integer.parseInt(updateGiftCertificate.getDuration()) > 0)) {
             throw new CertificateInvalidRequestException("Invalid certificate field duration ( duration = " + updateGiftCertificate.getDuration()
-                    + "). Duration cannot be negative time!");
+                    + "). Duration must be positive number!");
         }
     }
 }

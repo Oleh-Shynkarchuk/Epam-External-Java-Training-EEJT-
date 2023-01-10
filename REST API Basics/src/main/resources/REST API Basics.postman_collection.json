@@ -1,0 +1,266 @@
+{
+	"info": {
+		"_postman_id": "1790fabb-3d9d-490c-8fc2-e01764e968c7",
+		"name": "REST API Basics",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "24720764"
+	},
+	"item": [
+		{
+			"name": "all certificates",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+                  "raw": "http://localhost:8080/gifts",
+                  "protocol": "http",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "8080",
+                  "path": [
+                    "gifts"
+                  ]
+                }
+			},
+			"response": []
+		},
+		{
+			"name": "certificate by id",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+                  "raw": "http://localhost:8080/gifts/34",
+                  "protocol": "http",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "8080",
+                  "path": [
+                    "gifts",
+                    "34"
+                  ]
+                }
+			},
+			"response": []
+		},
+		{
+			"name": "search by param",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+                  "raw": "http://localhost:8080/gifts/search?giftName=Gift2&sortName=desc",
+                  "protocol": "http",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "8080",
+                  "path": [
+                    "gifts",
+                    "search"
+                  ],
+                  "query": [
+                    {
+                      "key": "giftName",
+                      "value": "Gift2"
+                    },
+                    {
+                      "key": "sortName",
+                      "value": "desc"
+                    }
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "create new certificate",
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {}
+			},
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"name\": \"refefwfwfwgej\",\r\n    \"description\": \"grgr\",\r\n    \"price\": -1,\r\n    \"duration\": \"1\",\r\n    \"tagsList\": [\r\n        {\r\n            \"name\": \"vcfwe\"\r\n        },\r\n        {\r\n            \"name\": \"newTag2\"\r\n        },\r\n        {\r\n            \"name\": \"newTag4\"\r\n        }\r\n    ]\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+				"url": {
+                  "raw": "http://localhost:8080/gifts",
+                  "protocol": "http",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "8080",
+                  "path": [
+                    "gifts"
+                  ]
+                }
+			},
+			"response": []
+		},
+		{
+			"name": "patch certificate",
+			"request": {
+				"method": "PATCH",
+				"header": [],
+				"body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"name\":\"newNameG\",\r\n    \"duration\": 12\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+				"url": {
+                  "raw": "http://localhost:8080/gifts/35",
+                  "protocol": "http",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "8080",
+                  "path": [
+                    "gifts",
+                    "35"
+                  ]
+                }
+			},
+			"response": []
+		},
+		{
+			"name": "delete certificate by id",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+                  "raw": "http://localhost:8080/gifts/30",
+                  "protocol": "http",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "8080",
+                  "path": [
+                    "gifts",
+                    "30"
+                  ]
+                }
+			},
+			"response": []
+		},
+		{
+			"name": "all tags",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+                  "raw": "http://localhost:8080/tags",
+                  "protocol": "http",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "8080",
+                  "path": [
+                    "tags"
+                  ]
+                }
+			},
+			"response": []
+		},
+		{
+			"name": "tag by id",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+                  "raw": "http://localhost:8080/tags/0",
+                  "protocol": "http",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "8080",
+                  "path": [
+                    "tags",
+                    "0"
+                  ]
+                }
+			},
+			"response": []
+		},
+		{
+			"name": "create new tag",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"name\": \"\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+				"url": {
+                  "raw": "http://localhost:8080/tags",
+                  "protocol": "http",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "8080",
+                  "path": [
+                    "tags"
+                  ]
+                }
+			},
+			"response": []
+		},
+		{
+			"name": "delete tag by id",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+                  "raw": "http://localhost:8080/tags/0",
+                  "protocol": "http",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "8080",
+                  "path": [
+                    "tags",
+                    "0"
+                  ]
+                }
+			},
+			"response": []
+		},
+		{
+			"name": "get swagger",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+                  "raw": "http://localhost:8080/v2/api-docs",
+                  "protocol": "http",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "8080",
+                  "path": [
+                    "v2",
+                    "api-docs"
+                  ]
+                }
+			},
+			"response": []
+		}
+	]
+}
