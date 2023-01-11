@@ -17,8 +17,7 @@ public class ChainProcessor {
     }
 
     private void buildChain() {
-        chainFilter = NameSortSearchChainFilter.createChain(chainFilter, params.getSortName());
-        chainFilter = DateSortSearchChainFilter.createChain(chainFilter, params.getSortDate());
+        chainFilter = SortSearchChainFilter.createChain(chainFilter, params.getSortDate(), params.getSortName());
         chainFilter = DescriptionSearchChainFilter.createChain(chainFilter, params.getDescription());
         chainFilter = GiftNameSearchChainFilter.createChain(chainFilter, params.getGiftName());
         chainFilter = TagNameSearchChainFilter.createChain(chainFilter, params.getTagName());

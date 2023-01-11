@@ -93,7 +93,7 @@ public class GiftCertificate {
         if (StringUtils.isEmpty(this.getDuration())) {
             this.setDuration(sourceCertificate.getDuration());
         }
-        if (Objects.nonNull(this.getPrice())) {
+        if (this.getPrice() == null) {
             this.setPrice(sourceCertificate.getPrice());
         }
         return this;
@@ -104,7 +104,10 @@ public class GiftCertificate {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         GiftCertificate that = (GiftCertificate) o;
-        return Objects.equals(id, that.id) && Objects.equals(name, that.name) && Objects.equals(description, that.description) && Objects.equals(price, that.price) && Objects.equals(duration, that.duration) && Objects.equals(createDate, that.createDate) && Objects.equals(lastUpdateDate, that.lastUpdateDate) && Objects.equals(tagsList, that.tagsList);
+        return Objects.equals(id, that.id) && Objects.equals(name, that.name)
+                && Objects.equals(description, that.description) && Objects.equals(price, that.price)
+                && Objects.equals(duration, that.duration) && Objects.equals(createDate, that.createDate)
+                && Objects.equals(lastUpdateDate, that.lastUpdateDate) && Objects.equals(tagsList, that.tagsList);
     }
 
     @Override
