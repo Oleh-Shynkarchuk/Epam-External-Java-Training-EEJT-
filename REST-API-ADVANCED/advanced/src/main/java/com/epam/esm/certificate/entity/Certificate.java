@@ -9,6 +9,7 @@ import org.hibernate.Hibernate;
 import org.springframework.hateoas.RepresentationModel;
 
 import javax.persistence.*;
+import javax.validation.constraints.Min;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Objects;
@@ -26,20 +27,19 @@ public class Certificate extends RepresentationModel<Certificate> {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @Column(unique = true)
     private String name;
     private String description;
+    @Min(value = 0)
     private BigDecimal price;
     @Column(name = "duration")
+    @Min(value = 0)
     private String durationOfDays;
     @Column(name = "create_date")
     private String createDate;
     @Column(name = "last_update_date")
     private String lastUpdateDate;
-    @ManyToMany(fetch = FetchType.LAZY,
-            cascade = {
-                    CascadeType.PERSIST,
-                    CascadeType.MERGE
-            })
+    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
     @ToString.Exclude
     @JoinTable(name = "certificates_has_tags",
             joinColumns = @JoinColumn(name = "certificates_id"),

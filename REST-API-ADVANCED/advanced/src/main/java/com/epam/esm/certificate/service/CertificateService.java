@@ -1,13 +1,13 @@
 package com.epam.esm.certificate.service;
 
-import com.epam.esm.certificate.controller.PaginationCriteria;
 import com.epam.esm.certificate.entity.Certificate;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface CertificateService {
-    List<Certificate> getAllCertificate(PaginationCriteria paginationCriteria);
+    List<Certificate> getAllCertificate(Pageable paginationCriteria);
 
     Certificate getCertificateById(long id);
 
@@ -17,7 +17,7 @@ public interface CertificateService {
 
     Certificate patchCertificate(Long id, Certificate patchCertificate);
 
-    Optional<Certificate> getCertificateByName(Certificate certificate);
+    Page<Certificate> getCertificateByTagsName(Pageable pageRequest, List<String> tagName);
 
-    List<Certificate> getCertificateByTagsName(PaginationCriteria paginationCriteria, List<String> tagName);
+    List<Certificate> findAllById(List<Long> idList);
 }

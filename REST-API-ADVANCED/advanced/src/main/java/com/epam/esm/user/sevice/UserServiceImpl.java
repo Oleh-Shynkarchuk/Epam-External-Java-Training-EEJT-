@@ -1,7 +1,7 @@
 package com.epam.esm.user.sevice;
 
-import com.epam.esm.errorhandle.Validate;
 import com.epam.esm.errorhandle.constants.ErrorConstants;
+import com.epam.esm.errorhandle.validation.Validate;
 import com.epam.esm.user.entity.User;
 import com.epam.esm.user.exception.UserNotFoundException;
 import com.epam.esm.user.repository.UserRepository;

@@ -1,6 +1,6 @@
 package com.epam.esm.user.controller;
 
-import com.epam.esm.errorhandle.Validate;
+import com.epam.esm.errorhandle.validation.Validate;
 import com.epam.esm.hateoas.HateoasSupport;
 import com.epam.esm.user.entity.User;
 import com.epam.esm.user.exception.UserInvalidRequestException;
@@ -46,6 +46,6 @@ public class UserController {
                     hateoasSupport.addHateoasSupportToSingleUser(
                             userService.getUserById(Long.parseLong(id))));
         } else throw new UserInvalidRequestException("Invalid input ( id = " + id
-                + " ). Valid only positive number ( 1 and more ).");
+                + " ). Only a positive number is allowed ( 1 and more ).");
     }
 }

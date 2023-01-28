@@ -1,6 +1,6 @@
-package com.epam.esm.errorhandle;
+package com.epam.esm.errorhandle.controller;
 
-import com.epam.esm.InvalidRequest;
+import com.epam.esm.errorhandle.exception.ApplicationException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -13,8 +13,8 @@ import java.util.Map;
 
 @ControllerAdvice
 public class ErrorController extends ResponseEntityExceptionHandler {
-    @ExceptionHandler(value = InvalidRequest.class)
-    protected ResponseEntity<?> handleCertificateInvalidRequestException(InvalidRequest ex, WebRequest request) {
+    @ExceptionHandler(value = ApplicationException.class)
+    protected ResponseEntity<?> handleCertificateInvalidRequestException(ApplicationException ex, WebRequest request) {
         return handleExceptionInternal(ex,
                 Map.of("errorCode", ex.getErrorCode(), "errorMessage", ex.getMessage()),
                 getHttpHeaders(), ex.getHttpStatus(), request);

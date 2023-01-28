@@ -1,39 +1,52 @@
 package com.epam.esm.tag.service;
 
+import com.epam.esm.errorhandle.constants.ErrorConstants;
+import com.epam.esm.errorhandle.validation.Validate;
 import com.epam.esm.tag.entity.Tag;
+import com.epam.esm.tag.exception.TagNotFoundException;
 import com.epam.esm.tag.repo.TagRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Example;
-import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class TagServiceImpl implements TagService {
 
     private final TagRepository tagRepository;
+    private final Validate validate;
 
     @Autowired
-    public TagServiceImpl(TagRepository tagRepository) {
+    public TagServiceImpl(TagRepository tagRepository, Validate validate) {
         this.tagRepository = tagRepository;
+        this.validate = validate;
     }
 
     @Override
-    public List<Tag> getAllTag(String page, String size) {
-        if (page != null && size != null) {
-            return tagRepository.findAll(PageRequest.of(Integer.parseInt(page), Integer.parseInt(size))).toList();
-        } else return tagRepository.findAll();
+    public List<Tag> getAllTag(Pageable paginationCriteria) {
+        return tagRepository.findAll(
+                validate.validNonErroneousPageableRequest(
+                        tagRepository.count(),
+                        paginationCriteria
+                )
+        ).toList();
     }
 
     @Override
     public Tag getTag(Long id) {
-        return tagRepository.findById(id).orElseThrow();
+        return tagRepository.findById(id).orElseThrow(
+                () -> new TagNotFoundException(ErrorConstants.TAG_NOT_FOUND_MESSAGE)
+        );
     }
 
-    public Optional<Tag> findTagByName(String tagName) {
-        return tagRepository.findOne(Example.of(Tag.builder().name(tagName).build()));
+    @Override
+    public boolean existByName(String name) {
+        return tagRepository.existsByName(name);
+    }
+
+    public Tag getTagByName(String tagName) {
+        return tagRepository.getByName(tagName);
     }
 
     @Override
@@ -43,7 +56,9 @@ public class TagServiceImpl implements TagService {
 
     @Override
     public void deleteTag(Long id) {
-        tagRepository.deleteById(id);
+        if (tagRepository.existsById(id)) {
+            tagRepository.deleteById(id);
+        } else throw new TagNotFoundException(ErrorConstants.TAG_NOT_FOUND_MESSAGE);
     }
 
     @Override
