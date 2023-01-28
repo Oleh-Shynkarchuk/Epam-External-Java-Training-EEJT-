@@ -1,6 +1,5 @@
 package com.epam.esm.user.entity;
 
-
 import com.epam.esm.order.entity.Order;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
@@ -15,10 +14,11 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
+@Builder
 public class User extends RepresentationModel<User> {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
     private String email;
     @OneToMany(fetch = FetchType.EAGER,
             cascade = {
