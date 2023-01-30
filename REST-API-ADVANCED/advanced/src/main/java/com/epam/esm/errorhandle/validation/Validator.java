@@ -11,6 +11,7 @@ import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.util.CollectionUtils;
 
 import java.math.BigDecimal;
 
@@ -64,7 +65,7 @@ public class Validator {
             throw new CertificateInvalidRequestException("Invalid certificate field duration ( duration = "
                     + newCertificate.getDurationOfDays() + "). Duration must be positive number!");
         }
-        if (newCertificate.getTags() != null && !newCertificate.getTags().isEmpty()) {
+        if (!CollectionUtils.isEmpty(newCertificate.getTags())) {
             newCertificate.getTags().forEach(this::tag);
         }
     }
