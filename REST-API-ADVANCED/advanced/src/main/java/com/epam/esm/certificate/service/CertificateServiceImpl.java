@@ -5,7 +5,7 @@ import com.epam.esm.certificate.exception.CertificateInvalidRequestException;
 import com.epam.esm.certificate.exception.CertificateNotFoundException;
 import com.epam.esm.certificate.repo.CertificateRepository;
 import com.epam.esm.errorhandle.constants.ErrorConstants;
-import com.epam.esm.errorhandle.validation.Validate;
+import com.epam.esm.errorhandle.validation.Validator;
 import com.epam.esm.tag.entity.Tag;
 import com.epam.esm.tag.service.TagService;
 import lombok.extern.slf4j.Slf4j;
@@ -27,13 +27,13 @@ public class CertificateServiceImpl implements CertificateService {
 
     private final CertificateRepository certificateRepository;
     private final TagService tagService;
-    private final Validate validate;
+    private final Validator validator;
 
     @Autowired
-    public CertificateServiceImpl(CertificateRepository certificateRepository, TagService tagService, Validate validate) {
+    public CertificateServiceImpl(CertificateRepository certificateRepository, TagService tagService, Validator validator) {
         this.certificateRepository = certificateRepository;
         this.tagService = tagService;
-        this.validate = validate;
+        this.validator = validator;
     }
 
     public List<Certificate> getAllCertificates(Pageable paginationCriteria) {
@@ -42,7 +42,7 @@ public class CertificateServiceImpl implements CertificateService {
         long countOfCertificates = certificateRepository.count();
 
         log.debug("Validate pagination request.");
-        Pageable pageable = validate.validNonErroneousPageableRequest(countOfCertificates, paginationCriteria);
+        Pageable pageable = validator.validPageableRequest(countOfCertificates, paginationCriteria);
 
         log.debug("Get certificates from repository with pagination");
         Page<Certificate> all = certificateRepository.findAll(pageable);
@@ -72,7 +72,7 @@ public class CertificateServiceImpl implements CertificateService {
     public Certificate createCertificate(Certificate newCertificate) {
         log.debug("Start of create new certificate method in service layer." +
                 "Validate new certificate fields");
-        validate.certificate(newCertificate);
+        validator.certificate(newCertificate);
 
         log.debug("Uniqueness check");
         if (certificateIsExist(newCertificate)) {
@@ -96,7 +96,7 @@ public class CertificateServiceImpl implements CertificateService {
     public Certificate patchCertificate(Long id, Certificate patchCertificate) {
         log.debug("Start of patch certificate method in service layer." +
                 "Validate updated certificate fields");
-        validate.certificate(patchCertificate);
+        validator.certificate(patchCertificate);
 
         log.debug("Uniqueness check.");
         if (StringUtils.isNotEmpty(patchCertificate.getName())) {

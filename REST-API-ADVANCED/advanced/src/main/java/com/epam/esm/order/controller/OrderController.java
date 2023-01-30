@@ -1,6 +1,6 @@
 package com.epam.esm.order.controller;
 
-import com.epam.esm.errorhandle.validation.Validate;
+import com.epam.esm.errorhandle.validation.Validator;
 import com.epam.esm.hateoas.HateoasSupport;
 import com.epam.esm.order.entity.Order;
 import com.epam.esm.order.exception.OrderInvalidRequestException;
@@ -22,13 +22,13 @@ public class OrderController {
 
     private final OrderService orderService;
     private final HateoasSupport hateoasSupport;
-    private final Validate validate;
+    private final Validator validator;
 
     @Autowired
-    public OrderController(OrderService orderService, HateoasSupport hateoasSupport, Validate validate) {
+    public OrderController(OrderService orderService, HateoasSupport hateoasSupport, Validator validator) {
         this.orderService = orderService;
         this.hateoasSupport = hateoasSupport;
-        this.validate = validate;
+        this.validator = validator;
     }
 
     @GetMapping
@@ -47,7 +47,7 @@ public class OrderController {
     @GetMapping("/{id}")
     public ResponseEntity<Order> getOrderById(@PathVariable String id) {
         log.debug("Request accepted getOrderById. Validate id field.");
-        if (validate.isPositiveAndParsableId(id)) {
+        if (validator.isPositiveAndParsableId(id)) {
 
             log.debug("Send request to service");
             Order serviceOrder = orderService.getOrder(Long.parseLong(id));

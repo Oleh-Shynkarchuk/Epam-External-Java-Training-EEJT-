@@ -1,7 +1,7 @@
 package com.epam.esm.user.sevice;
 
 import com.epam.esm.errorhandle.constants.ErrorConstants;
-import com.epam.esm.errorhandle.validation.Validate;
+import com.epam.esm.errorhandle.validation.Validator;
 import com.epam.esm.user.entity.User;
 import com.epam.esm.user.exception.UserNotFoundException;
 import com.epam.esm.user.repository.UserRepository;
@@ -18,12 +18,12 @@ import java.util.List;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
-    private final Validate validate;
+    private final Validator validator;
 
     @Autowired
-    public UserServiceImpl(UserRepository userRepository, Validate validate) {
+    public UserServiceImpl(UserRepository userRepository, Validator validator) {
         this.userRepository = userRepository;
-        this.validate = validate;
+        this.validator = validator;
     }
 
     @Override
@@ -33,7 +33,7 @@ public class UserServiceImpl implements UserService {
         long amountOfAllUsers = userRepository.count();
 
         log.debug("Validate pagination request.");
-        Pageable pageable = validate.validNonErroneousPageableRequest(amountOfAllUsers, paginationCriteria);
+        Pageable pageable = validator.validPageableRequest(amountOfAllUsers, paginationCriteria);
 
         log.debug("Get users from repository with pagination");
         Page<User> allUsers = userRepository.findAll(pageable);

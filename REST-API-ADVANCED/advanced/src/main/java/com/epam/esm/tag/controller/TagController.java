@@ -1,6 +1,6 @@
 package com.epam.esm.tag.controller;
 
-import com.epam.esm.errorhandle.validation.Validate;
+import com.epam.esm.errorhandle.validation.Validator;
 import com.epam.esm.hateoas.HateoasSupport;
 import com.epam.esm.tag.entity.Tag;
 import com.epam.esm.tag.exception.TagInvalidRequestException;
@@ -23,13 +23,13 @@ public class TagController {
 
     private final TagService tagService;
     private final HateoasSupport hateoasSupport;
-    private final Validate validate;
+    private final Validator validator;
 
     @Autowired
-    public TagController(TagService tagService, HateoasSupport hateoasSupport, Validate validate) {
+    public TagController(TagService tagService, HateoasSupport hateoasSupport, Validator validator) {
         this.tagService = tagService;
         this.hateoasSupport = hateoasSupport;
-        this.validate = validate;
+        this.validator = validator;
     }
 
     @GetMapping
@@ -49,7 +49,7 @@ public class TagController {
     public ResponseEntity<Tag> getTagById(@PathVariable String id) {
 
         log.debug("Request accepted getTagById. Validate id field.");
-        if (validate.isPositiveAndParsableId(id)) {
+        if (validator.isPositiveAndParsableId(id)) {
 
             log.debug("Send request to service");
             Tag serviceTag = tagService.getTag(Long.parseLong(id));
@@ -94,7 +94,7 @@ public class TagController {
     public ResponseEntity<String> deleteTag(@PathVariable String id) {
 
         log.debug("Request accepted deleteTag. Validate id field.");
-        if (validate.isPositiveAndParsableId(id)) {
+        if (validator.isPositiveAndParsableId(id)) {
 
             log.debug("Send request to service");
             tagService.deleteTag(Long.valueOf(id));

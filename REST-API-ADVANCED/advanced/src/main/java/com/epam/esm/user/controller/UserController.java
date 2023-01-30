@@ -1,6 +1,6 @@
 package com.epam.esm.user.controller;
 
-import com.epam.esm.errorhandle.validation.Validate;
+import com.epam.esm.errorhandle.validation.Validator;
 import com.epam.esm.hateoas.HateoasSupport;
 import com.epam.esm.user.entity.User;
 import com.epam.esm.user.exception.UserInvalidRequestException;
@@ -25,13 +25,13 @@ public class UserController {
 
     private final UserService userService;
     private final HateoasSupport hateoasSupport;
-    private final Validate validate;
+    private final Validator validator;
 
     @Autowired
-    public UserController(UserService userService, HateoasSupport hateoasSupport, Validate validate) {
+    public UserController(UserService userService, HateoasSupport hateoasSupport, Validator validator) {
         this.userService = userService;
         this.hateoasSupport = hateoasSupport;
-        this.validate = validate;
+        this.validator = validator;
 
     }
 
@@ -51,7 +51,7 @@ public class UserController {
     public ResponseEntity<User> getUser(@PathVariable String id) {
 
         log.debug("Request accepted getUserById. Validate id field.");
-        if (validate.isPositiveAndParsableId(id)) {
+        if (validator.isPositiveAndParsableId(id)) {
 
             log.debug("Send request to service");
             User userById = userService.getUserById(Long.parseLong(id));

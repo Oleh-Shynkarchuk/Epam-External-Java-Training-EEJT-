@@ -4,7 +4,7 @@ import com.epam.esm.certificate.entity.Certificate;
 import com.epam.esm.certificate.exception.CertificateInvalidRequestException;
 import com.epam.esm.certificate.service.CertificateService;
 import com.epam.esm.certificate.service.CertificateServiceImpl;
-import com.epam.esm.errorhandle.validation.Validate;
+import com.epam.esm.errorhandle.validation.Validator;
 import com.epam.esm.hateoas.HateoasSupport;
 import lombok.extern.slf4j.Slf4j;
 import org.springdoc.api.annotations.ParameterObject;
@@ -24,16 +24,16 @@ public class CertificateController {
 
     private final CertificateService certificateService;
     private final HateoasSupport hateoasSupport;
-    private final Validate validate;
+    private final Validator validator;
 
     @Autowired
     public CertificateController(
             CertificateServiceImpl certificateService,
             HateoasSupport hateoasSupport,
-            Validate validate) {
+            Validator validator) {
         this.certificateService = certificateService;
         this.hateoasSupport = hateoasSupport;
-        this.validate = validate;
+        this.validator = validator;
     }
 
     @GetMapping
@@ -55,7 +55,7 @@ public class CertificateController {
     public ResponseEntity<Certificate> getCertificateById(
             @PathVariable("id") String id) {
         log.debug("Request accepted getCertificateById. Validate id field.");
-        if (validate.isPositiveAndParsableId(id)) {
+        if (validator.isPositiveAndParsableId(id)) {
 
             log.debug("Get certificate by id from service.");
             Certificate certificateById = certificateService.getCertificateById(Long.parseLong(id));
@@ -65,7 +65,7 @@ public class CertificateController {
 
             log.debug("Response to client.");
             return ResponseEntity.ok(certificateByIdANDHateoas);
-        } else throw throwExceptionWhenWrongIdInput(id);
+        } else throw certificateInvalidRequestException(id);
     }
 
     @GetMapping("/search")
@@ -101,7 +101,7 @@ public class CertificateController {
             @RequestBody Certificate patchCertificate) {
 
         log.debug("Request accepted getCertificateById. Validate id field.");
-        if (validate.isPositiveAndParsableId(id)) {
+        if (validator.isPositiveAndParsableId(id)) {
 
             log.debug("Update certificate.");
             Certificate certificate = certificateService.patchCertificate(Long.parseLong(id), patchCertificate);
@@ -111,7 +111,7 @@ public class CertificateController {
 
             log.debug("Response to client.");
             return ResponseEntity.ok(certificateAndHateoas);
-        } else throw throwExceptionWhenWrongIdInput(id);
+        } else throw certificateInvalidRequestException(id);
     }
 
     @DeleteMapping("/{id}")
@@ -119,7 +119,7 @@ public class CertificateController {
             @PathVariable("id") String id) {
 
         log.debug("Request accepted deleteCertificateById. Validate id field.");
-        if (validate.isPositiveAndParsableId(id)) {
+        if (validator.isPositiveAndParsableId(id)) {
 
             log.debug("Delete certificate.");
             certificateService.deleteCertificateById(Long.parseLong(id));
@@ -127,10 +127,10 @@ public class CertificateController {
             log.debug("Response to client.");
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }
-        throw throwExceptionWhenWrongIdInput(id);
+        throw certificateInvalidRequestException(id);
     }
 
-    private CertificateInvalidRequestException throwExceptionWhenWrongIdInput(String id) {
+    private CertificateInvalidRequestException certificateInvalidRequestException(String id) {
         log.error("Invalid input ( id = " + id + " ). Only a positive number is allowed ( 1 and more ).");
         return new CertificateInvalidRequestException("Invalid input ( id = " + id
                 + " ). Only a positive number is allowed ( 1 and more ).");

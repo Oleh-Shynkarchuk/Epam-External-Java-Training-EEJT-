@@ -3,7 +3,7 @@ package com.epam.esm.order.service;
 import com.epam.esm.certificate.entity.Certificate;
 import com.epam.esm.certificate.service.CertificateService;
 import com.epam.esm.errorhandle.constants.ErrorConstants;
-import com.epam.esm.errorhandle.validation.Validate;
+import com.epam.esm.errorhandle.validation.Validator;
 import com.epam.esm.order.entity.Order;
 import com.epam.esm.order.exception.OrderNotFoundException;
 import com.epam.esm.order.repository.OrderRepository;
@@ -26,17 +26,17 @@ public class OrderServiceImpl implements OrderService {
     private final OrderRepository orderRepository;
     private final CertificateService certificateService;
     private final UserService userService;
-    private final Validate validate;
+    private final Validator validator;
 
     @Autowired
     public OrderServiceImpl(
             OrderRepository orderRepository,
             CertificateService certificateService,
-            Validate validate,
+            Validator validator,
             UserService userService) {
         this.orderRepository = orderRepository;
         this.certificateService = certificateService;
-        this.validate = validate;
+        this.validator = validator;
         this.userService = userService;
     }
 
@@ -47,7 +47,7 @@ public class OrderServiceImpl implements OrderService {
         long amountOfOrders = orderRepository.count();
 
         log.debug("Validate pagination request.");
-        Pageable pageable = validate.validNonErroneousPageableRequest(amountOfOrders, paginationCriteria);
+        Pageable pageable = validator.validPageableRequest(amountOfOrders, paginationCriteria);
 
         log.debug("Get orders from repository with pagination");
         Page<Order> all = orderRepository.findAll(pageable);
@@ -76,7 +76,7 @@ public class OrderServiceImpl implements OrderService {
 
         log.debug("Start of create new order method in service layer." +
                 "Validate new order fields");
-        validate.order(newOrder);
+        validator.order(newOrder);
         BigDecimal totalPrice = new BigDecimal(0);
         newOrder.setCertificates(certificateService.findAllById(getCertificateIdList(newOrder)));
         for (Certificate certificate : newOrder.getCertificates()) {

@@ -1,7 +1,7 @@
 package com.epam.esm.tag.service;
 
 import com.epam.esm.errorhandle.constants.ErrorConstants;
-import com.epam.esm.errorhandle.validation.Validate;
+import com.epam.esm.errorhandle.validation.Validator;
 import com.epam.esm.tag.entity.Tag;
 import com.epam.esm.tag.exception.TagNotFoundException;
 import com.epam.esm.tag.repo.TagRepository;
@@ -18,12 +18,12 @@ import java.util.List;
 public class TagServiceImpl implements TagService {
 
     private final TagRepository tagRepository;
-    private final Validate validate;
+    private final Validator validator;
 
     @Autowired
-    public TagServiceImpl(TagRepository tagRepository, Validate validate) {
+    public TagServiceImpl(TagRepository tagRepository, Validator validator) {
         this.tagRepository = tagRepository;
-        this.validate = validate;
+        this.validator = validator;
     }
 
     @Override
@@ -33,7 +33,7 @@ public class TagServiceImpl implements TagService {
         long count = tagRepository.count();
 
         log.debug("Validate pagination request.");
-        Pageable pageable = validate.validNonErroneousPageableRequest(count, paginationCriteria);
+        Pageable pageable = validator.validPageableRequest(count, paginationCriteria);
 
         log.debug("Get tags from repository with pagination");
         Page<Tag> allTags = tagRepository.findAll(pageable);
@@ -76,7 +76,7 @@ public class TagServiceImpl implements TagService {
     public Tag createTag(Tag newTag) {
         log.debug("Start of create new tag method in service layer." +
                 "Validate new tag fields");
-        validate.tag(newTag);
+        validator.tag(newTag);
 
         log.debug("Save new tag in repository");
         Tag tag = tagRepository.saveAndFlush(newTag);

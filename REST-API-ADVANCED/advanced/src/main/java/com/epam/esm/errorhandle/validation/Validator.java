@@ -15,9 +15,9 @@ import org.springframework.data.domain.Pageable;
 import java.math.BigDecimal;
 
 @Configuration
-public class Validate {
+public class Validator {
 
-    public Pageable validNonErroneousPageableRequest(long availableAmount, Pageable paginationCriteria) {
+    public Pageable validPageableRequest(long availableAmount, Pageable paginationCriteria) {
         if (availableAmountOfItemsEnoughForPagination(paginationCriteria, availableAmount)) {
             paginationCriteria = PageRequest.of(
                     (int) Math.floor((float) availableAmount / paginationCriteria.getPageNumber()),
