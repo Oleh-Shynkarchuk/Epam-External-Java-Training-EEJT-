@@ -5,7 +5,7 @@ import com.epam.esm.errorhandle.exception.ApplicationException;
 import org.springframework.http.HttpStatus;
 
 public class UserNotFoundException extends ApplicationException {
-    public UserNotFoundException(String message) {
-        super(message, ErrorConstants.USER_NOT_FOUND_ERROR_CODE, HttpStatus.NOT_FOUND);
+    public UserNotFoundException() {
+        super(ErrorConstants.USER_NOT_FOUND_MESSAGE, ErrorConstants.USER_NOT_FOUND_ERROR_CODE, HttpStatus.NOT_FOUND);
     }
 }

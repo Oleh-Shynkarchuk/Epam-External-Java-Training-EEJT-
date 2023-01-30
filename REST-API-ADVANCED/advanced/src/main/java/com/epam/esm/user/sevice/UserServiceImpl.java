@@ -40,7 +40,7 @@ public class UserServiceImpl implements UserService {
 
         log.debug("Emptiness check.");
         if (allUsers.isEmpty()) {
-            throw getUserNotFoundException();
+            throw userNotFoundException();
         }
         log.debug("Service send received certificates from repository to controller");
         return allUsers.toList();
@@ -50,14 +50,14 @@ public class UserServiceImpl implements UserService {
     public User getUserById(long id) {
         log.debug("Start of getUserById method in service layer. " +
                 "Get user by id from repository");
-        User user = userRepository.findById(id).orElseThrow(this::getUserNotFoundException);
+        User user = userRepository.findById(id).orElseThrow(this::userNotFoundException);
 
         log.debug("Service send received user from repository");
         return user;
     }
 
-    private UserNotFoundException getUserNotFoundException() {
+    private UserNotFoundException userNotFoundException() {
         log.error(ErrorConstants.USER_NOT_FOUND_MESSAGE);
-        return new UserNotFoundException(ErrorConstants.USER_NOT_FOUND_MESSAGE);
+        return new UserNotFoundException();
     }
 }

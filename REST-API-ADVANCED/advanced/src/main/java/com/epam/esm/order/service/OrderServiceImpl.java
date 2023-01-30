@@ -54,7 +54,7 @@ public class OrderServiceImpl implements OrderService {
 
         log.debug("Emptiness check.");
         if (all.isEmpty()) {
-            throw getOrderNotFoundException();
+            throw orderNotFoundException();
         }
         log.debug("Service return received orders from repository");
         return all.toList();
@@ -65,7 +65,7 @@ public class OrderServiceImpl implements OrderService {
 
         log.debug("Start of getOrderById method in service layer. " +
                 "Get order by id from repository");
-        Order order = orderRepository.findById(id).orElseThrow(this::getOrderNotFoundException);
+        Order order = orderRepository.findById(id).orElseThrow(this::orderNotFoundException);
 
         log.debug("Service return received order from repository");
         return order;
@@ -98,8 +98,8 @@ public class OrderServiceImpl implements OrderService {
                 .collect(Collectors.toList());
     }
 
-    private OrderNotFoundException getOrderNotFoundException() {
+    private OrderNotFoundException orderNotFoundException() {
         log.error(ErrorConstants.ORDER_NOT_FOUND_MESSAGE);
-        return new OrderNotFoundException(ErrorConstants.ORDER_NOT_FOUND_MESSAGE);
+        return new OrderNotFoundException();
     }
 }

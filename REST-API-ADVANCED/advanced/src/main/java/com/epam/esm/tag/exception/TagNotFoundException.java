@@ -5,7 +5,7 @@ import com.epam.esm.errorhandle.exception.ApplicationException;
 import org.springframework.http.HttpStatus;
 
 public class TagNotFoundException extends ApplicationException {
-    public TagNotFoundException(String message) {
-        super(message, ErrorConstants.TAG_NOT_FOUND_ERROR_CODE, HttpStatus.BAD_REQUEST);
+    public TagNotFoundException() {
+        super(ErrorConstants.TAG_NOT_FOUND_MESSAGE, ErrorConstants.TAG_NOT_FOUND_ERROR_CODE, HttpStatus.BAD_REQUEST);
     }
 }

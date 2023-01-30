@@ -205,6 +205,6 @@ public class CertificateServiceImpl implements CertificateService {
 
     private CertificateNotFoundException getCertificateNotFoundException() {
         log.error(ErrorConstants.CERTIFICATE_NOT_FOUND_MESSAGE);
-        return new CertificateNotFoundException(ErrorConstants.CERTIFICATE_NOT_FOUND_MESSAGE);
+        return new CertificateNotFoundException();
     }
 }

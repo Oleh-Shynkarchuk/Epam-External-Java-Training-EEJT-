@@ -40,7 +40,7 @@ public class TagServiceImpl implements TagService {
 
         log.debug("Emptiness check.");
         if (allTags.isEmpty()) {
-            throw getTagNotFoundException();
+            throw tagNotFoundException();
         }
         log.debug("Service return received tags from repository");
         return allTags.toList();
@@ -50,7 +50,7 @@ public class TagServiceImpl implements TagService {
     public Tag getTag(Long id) {
         log.debug("Start of getTagById method in service layer. " +
                 "Get tag by id from repository");
-        Tag tag = tagRepository.findById(id).orElseThrow(this::getTagNotFoundException);
+        Tag tag = tagRepository.findById(id).orElseThrow(this::tagNotFoundException);
 
         log.debug("Service return received tag from repository");
         return tag;
@@ -92,7 +92,7 @@ public class TagServiceImpl implements TagService {
         if (tagRepository.existsById(id)) {
             log.debug("Deleting tag in repository");
             tagRepository.deleteById(id);
-        } else throw getTagNotFoundException();
+        } else throw tagNotFoundException();
     }
 
     @Override
@@ -108,8 +108,8 @@ public class TagServiceImpl implements TagService {
         return tag;
     }
 
-    private TagNotFoundException getTagNotFoundException() {
+    private TagNotFoundException tagNotFoundException() {
         log.error(ErrorConstants.TAG_NOT_FOUND_MESSAGE);
-        return new TagNotFoundException(ErrorConstants.TAG_NOT_FOUND_MESSAGE);
+        return new TagNotFoundException();
     }
 }
