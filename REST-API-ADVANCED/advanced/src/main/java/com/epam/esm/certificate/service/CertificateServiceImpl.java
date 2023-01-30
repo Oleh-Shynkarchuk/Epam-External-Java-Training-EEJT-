@@ -15,6 +15,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -169,9 +170,8 @@ public class CertificateServiceImpl implements CertificateService {
 
         log.debug("Save new tags or select existing ones");
         List<Tag> list = new ArrayList<>();
-
         log.debug("Emptiness check.");
-        if (updateCertificate.getTags() != null) {
+        if (!CollectionUtils.isEmpty(updateCertificate.getTags())) {
             for (Tag tag : updateCertificate.getTags()) {
                 log.debug("Uniqueness check");
                 if (tagService.existByName(tag.getName())) {
