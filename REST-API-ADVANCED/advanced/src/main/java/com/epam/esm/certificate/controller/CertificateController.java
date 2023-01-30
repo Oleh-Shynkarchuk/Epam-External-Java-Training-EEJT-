@@ -6,6 +6,7 @@ import com.epam.esm.certificate.service.CertificateService;
 import com.epam.esm.certificate.service.CertificateServiceImpl;
 import com.epam.esm.errorhandle.validation.Validate;
 import com.epam.esm.hateoas.HateoasSupport;
+import lombok.extern.slf4j.Slf4j;
 import org.springdoc.api.annotations.ParameterObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@Slf4j
 @RestController
 @RequestMapping("/v1/api/certificate")
 public class CertificateController {
@@ -37,23 +39,32 @@ public class CertificateController {
     @GetMapping
     public ResponseEntity<CollectionModel<Certificate>> getAllGiftCertificates(
             @ParameterObject Pageable paginationCriteria) {
-        return ResponseEntity.ok(
-                hateoasSupport.addHateoasSupportToCertificateList(
-                        certificateService.getAllCertificate(paginationCriteria),
-                        paginationCriteria
-                )
-        );
+
+        log.debug("Request accepted getAllGiftCertificates. Get all certificates from service.");
+        List<Certificate> allCertificate = certificateService.getAllCertificates(paginationCriteria);
+
+        log.debug("Add hateoas to certificates.");
+        CollectionModel<Certificate> allCertificatesAndHateoas = hateoasSupport
+                .addHateoasSupportToCertificateList(allCertificate, paginationCriteria);
+
+        log.debug("Response to client.");
+        return ResponseEntity.ok(allCertificatesAndHateoas);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<Certificate> getCertificateById(
             @PathVariable("id") String id) {
-        if (validate.id(id)) {
-            return ResponseEntity.ok(
-                    hateoasSupport.addHateoasSupportToSingleCertificate(
-                            certificateService.getCertificateById(Long.parseLong(id))
-                    )
-            );
+        log.debug("Request accepted getCertificateById. Validate id field.");
+        if (validate.isPositiveAndParsableId(id)) {
+
+            log.debug("Get certificate by id from service.");
+            Certificate certificateById = certificateService.getCertificateById(Long.parseLong(id));
+
+            log.debug("Add hateoas to certificate.");
+            Certificate certificateByIdANDHateoas = hateoasSupport.addHateoasSupportToSingleCertificate(certificateById);
+
+            log.debug("Response to client.");
+            return ResponseEntity.ok(certificateByIdANDHateoas);
         } else throw throwExceptionWhenWrongIdInput(id);
     }
 
@@ -61,48 +72,66 @@ public class CertificateController {
     public ResponseEntity<CollectionModel<Certificate>> getCertificateBySeveralTagsName(
             @ParameterObject Pageable pageable,
             @RequestParam List<String> tagName) {
-        return ResponseEntity.ok(
-                hateoasSupport.addHateoasSupport(
-                        certificateService.getCertificateByTagsName(pageable, tagName).toList(),
-                        pageable,
-                        tagName
-                )
-        );
+        log.debug("Request accepted getCertificateBySeveralTagsName. Get certificates from service.");
+        List<Certificate> certificateByTagsName = certificateService.getCertificateByTagsName(pageable, tagName);
+
+        log.debug("Add hateoas to certificates.");
+        CollectionModel<Certificate> certificatesAndHateoas = hateoasSupport.
+                addHateoasSupport(certificateByTagsName, pageable, tagName);
+
+        log.debug("Response to client.");
+        return ResponseEntity.ok(certificatesAndHateoas);
     }
 
     @PostMapping
     public ResponseEntity<Certificate> createCertificate(@RequestBody Certificate newCertificate) {
-        return ResponseEntity.ok(
-                hateoasSupport.addHateoasSupportToSingleCertificate(
-                        certificateService.createCertificate(newCertificate)
-                )
-        );
+        log.debug("Request accepted createCertificate. Create new certificate by service.");
+        Certificate certificate = certificateService.createCertificate(newCertificate);
+
+        log.debug("Add hateoas to created certificate.");
+        Certificate certificateAndHateoas = hateoasSupport.addHateoasSupportToSingleCertificate(certificate);
+
+        log.debug("Response to client.");
+        return ResponseEntity.ok(certificateAndHateoas);
     }
 
     @PatchMapping("/{id}")
     public ResponseEntity<Certificate> patchCertificate(
             @PathVariable("id") String id,
             @RequestBody Certificate patchCertificate) {
-        if (validate.id(id)) {
-            return ResponseEntity.ok(
-                    hateoasSupport.addHateoasSupportToSingleCertificate(
-                            certificateService.patchCertificate(Long.parseLong(id), patchCertificate)
-                    )
-            );
+
+        log.debug("Request accepted getCertificateById. Validate id field.");
+        if (validate.isPositiveAndParsableId(id)) {
+
+            log.debug("Update certificate.");
+            Certificate certificate = certificateService.patchCertificate(Long.parseLong(id), patchCertificate);
+
+            log.debug("Add hateoas to updated certificate.");
+            Certificate certificateAndHateoas = hateoasSupport.addHateoasSupportToSingleCertificate(certificate);
+
+            log.debug("Response to client.");
+            return ResponseEntity.ok(certificateAndHateoas);
         } else throw throwExceptionWhenWrongIdInput(id);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteCertificateById(
             @PathVariable("id") String id) {
-        if (validate.id(id)) {
+
+        log.debug("Request accepted deleteCertificateById. Validate id field.");
+        if (validate.isPositiveAndParsableId(id)) {
+
+            log.debug("Delete certificate.");
             certificateService.deleteCertificateById(Long.parseLong(id));
+
+            log.debug("Response to client.");
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }
         throw throwExceptionWhenWrongIdInput(id);
     }
 
     private CertificateInvalidRequestException throwExceptionWhenWrongIdInput(String id) {
+        log.error("Invalid input ( id = " + id + " ). Only a positive number is allowed ( 1 and more ).");
         return new CertificateInvalidRequestException("Invalid input ( id = " + id
                 + " ). Only a positive number is allowed ( 1 and more ).");
     }

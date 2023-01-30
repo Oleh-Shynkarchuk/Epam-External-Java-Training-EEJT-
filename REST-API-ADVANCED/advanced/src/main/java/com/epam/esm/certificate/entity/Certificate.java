@@ -5,7 +5,6 @@ import com.epam.esm.tag.entity.Tag;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import org.apache.commons.lang3.StringUtils;
-import org.hibernate.Hibernate;
 import org.springframework.hateoas.RepresentationModel;
 
 import javax.persistence.*;
@@ -72,26 +71,11 @@ public class Certificate extends RepresentationModel<Certificate> {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
+        if (o == null || getClass() != o.getClass()) return false;
         Certificate that = (Certificate) o;
-        return id != null && Objects.equals(id, that.id);
-    }
-
-    @Override
-    public int hashCode() {
-        return getClass().hashCode();
-    }
-
-    public void addTag(Tag tag) {
-        this.tags.add(tag);
-        tag.getCertificates().add(this);
-    }
-
-    public void removeTag(long tagId) {
-        Tag tag = this.tags.stream().filter(t -> t.getId() == tagId).findFirst().orElse(null);
-        if (tag != null) {
-            this.tags.remove(tag);
-            tag.getCertificates().remove(this);
-        }
+        return Objects.equals(id, that.id) && Objects.equals(name, that.name)
+                && Objects.equals(description, that.description) && Objects.equals(price, that.price)
+                && Objects.equals(durationOfDays, that.durationOfDays) && Objects.equals(createDate, that.createDate)
+                && Objects.equals(lastUpdateDate, that.lastUpdateDate) && Objects.equals(tags, that.tags);
     }
 }

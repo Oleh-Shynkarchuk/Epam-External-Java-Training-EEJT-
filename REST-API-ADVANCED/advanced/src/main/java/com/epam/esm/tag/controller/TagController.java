@@ -5,6 +5,7 @@ import com.epam.esm.hateoas.HateoasSupport;
 import com.epam.esm.tag.entity.Tag;
 import com.epam.esm.tag.exception.TagInvalidRequestException;
 import com.epam.esm.tag.service.TagService;
+import lombok.extern.slf4j.Slf4j;
 import org.springdoc.api.annotations.ParameterObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
@@ -13,7 +14,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 
+@Slf4j
 @RestController
 @RequestMapping("/v1/api/tag")
 public class TagController {
@@ -31,44 +34,82 @@ public class TagController {
 
     @GetMapping
     public ResponseEntity<CollectionModel<Tag>> getAllTag(@ParameterObject Pageable paginationCriteria) {
-        return ResponseEntity.ok(
-                hateoasSupport.addHateoasSupportToAllTag(
-                        tagService.getAllTag(paginationCriteria),
-                        paginationCriteria
-                )
-        );
+
+        log.debug("Request accepted getAllTag. Send request to service.");
+        List<Tag> allTag = tagService.getAllTag(paginationCriteria);
+
+        log.debug("Add hateoas to tags");
+        CollectionModel<Tag> tagsAndHateoas = hateoasSupport.addHateoasSupportToAllTag(allTag, paginationCriteria);
+
+        log.debug("Send response to client");
+        return ResponseEntity.ok(tagsAndHateoas);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<Tag> getTagById(@PathVariable String id) {
-        if (validate.id(id)) {
-            return ResponseEntity.ok(
-                    hateoasSupport.addHateoasSupportToSingleTag(
-                            tagService.getTag(Long.parseLong(id))));
-        } else throw new TagInvalidRequestException("Invalid input ( id = " + id
-                + " ). Only a positive number is allowed ( 1 and more ).");
+
+        log.debug("Request accepted getTagById. Validate id field.");
+        if (validate.isPositiveAndParsableId(id)) {
+
+            log.debug("Send request to service");
+            Tag serviceTag = tagService.getTag(Long.parseLong(id));
+
+            log.debug("Add hateoas to tag");
+            Tag tagAndHateoas = hateoasSupport.addHateoasSupportToSingleTag(serviceTag);
+
+            log.debug("Send response to client");
+            return ResponseEntity.ok(tagAndHateoas);
+        } else {
+            throw getTagInvalidRequestException(id);
+        }
     }
 
     @GetMapping("/best")
     public ResponseEntity<Tag> getMostWidelyUsedTag() {
-        return ResponseEntity.ok(
-                hateoasSupport.addHateoasSupportToSingleTag(tagService.getMostWidelyUsedTag())
-        );
+
+        log.debug("Request accepted getMostWidelyUsedTag. Send request to service.");
+        Tag mostWidelyUsedTag = tagService.getMostWidelyUsedTag();
+
+        log.debug("Add hateoas to tag");
+        Tag tagAndHateoas = hateoasSupport.addHateoasSupportToSingleTag(mostWidelyUsedTag);
+
+        log.debug("Send response to client");
+        return ResponseEntity.ok(tagAndHateoas);
     }
 
     @PostMapping
     public ResponseEntity<Tag> createTag(@RequestBody Tag newTag) {
-        return ResponseEntity.ok(
-                hateoasSupport.addHateoasSupportToSingleTag(tagService.createTag(newTag))
-        );
+
+        log.debug("Request accepted getMostWidelyUsedTag. Send request to service.");
+        Tag serviceTag = tagService.createTag(newTag);
+
+        log.debug("Add hateoas to tag");
+        Tag tagAndHateoas = hateoasSupport.addHateoasSupportToSingleTag(serviceTag);
+
+        log.debug("Send response to client");
+        return ResponseEntity.ok(tagAndHateoas);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteTag(@PathVariable String id) {
-        if (validate.id(id)) {
+
+        log.debug("Request accepted deleteTag. Validate id field.");
+        if (validate.isPositiveAndParsableId(id)) {
+
+            log.debug("Send request to service");
             tagService.deleteTag(Long.valueOf(id));
+
+            log.debug("Send response to client");
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        } else throw new TagInvalidRequestException("Invalid input ( id = " + id
+        } else {
+            throw getTagInvalidRequestException(id);
+        }
+    }
+
+    private TagInvalidRequestException getTagInvalidRequestException(String id) {
+        log.error("Invalid input ( id = " + id
+                + " ). Only a positive number is allowed ( 1 and more ).");
+        return new TagInvalidRequestException("Invalid input ( id = " + id
                 + " ). Only a positive number is allowed ( 1 and more ).");
     }
 }

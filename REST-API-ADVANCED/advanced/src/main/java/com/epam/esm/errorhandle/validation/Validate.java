@@ -31,7 +31,7 @@ public class Validate {
         return (long) paginationCriteria.getPageNumber() * paginationCriteria.getPageSize() > availableAmount;
     }
 
-    public boolean id(String id) {
+    public boolean isPositiveAndParsableId(String id) {
         return NumberUtils.isParsable(id) && Long.parseLong(id) > 0;
     }
 
@@ -65,12 +65,14 @@ public class Validate {
                     + newCertificate.getDurationOfDays() + "). Duration must be positive number!");
         }
         if (newCertificate.getTags() != null && !newCertificate.getTags().isEmpty()) {
-            for (Tag tag : newCertificate.getTags()) {
-                if (StringUtils.isEmpty(tag.getName())) {
-                    throw new TagInvalidRequestException("Invalid tag field name ( name = "
-                            + newCertificate.getPrice() + "). Name cannot be empty!");
-                }
-            }
+            newCertificate.getTags().forEach(this::tag);
+        }
+    }
+
+    public void tag(Tag newTag) {
+        if (StringUtils.isEmpty(newTag.getName())) {
+            throw new TagInvalidRequestException("Invalid tag field name ( name = "
+                    + newTag.getName() + "). Name cannot be empty!");
         }
     }
 }

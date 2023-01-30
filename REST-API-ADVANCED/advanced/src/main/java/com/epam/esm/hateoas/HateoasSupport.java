@@ -38,7 +38,9 @@ public class HateoasSupport {
                         .getAllGiftCertificates(paginationCriteria)).withRel("getAllCertificates"),
                 WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(CertificateController.class)
                                 .getCertificateBySeveralTagsName(paginationCriteria, tagName))
-                        .withRel("getCertificateBySeveralTagsName"));
+                        .withRel("getCertificateBySeveralTagsName"),
+                WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(CertificateController.class)
+                        .createCertificate(Certificate.builder().build())).withRel("createNewCertificate"));
     }
 
     public Certificate addHateoasSupportToSingleCertificate(Certificate certificate) {
@@ -49,7 +51,9 @@ public class HateoasSupport {
                         .getAllGiftCertificates(Pageable.unpaged())).withRel("getAllCertificates"),
                 WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(CertificateController.class)
                                 .getCertificateBySeveralTagsName(Pageable.unpaged(), List.of()))
-                        .withRel("getCertificateBySeveralTagsName")
+                        .withRel("getCertificateBySeveralTagsName"),
+                WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(CertificateController.class)
+                        .createCertificate(certificate)).withRel("createNewCertificate")
         );
     }
 

@@ -7,6 +7,7 @@ import org.springframework.hateoas.RepresentationModel;
 
 import javax.persistence.*;
 import java.util.List;
+import java.util.Objects;
 
 @Entity
 @Getter
@@ -27,4 +28,16 @@ public class Tag extends RepresentationModel<Tag> {
     @ToString.Exclude
     private List<Certificate> certificates;
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Tag that = (Tag) o;
+        return Objects.equals(id, that.id) && Objects.equals(name, that.name);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), id, name);
+    }
 }
