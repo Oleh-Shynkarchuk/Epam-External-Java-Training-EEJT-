@@ -4,7 +4,7 @@ import com.epam.esm.certificate.entity.Certificate;
 import com.epam.esm.certificate.exception.CertificateInvalidRequestException;
 import com.epam.esm.certificate.exception.CertificateNotFoundException;
 import com.epam.esm.certificate.repo.CertificateRepository;
-import com.epam.esm.errorhandle.validation.Validate;
+import com.epam.esm.certificate.validation.CertificateValidator;
 import com.epam.esm.tag.entity.Tag;
 import com.epam.esm.tag.service.TagServiceImpl;
 import org.junit.jupiter.api.Test;
@@ -33,7 +33,7 @@ class CertificateServiceTest {
     @Mock
     private CertificateRepository certificateRepository;
     @Mock
-    private Validate validate;
+    private CertificateValidator validator;
     @Mock
     private TagServiceImpl tagService;
     @InjectMocks
@@ -59,7 +59,7 @@ class CertificateServiceTest {
         Page<Certificate> expectedList = new PageImpl<>(List.of(expected1, expected2));
 
         Mockito.when(certificateRepository.count()).thenReturn(availableAmount);
-        Mockito.when(validate.validNonErroneousPageableRequest(availableAmount, pageable)).thenReturn(pageable);
+        Mockito.when(validator.validPageableRequest(availableAmount, pageable)).thenReturn(pageable);
         Mockito.when(certificateRepository.findAll(pageable)).thenReturn(expectedList);
 
         assertEquals(expectedList.toList(), certificateService.getAllCertificates(pageable));
@@ -71,7 +71,7 @@ class CertificateServiceTest {
         Pageable pageable = PageRequest.of(0, 10);
         Page<Certificate> expectedList = new PageImpl<>(List.of());
         Mockito.when(certificateRepository.count()).thenReturn(availableAmount);
-        Mockito.when(validate.validNonErroneousPageableRequest(availableAmount, pageable)).thenReturn(pageable);
+        Mockito.when(validator.validPageableRequest(availableAmount, pageable)).thenReturn(pageable);
         Mockito.when(certificateRepository.findAll(pageable)).thenReturn(expectedList);
 
         assertThrows(CertificateNotFoundException.class, () -> certificateService.getAllCertificates(pageable));
@@ -134,9 +134,7 @@ class CertificateServiceTest {
 
         Mockito.when(certificateRepository.existsByName(newCertificate.getName())).thenReturn(false);
         Mockito.when(certificateRepository.saveAndFlush(newCertificate)).thenReturn(expected);
-        Mockito.when(tagService.existByName(firstTag.getName())).thenReturn(true);
-        Mockito.when(tagService.getTagByName(firstTag.getName())).thenReturn(firstTag);
-
+        Mockito.when(tagService.getTagByName(firstTag.getName())).thenReturn(Optional.of(firstTag));
 
         assertEquals(expected, certificateService.createCertificate(newCertificate));
     }
@@ -152,28 +150,9 @@ class CertificateServiceTest {
                                 Tag.builder().id(2L).name("TestTag2").build())
                 ).build();
 
-        Mockito.doNothing().when(validate).certificate(newCertificate);
         Mockito.when(certificateRepository.existsByName(newCertificate.getName())).thenReturn(true);
 
         assertThrows(CertificateInvalidRequestException.class, () -> certificateService.createCertificate(newCertificate));
-        Mockito.verify(validate, Mockito.times(1)).certificate(newCertificate);
-    }
-
-    @Test
-    void createCertificateShouldTrowInvalidRequestWhenInvalidFieldsValue() {
-        Tag firstTag = Tag.builder().id(1L).name("TestTag1").build();
-        Tag secondTag = Tag.builder().id(2L).name("TestTag2").build();
-        List<Tag> tags = List.of(firstTag, secondTag);
-        Certificate newCertificate = Certificate.builder().id(null).name("TestCertificate1")
-                .description("TestDescription1").price(BigDecimal.valueOf(-100))
-                .durationOfDays("15").createDate(LocalDateTime.now().toString())
-                .tags(tags)
-                .lastUpdateDate(LocalDateTime.now().toString()).build();
-
-        Mockito.doThrow(CertificateInvalidRequestException.class).when(validate).certificate(newCertificate);
-
-        assertThrows(CertificateInvalidRequestException.class, () -> certificateService.createCertificate(newCertificate));
-        Mockito.verify(validate, Mockito.times(1)).certificate(newCertificate);
     }
 
     @Test
@@ -194,18 +173,15 @@ class CertificateServiceTest {
                 .lastUpdateDate(LocalDateTime.now().format(formatter))
                 .durationOfDays("25").tags(tags).build();
 
-        Mockito.doNothing().when(validate).certificate(newCertificate);
+
         Mockito.when(certificateRepository.findById(id)).thenReturn(Optional.of(previousCertificate));
         Mockito.when(certificateRepository.existsByName(newCertificate.getName())).thenReturn(true);
         Mockito.when(certificateRepository.findByName(newCertificate.getName())).thenReturn(previousCertificate);
-        Mockito.when(tagService.existByName(firstTag.getName())).thenReturn(true);
-        Mockito.when(tagService.getTagByName(firstTag.getName())).thenReturn(firstTag);
-        Mockito.when(tagService.existByName(secondTag.getName())).thenReturn(true);
-        Mockito.when(tagService.getTagByName(secondTag.getName())).thenReturn(secondTag);
+        Mockito.when(tagService.getTagByName(firstTag.getName())).thenReturn(Optional.of(firstTag));
+        Mockito.when(tagService.getTagByName(secondTag.getName())).thenReturn(Optional.of(secondTag));
         Mockito.when(certificateRepository.saveAndFlush(expectedCertificate)).thenReturn(expectedCertificate);
 
         assertEquals(expectedCertificate, certificateService.patchCertificate(id, newCertificate));
-        Mockito.verify(validate, Mockito.times(1)).certificate(newCertificate);
     }
 
     @Test
@@ -216,11 +192,9 @@ class CertificateServiceTest {
                 .tags(null).build();
 
 
-        Mockito.doNothing().when(validate).certificate(newCertificate);
         Mockito.when(certificateRepository.findById(id)).thenReturn(Optional.empty());
 
         assertThrows(CertificateNotFoundException.class, () -> certificateService.patchCertificate(id, newCertificate));
-        Mockito.verify(validate, Mockito.times(1)).certificate(newCertificate);
     }
 
     @Test
@@ -233,20 +207,15 @@ class CertificateServiceTest {
         Certificate newCertificate = Certificate.builder().id(null).name("TestCertificate1")
                 .description("UPDATED DESCRIPTION").price(BigDecimal.valueOf(200))
                 .tags(null).build();
-        Certificate previousCertificate = Certificate.builder().id(id).name("Another Name")
-                .description("TestDescription1").price(BigDecimal.valueOf(300))
-                .durationOfDays("25").tags(tags).build();
         Certificate throwCertificate = Certificate.builder().id(anotherIdForCertificateWithIdenticalName)
                 .name("TestCertificate1")
                 .description("TestDescription1").price(BigDecimal.valueOf(300))
                 .durationOfDays("25").tags(tags).build();
 
-        Mockito.doNothing().when(validate).certificate(newCertificate);
         Mockito.when(certificateRepository.existsByName(newCertificate.getName())).thenReturn(true);
         Mockito.when(certificateRepository.findByName(newCertificate.getName())).thenReturn(throwCertificate);
 
         assertThrows(CertificateInvalidRequestException.class, () -> certificateService.patchCertificate(id, newCertificate));
-        Mockito.verify(validate, Mockito.times(1)).certificate(newCertificate);
     }
 
     @Test
@@ -268,14 +237,10 @@ class CertificateServiceTest {
 
     @Test
     void getCertificateByTagsNameShouldThrowItemNotFound() {
-        Tag firstTag = Tag.builder().id(1L).name("TestTag1").build();
         Tag secondTag = Tag.builder().id(2L).name("TestTag2").build();
         Tag thirdTag = Tag.builder().id(3L).name("TestTag3").build();
         List<String> searchRequest = List.of(secondTag.getName(), thirdTag.getName());
         Pageable pageable = PageRequest.of(0, 10);
-        Certificate expected = Certificate.builder().id(7L).name("TestCertificate1")
-                .description("Description").price(BigDecimal.valueOf(200))
-                .tags(List.of(firstTag, secondTag, thirdTag)).build();
 
         Mockito.when(certificateRepository.findByTagsNameAndPagination(
                 searchRequest, (long) searchRequest.size(), pageable)).thenReturn(Page.empty());

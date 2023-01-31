@@ -1,11 +1,11 @@
 package com.epam.esm.certificate.controller;
 
+import com.epam.esm.ErrorConstants;
+import com.epam.esm.ErrorController;
 import com.epam.esm.certificate.entity.Certificate;
+import com.epam.esm.certificate.hateoas.CertificateHateoasSupport;
 import com.epam.esm.certificate.service.CertificateServiceImpl;
-import com.epam.esm.errorhandle.constants.ErrorConstants;
-import com.epam.esm.errorhandle.controller.ErrorController;
-import com.epam.esm.errorhandle.validation.Validate;
-import com.epam.esm.hateoas.HateoasSupport;
+import com.epam.esm.certificate.validation.CertificateValidator;
 import com.epam.esm.tag.entity.Tag;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import org.junit.jupiter.api.BeforeEach;
@@ -39,9 +39,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @ExtendWith(MockitoExtension.class)
 class CertificateControllerTest {
     @Mock
-    private HateoasSupport hateoasSupport;
+    private CertificateHateoasSupport hateoasSupport;
     @Mock
-    private Validate validate;
+    private CertificateValidator validator;
     @Mock
     private CertificateServiceImpl certificateService;
     @InjectMocks
@@ -104,7 +104,7 @@ class CertificateControllerTest {
                 .description("UPDATED DESCRIPTION").price(BigDecimal.valueOf(200))
                 .lastUpdateDate(LocalDateTime.now().toString())
                 .durationOfDays("25").tags(tags).build();
-        Mockito.when(validate.isPositiveAndParsableId(String.valueOf(id))).thenReturn(true);
+        Mockito.when(validator.isPositiveAndParsableIdResponse(String.valueOf(id))).thenReturn("");
         Mockito.when(certificateService.getCertificateById(id)).thenReturn(expectedCertificate);
         Mockito.when(hateoasSupport.addHateoasSupportToSingleCertificate(expectedCertificate)).thenReturn(expectedCertificate);
         String response = mockMvc.perform(MockMvcRequestBuilders.get("/v1/api/certificate/1"))
@@ -114,14 +114,16 @@ class CertificateControllerTest {
         String expected = jsonMapper.writeValueAsString(expectedCertificate);
 
         assertEquals(response, expected);
-        Mockito.verify(validate).isPositiveAndParsableId(String.valueOf(id));
+        Mockito.verify(validator).isPositiveAndParsableIdResponse(String.valueOf(id));
         Mockito.verify(certificateService).getCertificateById(id);
     }
 
     @Test
     void getCertificateShouldThrowInvalidRequest() throws Exception {
         long id = -1L;
-        Mockito.when(validate.isPositiveAndParsableId(String.valueOf(id))).thenReturn(false);
+        Mockito.when(validator.isPositiveAndParsableIdResponse(String.valueOf(id)))
+                .thenReturn("Invalid input ( id = " + id
+                        + " ). Only a positive number is allowed ( 1 and more ).");
 
         String response = mockMvc.perform(MockMvcRequestBuilders.get("/v1/api/certificate/-1"))
                 .andExpect(MockMvcResultMatchers.status().isBadRequest())
@@ -131,7 +133,7 @@ class CertificateControllerTest {
                 "errorMessage", "Invalid input ( id = " + id
                         + " ). Only a positive number is allowed ( 1 and more )."));
         assertEquals(response, expected);
-        Mockito.verify(validate).isPositiveAndParsableId(String.valueOf(id));
+        Mockito.verify(validator).isPositiveAndParsableIdResponse(String.valueOf(id));
     }
 
 
@@ -150,10 +152,6 @@ class CertificateControllerTest {
                 .description("test description").price(BigDecimal.valueOf(200))
                 .lastUpdateDate(LocalDateTime.now().toString())
                 .durationOfDays("25").tags(tags).build();
-        Certificate certificate3 = Certificate.builder().id(id + 2).name("TestCertificate3")
-                .description("test description").price(BigDecimal.valueOf(200))
-                .lastUpdateDate(LocalDateTime.now().toString())
-                .durationOfDays("25").tags(null).build();
         List<Certificate> certificateList = List.of(certificate1, certificate2);
         CollectionModel<Certificate> certificateCollectionModel = CollectionModel.of(certificateList);
         String expected = jsonMapper.writeValueAsString(certificateCollectionModel);
@@ -193,6 +191,7 @@ class CertificateControllerTest {
 
         String expected = jsonMapper.writeValueAsString(created);
 
+        Mockito.when(validator.isValidCertificateFieldsWithErrorResponse(newCertificate)).thenReturn("");
         Mockito.when(certificateService.createCertificate(newCertificate)).thenReturn(created);
         Mockito.when(hateoasSupport.addHateoasSupportToSingleCertificate(created)).thenReturn(created);
 
@@ -206,6 +205,33 @@ class CertificateControllerTest {
         assertEquals(response, expected);
         Mockito.verify(certificateService).createCertificate(newCertificate);
         Mockito.verify(hateoasSupport).addHateoasSupportToSingleCertificate(created);
+    }
+
+    @Test
+    void createCertificateThrowCertificateInvalidRequestException() throws Exception {
+
+        Certificate newCertificate = Certificate.builder().id(null).name("TestCertificate1")
+                .description("UPDATED DESCRIPTION").price(BigDecimal.valueOf(-200))
+                .createDate(LocalDateTime.now().toString())
+                .lastUpdateDate(LocalDateTime.now().toString())
+                .durationOfDays("25").tags(null).build();
+
+        String expected = jsonMapper.writeValueAsString(Map.of("errorCode", ErrorConstants.CERTIFICATE_INVALID_REQUEST_ERROR_CODE,
+                "errorMessage", "Price can`t be negative"));
+
+        Mockito.when(validator.isValidCertificateFieldsWithErrorResponse(newCertificate))
+                .thenReturn("Price can`t be negative");
+
+
+        String response = mockMvc.perform(MockMvcRequestBuilders.post("/v1/api/certificate")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonMapper.writeValueAsString(newCertificate)))
+                .andExpect(MockMvcResultMatchers.status().isBadRequest())
+                .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
+                .andReturn().getResponse().getContentAsString();
+
+        assertEquals(response, expected);
+        Mockito.verify(validator).isValidCertificateFieldsWithErrorResponse(newCertificate);
     }
 
     @Test
@@ -227,7 +253,8 @@ class CertificateControllerTest {
 
         String expected = jsonMapper.writeValueAsString(patched);
 
-        Mockito.when(validate.isPositiveAndParsableId(String.valueOf(id))).thenReturn(true);
+        Mockito.when(validator.isPositiveAndParsableIdResponse(String.valueOf(id))).thenReturn("");
+        Mockito.when(validator.isValidCertificateFieldsWithErrorResponse(newCertificate)).thenReturn("");
         Mockito.when(certificateService.patchCertificate(id, newCertificate)).thenReturn(patched);
         Mockito.when(hateoasSupport.addHateoasSupportToSingleCertificate(patched)).thenReturn(patched);
 
@@ -238,22 +265,29 @@ class CertificateControllerTest {
                 .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
                 .andReturn().getResponse().getContentAsString();
 
-        assertEquals(response, expected);
-        Mockito.verify(validate).isPositiveAndParsableId(String.valueOf(id));
+        assertEquals(expected, response);
+        Mockito.verify(validator).isPositiveAndParsableIdResponse(String.valueOf(id));
         Mockito.verify(certificateService).patchCertificate(id, newCertificate);
         Mockito.verify(hateoasSupport).addHateoasSupportToSingleCertificate(patched);
     }
 
     @Test
-    void patchCertificateShouldThrowInvalidRequest() throws Exception {
+    void patchCertificateThrowCertificateInvalidRequestException() throws Exception {
         long id = -1L;
         Certificate newCertificate = Certificate.builder().id(null).name("TestCertificate1")
-                .description("UPDATED DESCRIPTION").price(BigDecimal.valueOf(200))
+                .description("UPDATED DESCRIPTION").price(BigDecimal.valueOf(-200))
                 .createDate(LocalDateTime.now().toString())
                 .lastUpdateDate(LocalDateTime.now().toString())
                 .durationOfDays("25").tags(null).build();
 
-        Mockito.when(validate.isPositiveAndParsableId(String.valueOf(id))).thenReturn(false);
+        String expected = jsonMapper.writeValueAsString(Map.of("errorCode", ErrorConstants.CERTIFICATE_INVALID_REQUEST_ERROR_CODE,
+                "errorMessage", "Id can`t be negative.Price can`t be negative"));
+
+        Mockito.when(validator.isPositiveAndParsableIdResponse(String.valueOf(id)))
+                .thenReturn("Id can`t be negative.");
+        Mockito.when(validator.isValidCertificateFieldsWithErrorResponse(newCertificate))
+                .thenReturn("Price can`t be negative");
+
 
         String response = mockMvc.perform(MockMvcRequestBuilders.patch("/v1/api/certificate/-1")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -261,17 +295,44 @@ class CertificateControllerTest {
                 .andExpect(MockMvcResultMatchers.status().isBadRequest())
                 .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
                 .andReturn().getResponse().getContentAsString();
+
+        assertEquals(expected, response);
+        Mockito.verify(validator).isPositiveAndParsableIdResponse(String.valueOf(id));
+        Mockito.verify(validator).isValidCertificateFieldsWithErrorResponse(newCertificate);
+    }
+
+    @Test
+    void patchCertificateShouldThrowInvalidRequest() throws Exception {
+        long id = -1L;
         String expected = jsonMapper.writeValueAsString(Map.of("errorCode", ErrorConstants.CERTIFICATE_INVALID_REQUEST_ERROR_CODE,
                 "errorMessage", "Invalid input ( id = " + id
                         + " ). Only a positive number is allowed ( 1 and more )."));
-        assertEquals(response, expected);
-        Mockito.verify(validate).isPositiveAndParsableId(String.valueOf(id));
+
+        Certificate newCertificate = Certificate.builder().id(null).name("TestCertificate1")
+                .description("UPDATED DESCRIPTION").price(BigDecimal.valueOf(200))
+                .createDate(LocalDateTime.now().toString())
+                .lastUpdateDate(LocalDateTime.now().toString())
+                .durationOfDays("25").tags(null).build();
+
+        Mockito.when(validator.isPositiveAndParsableIdResponse(String.valueOf(id)))
+                .thenReturn("Invalid input ( id = " + id
+                        + " ). Only a positive number is allowed ( 1 and more ).");
+        Mockito.when(validator.isValidCertificateFieldsWithErrorResponse(newCertificate))
+                .thenReturn("");
+        String response = mockMvc.perform(MockMvcRequestBuilders.patch("/v1/api/certificate/-1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonMapper.writeValueAsString(newCertificate)))
+                .andExpect(MockMvcResultMatchers.status().isBadRequest())
+                .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
+                .andReturn().getResponse().getContentAsString();
+        assertEquals(expected, response);
+        Mockito.verify(validator).isPositiveAndParsableIdResponse(String.valueOf(id));
     }
 
     @Test
     void deleteCertificateById() throws Exception {
         long id = 1L;
-        Mockito.when(validate.isPositiveAndParsableId(String.valueOf(id))).thenReturn(true);
+        Mockito.when(validator.isPositiveAndParsableIdResponse(String.valueOf(id))).thenReturn("");
         Mockito.doNothing().when(certificateService).deleteCertificateById(id);
         String response = mockMvc.perform(MockMvcRequestBuilders.delete("/v1/api/certificate/1")
                         .contentType(MediaType.APPLICATION_JSON))
@@ -279,23 +340,26 @@ class CertificateControllerTest {
                 .andReturn().getResponse().getContentAsString();
 
         assertTrue(response.isEmpty());
-        Mockito.verify(validate).isPositiveAndParsableId(String.valueOf(id));
+        Mockito.verify(validator).isPositiveAndParsableIdResponse(String.valueOf(id));
         Mockito.verify(certificateService).deleteCertificateById(id);
     }
 
     @Test
     void deleteCertificateByIdShouldThrowInvalidRequest() throws Exception {
         long id = -1L;
-        Mockito.when(validate.isPositiveAndParsableId(String.valueOf(id))).thenReturn(false);
+        String expected = jsonMapper.writeValueAsString(Map.of("errorCode", ErrorConstants.CERTIFICATE_INVALID_REQUEST_ERROR_CODE,
+                "errorMessage", "Invalid input ( id = " + id
+                        + " ). Only a positive number is allowed ( 1 and more )."));
+
+        Mockito.when(validator.isPositiveAndParsableIdResponse(String.valueOf(id)))
+                .thenReturn("Invalid input ( id = " + id
+                        + " ). Only a positive number is allowed ( 1 and more ).");
 
         String response = mockMvc.perform(MockMvcRequestBuilders.delete("/v1/api/certificate/-1"))
                 .andExpect(MockMvcResultMatchers.status().isBadRequest())
                 .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
                 .andReturn().getResponse().getContentAsString();
-        String expected = jsonMapper.writeValueAsString(Map.of("errorCode", ErrorConstants.CERTIFICATE_INVALID_REQUEST_ERROR_CODE,
-                "errorMessage", "Invalid input ( id = " + id
-                        + " ). Only a positive number is allowed ( 1 and more )."));
         assertEquals(response, expected);
-        Mockito.verify(validate).isPositiveAndParsableId(String.valueOf(id));
+        Mockito.verify(validator).isPositiveAndParsableIdResponse(String.valueOf(id));
     }
 }
