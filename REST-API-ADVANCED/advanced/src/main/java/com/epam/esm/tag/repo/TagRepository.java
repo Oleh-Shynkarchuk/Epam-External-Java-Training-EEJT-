@@ -5,10 +5,10 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 @Repository
 public interface TagRepository extends JpaRepository<Tag, Long> {
-    boolean existsByName(String name);
-
     @Query(value = """
             SELECT tags.id FROM certificates
             LEFT JOIN certificates_has_tags ON certificates.id = certificates_id
@@ -22,5 +22,5 @@ public interface TagRepository extends JpaRepository<Tag, Long> {
              """, nativeQuery = true)
     Long findId();
 
-    Tag getByName(String name);
+    Optional<Tag> getTagByName(String name);
 }

@@ -1,4 +1,4 @@
-package com.epam.esm.errorhandle.constants;
+package com.epam.esm;
 
 public class ErrorConstants {
     public static final int USER_INVALID_REQUEST_ERROR_CODE = 40011;

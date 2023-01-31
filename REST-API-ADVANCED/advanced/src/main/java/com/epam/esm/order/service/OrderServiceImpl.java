@@ -1,12 +1,12 @@
 package com.epam.esm.order.service;
 
+import com.epam.esm.ErrorConstants;
 import com.epam.esm.certificate.entity.Certificate;
 import com.epam.esm.certificate.service.CertificateService;
-import com.epam.esm.errorhandle.constants.ErrorConstants;
-import com.epam.esm.errorhandle.validation.Validator;
 import com.epam.esm.order.entity.Order;
 import com.epam.esm.order.exception.OrderNotFoundException;
 import com.epam.esm.order.repository.OrderRepository;
+import com.epam.esm.order.validation.OrderValidator;
 import com.epam.esm.user.sevice.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,13 +26,13 @@ public class OrderServiceImpl implements OrderService {
     private final OrderRepository orderRepository;
     private final CertificateService certificateService;
     private final UserService userService;
-    private final Validator validator;
+    private final OrderValidator validator;
 
     @Autowired
     public OrderServiceImpl(
             OrderRepository orderRepository,
             CertificateService certificateService,
-            Validator validator,
+            OrderValidator validator,
             UserService userService) {
         this.orderRepository = orderRepository;
         this.certificateService = certificateService;
@@ -75,8 +75,7 @@ public class OrderServiceImpl implements OrderService {
     public Order createOrder(Order newOrder) {
 
         log.debug("Start of create new order method in service layer." +
-                "Validate new order fields");
-        validator.order(newOrder);
+                "Set data to order fields");
         BigDecimal totalPrice = new BigDecimal(0);
         newOrder.setCertificates(certificateService.findAllById(getCertificateIdList(newOrder)));
         for (Certificate certificate : newOrder.getCertificates()) {

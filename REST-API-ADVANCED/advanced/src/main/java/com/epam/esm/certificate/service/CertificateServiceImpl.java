@@ -1,11 +1,11 @@
 package com.epam.esm.certificate.service;
 
+import com.epam.esm.ErrorConstants;
 import com.epam.esm.certificate.entity.Certificate;
 import com.epam.esm.certificate.exception.CertificateInvalidRequestException;
 import com.epam.esm.certificate.exception.CertificateNotFoundException;
 import com.epam.esm.certificate.repo.CertificateRepository;
-import com.epam.esm.errorhandle.constants.ErrorConstants;
-import com.epam.esm.errorhandle.validation.Validator;
+import com.epam.esm.certificate.validation.CertificateValidator;
 import com.epam.esm.tag.entity.Tag;
 import com.epam.esm.tag.service.TagService;
 import lombok.extern.slf4j.Slf4j;
@@ -28,10 +28,12 @@ public class CertificateServiceImpl implements CertificateService {
 
     private final CertificateRepository certificateRepository;
     private final TagService tagService;
-    private final Validator validator;
+    private final CertificateValidator validator;
 
     @Autowired
-    public CertificateServiceImpl(CertificateRepository certificateRepository, TagService tagService, Validator validator) {
+    public CertificateServiceImpl(CertificateRepository certificateRepository,
+                                  TagService tagService,
+                                  CertificateValidator validator) {
         this.certificateRepository = certificateRepository;
         this.tagService = tagService;
         this.validator = validator;
@@ -72,12 +74,9 @@ public class CertificateServiceImpl implements CertificateService {
     @Transactional
     public Certificate createCertificate(Certificate newCertificate) {
         log.debug("Start of create new certificate method in service layer." +
-                "Validate new certificate fields");
-        validator.certificate(newCertificate);
-
-        log.debug("Uniqueness check");
+                "Uniqueness check");
         if (certificateIsExist(newCertificate)) {
-            throw getInvalidRequestException(newCertificate);
+            throw certificateInvalidRequestException(newCertificate);
         }
         log.debug("Set valid data before creation.");
         newCertificate.setId(null);
@@ -96,13 +95,10 @@ public class CertificateServiceImpl implements CertificateService {
     @Transactional
     public Certificate patchCertificate(Long id, Certificate patchCertificate) {
         log.debug("Start of patch certificate method in service layer." +
-                "Validate updated certificate fields");
-        validator.certificate(patchCertificate);
-
-        log.debug("Uniqueness check.");
+                "Uniqueness check.");
         if (StringUtils.isNotEmpty(patchCertificate.getName())) {
             if (certificateIsExist(id, patchCertificate)) {
-                throw getInvalidRequestException(patchCertificate);
+                throw certificateInvalidRequestException(patchCertificate);
             }
         }
         log.debug("Get a certificate by id request parameter or else throw error." +
@@ -173,14 +169,8 @@ public class CertificateServiceImpl implements CertificateService {
         log.debug("Emptiness check.");
         if (!CollectionUtils.isEmpty(updateCertificate.getTags())) {
             for (Tag tag : updateCertificate.getTags()) {
-                log.debug("Uniqueness check");
-                if (tagService.existByName(tag.getName())) {
-                    log.debug("Select an existing one from repository");
-                    list.add(tagService.getTagByName(tag.getName()));
-                } else {
-                    log.debug("Save new tag into repository");
-                    list.add(tagService.createTag(tag));
-                }
+                log.debug("Select an existing one from repository or save new tag into repository");
+                list.add(tagService.getTagByName(tag.getName()).orElse(tagService.createTag(tag)));
             }
         }
         log.debug("return tag list for certificate");
@@ -196,7 +186,7 @@ public class CertificateServiceImpl implements CertificateService {
                 !certificateRepository.findByName(patchCertificate.getName()).getId().equals(id);
     }
 
-    private CertificateInvalidRequestException getInvalidRequestException(Certificate patchCertificate) {
+    private CertificateInvalidRequestException certificateInvalidRequestException(Certificate patchCertificate) {
         log.error("Certificate with ( name =  " + patchCertificate.getName()
                 + ") already exist. This field must be unique, change it and try again.");
         return new CertificateInvalidRequestException("Certificate with ( name =  " + patchCertificate.getName()

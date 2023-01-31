@@ -1,6 +1,6 @@
 package com.epam.esm.user.controller;
 
-import com.epam.esm.errorhandle.validation.Validator;
+import com.epam.esm.Validator;
 import com.epam.esm.user.entity.User;
 import com.epam.esm.user.exception.UserInvalidRequestException;
 import com.epam.esm.user.hateoas.UserHateoasSupport;
@@ -51,7 +51,8 @@ public class UserController {
     public ResponseEntity<User> getUser(@PathVariable String id) {
 
         log.debug("Request accepted getUserById. Validate id field.");
-        if (validator.isPositiveAndParsableId(id)) {
+        String idResponse = validator.isPositiveAndParsableIdResponse(id);
+        if (idResponse.isEmpty()) {
 
             log.debug("Send request to service");
             User userById = userService.getUserById(Long.parseLong(id));
@@ -62,10 +63,8 @@ public class UserController {
             log.debug("Send response to client");
             return ResponseEntity.ok(userAndHateoas);
         } else {
-            log.error("Invalid input ( id = " + id
-                    + " ). Only a positive number is allowed ( 1 and more ).");
-            throw new UserInvalidRequestException("Invalid input ( id = " + id
-                    + " ). Only a positive number is allowed ( 1 and more ).");
+            log.error(idResponse);
+            throw new UserInvalidRequestException(idResponse);
         }
     }
 }

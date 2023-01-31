@@ -1,10 +1,10 @@
 package com.epam.esm.tag.service;
 
-import com.epam.esm.errorhandle.constants.ErrorConstants;
-import com.epam.esm.errorhandle.validation.Validator;
+import com.epam.esm.ErrorConstants;
 import com.epam.esm.tag.entity.Tag;
 import com.epam.esm.tag.exception.TagNotFoundException;
 import com.epam.esm.tag.repo.TagRepository;
+import com.epam.esm.tag.validation.TagValidator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -12,16 +12,17 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @Service
 public class TagServiceImpl implements TagService {
 
     private final TagRepository tagRepository;
-    private final Validator validator;
+    private final TagValidator validator;
 
     @Autowired
-    public TagServiceImpl(TagRepository tagRepository, Validator validator) {
+    public TagServiceImpl(TagRepository tagRepository, TagValidator validator) {
         this.tagRepository = tagRepository;
         this.validator = validator;
     }
@@ -56,29 +57,19 @@ public class TagServiceImpl implements TagService {
         return tag;
     }
 
-    @Override
-    public boolean existByName(String name) {
+    public Optional<Tag> getTagByName(String tagName) {
         log.debug("Start of existByName method in service layer. " +
-                "Return check result is exist tag by name in repository");
-        return tagRepository.existsByName(name);
-    }
-
-    public Tag getTagByName(String tagName) {
-        log.debug("Start of existByName method in service layer. " +
-                "Get tag by name in repository");
-        Tag byName = tagRepository.getByName(tagName);
+                "Get optionalTag by name in repository");
+        Optional<Tag> tagByName = tagRepository.getTagByName(tagName);
 
         log.debug("Service return received tag from repository");
-        return byName;
+        return tagByName;
     }
 
     @Override
     public Tag createTag(Tag newTag) {
-        log.debug("Start of create new tag method in service layer." +
-                "Validate new tag fields");
-        validator.tag(newTag);
-
-        log.debug("Save new tag in repository");
+        log.debug("Start of create new tag method in service layer. " +
+                "Save new tag in repository");
         Tag tag = tagRepository.saveAndFlush(newTag);
 
         log.debug("Service return received new tag from repository");

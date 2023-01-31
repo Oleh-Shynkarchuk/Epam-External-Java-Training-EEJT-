@@ -1,6 +1,5 @@
-package com.epam.esm.errorhandle.controller;
+package com.epam.esm;
 
-import com.epam.esm.errorhandle.exception.ApplicationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;

@@ -1,10 +1,10 @@
 package com.epam.esm.order.controller;
 
-import com.epam.esm.errorhandle.validation.Validator;
 import com.epam.esm.order.entity.Order;
 import com.epam.esm.order.exception.OrderInvalidRequestException;
 import com.epam.esm.order.hateoas.OrderHateoasSupport;
 import com.epam.esm.order.service.OrderService;
+import com.epam.esm.order.validation.OrderValidator;
 import lombok.extern.slf4j.Slf4j;
 import org.springdoc.api.annotations.ParameterObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,10 +22,12 @@ public class OrderController {
 
     private final OrderService orderService;
     private final OrderHateoasSupport hateoasSupport;
-    private final Validator validator;
+    private final OrderValidator validator;
 
     @Autowired
-    public OrderController(OrderService orderService, OrderHateoasSupport hateoasSupport, Validator validator) {
+    public OrderController(OrderService orderService,
+                           OrderHateoasSupport hateoasSupport,
+                           OrderValidator validator) {
         this.orderService = orderService;
         this.hateoasSupport = hateoasSupport;
         this.validator = validator;
@@ -46,8 +48,11 @@ public class OrderController {
 
     @GetMapping("/{id}")
     public ResponseEntity<Order> getOrderById(@PathVariable String id) {
+
         log.debug("Request accepted getOrderById. Validate id field.");
-        if (validator.isPositiveAndParsableId(id)) {
+        String idResponse = validator.isPositiveAndParsableIdResponse(id);
+
+        if (idResponse.isEmpty()) {
 
             log.debug("Send request to service");
             Order serviceOrder = orderService.getOrder(Long.parseLong(id));
@@ -58,23 +63,29 @@ public class OrderController {
             log.debug("Send response to client");
             return ResponseEntity.ok(orderAndHateoas);
         } else {
-            log.error("Invalid input ( id = " + id
-                    + " ). Only a positive number is allowed ( 1 and more ).");
-            throw new OrderInvalidRequestException("Invalid input ( id = " + id
-                    + " ). Only a positive number is allowed ( 1 and more ).");
+            throw orderInvalidRequestException(idResponse);
         }
     }
 
     @PostMapping()
     public ResponseEntity<Order> createNewOrder(@RequestBody Order newOrder) {
 
-        log.debug("Request accepted getOrderById. Send request to service.");
-        Order order = orderService.createOrder(newOrder);
+        log.debug("Request accepted getOrderById. Validate new order fields.");
+        String orderResponse = validator.isValidOrderFieldsWithErrorResponse(newOrder);
+        if (orderResponse.isEmpty()) {
+            log.debug("Send new order request to service.");
+            Order order = orderService.createOrder(newOrder);
 
-        log.debug("Add hateoas to order");
-        Order orderAndHateoas = hateoasSupport.addHateoasSupportToSingleOrder(order);
+            log.debug("Add hateoas to order");
+            Order orderAndHateoas = hateoasSupport.addHateoasSupportToSingleOrder(order);
 
-        log.debug("Send response to client");
-        return ResponseEntity.ok(orderAndHateoas);
+            log.debug("Send response to client");
+            return ResponseEntity.ok(orderAndHateoas);
+        } else throw orderInvalidRequestException(orderResponse);
+    }
+
+    private OrderInvalidRequestException orderInvalidRequestException(String message) {
+        log.error(message);
+        return new OrderInvalidRequestException(message);
     }
 }

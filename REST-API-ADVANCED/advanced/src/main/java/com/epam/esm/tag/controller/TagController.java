@@ -1,10 +1,10 @@
 package com.epam.esm.tag.controller;
 
-import com.epam.esm.errorhandle.validation.Validator;
 import com.epam.esm.tag.entity.Tag;
 import com.epam.esm.tag.exception.TagInvalidRequestException;
 import com.epam.esm.tag.hateoas.TagHateoasSupport;
 import com.epam.esm.tag.service.TagService;
+import com.epam.esm.tag.validation.TagValidator;
 import lombok.extern.slf4j.Slf4j;
 import org.springdoc.api.annotations.ParameterObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,10 +23,10 @@ public class TagController {
 
     private final TagService tagService;
     private final TagHateoasSupport hateoasSupport;
-    private final Validator validator;
+    private final TagValidator validator;
 
     @Autowired
-    public TagController(TagService tagService, TagHateoasSupport hateoasSupport, Validator validator) {
+    public TagController(TagService tagService, TagHateoasSupport hateoasSupport, TagValidator validator) {
         this.tagService = tagService;
         this.hateoasSupport = hateoasSupport;
         this.validator = validator;
@@ -49,7 +49,8 @@ public class TagController {
     public ResponseEntity<Tag> getTagById(@PathVariable String id) {
 
         log.debug("Request accepted getTagById. Validate id field.");
-        if (validator.isPositiveAndParsableId(id)) {
+        String idResponse = validator.isPositiveAndParsableIdResponse(id);
+        if (idResponse.isEmpty()) {
 
             log.debug("Send request to service");
             Tag serviceTag = tagService.getTag(Long.parseLong(id));
@@ -60,7 +61,7 @@ public class TagController {
             log.debug("Send response to client");
             return ResponseEntity.ok(tagAndHateoas);
         } else {
-            throw getTagInvalidRequestException(id);
+            throw tagInvalidRequestException(idResponse);
         }
     }
 
@@ -79,22 +80,28 @@ public class TagController {
 
     @PostMapping
     public ResponseEntity<Tag> createTag(@RequestBody Tag newTag) {
+        log.debug("Request accepted create new Tag. Validate tag field.");
+        String result = validator.isValidTagErrorResponse(newTag);
+        if (result.isEmpty()) {
+            log.debug("Send request to service.");
+            Tag serviceTag = tagService.createTag(newTag);
 
-        log.debug("Request accepted getMostWidelyUsedTag. Send request to service.");
-        Tag serviceTag = tagService.createTag(newTag);
+            log.debug("Add hateoas to tag");
+            Tag tagAndHateoas = hateoasSupport.addHateoasSupportToSingleTag(serviceTag);
 
-        log.debug("Add hateoas to tag");
-        Tag tagAndHateoas = hateoasSupport.addHateoasSupportToSingleTag(serviceTag);
-
-        log.debug("Send response to client");
-        return ResponseEntity.ok(tagAndHateoas);
+            log.debug("Send response to client");
+            return ResponseEntity.ok(tagAndHateoas);
+        } else {
+            throw tagInvalidRequestException(result);
+        }
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteTag(@PathVariable String id) {
 
         log.debug("Request accepted deleteTag. Validate id field.");
-        if (validator.isPositiveAndParsableId(id)) {
+        String idResponse = validator.isPositiveAndParsableIdResponse(id);
+        if (idResponse.isEmpty()) {
 
             log.debug("Send request to service");
             tagService.deleteTag(Long.valueOf(id));
@@ -102,14 +109,12 @@ public class TagController {
             log.debug("Send response to client");
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         } else {
-            throw getTagInvalidRequestException(id);
+            throw tagInvalidRequestException(idResponse);
         }
     }
 
-    private TagInvalidRequestException getTagInvalidRequestException(String id) {
-        log.error("Invalid input ( id = " + id
-                + " ). Only a positive number is allowed ( 1 and more ).");
-        return new TagInvalidRequestException("Invalid input ( id = " + id
-                + " ). Only a positive number is allowed ( 1 and more ).");
+    private TagInvalidRequestException tagInvalidRequestException(String message) {
+        log.error(message);
+        return new TagInvalidRequestException(message);
     }
 }

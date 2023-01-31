@@ -5,7 +5,7 @@ import com.epam.esm.certificate.exception.CertificateInvalidRequestException;
 import com.epam.esm.certificate.hateoas.CertificateHateoasSupport;
 import com.epam.esm.certificate.service.CertificateService;
 import com.epam.esm.certificate.service.CertificateServiceImpl;
-import com.epam.esm.errorhandle.validation.Validator;
+import com.epam.esm.certificate.validation.CertificateValidator;
 import lombok.extern.slf4j.Slf4j;
 import org.springdoc.api.annotations.ParameterObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,13 +24,13 @@ public class CertificateController {
 
     private final CertificateService certificateService;
     private final CertificateHateoasSupport hateoasSupport;
-    private final Validator validator;
+    private final CertificateValidator validator;
 
     @Autowired
     public CertificateController(
             CertificateServiceImpl certificateService,
             CertificateHateoasSupport hateoasSupport,
-            Validator validator) {
+            CertificateValidator validator) {
         this.certificateService = certificateService;
         this.hateoasSupport = hateoasSupport;
         this.validator = validator;
@@ -39,7 +39,6 @@ public class CertificateController {
     @GetMapping
     public ResponseEntity<CollectionModel<Certificate>> getAllGiftCertificates(
             @ParameterObject Pageable paginationCriteria) {
-
         log.debug("Request accepted getAllGiftCertificates. Get all certificates from service.");
         List<Certificate> allCertificate = certificateService.getAllCertificates(paginationCriteria);
 
@@ -55,7 +54,8 @@ public class CertificateController {
     public ResponseEntity<Certificate> getCertificateById(
             @PathVariable("id") String id) {
         log.debug("Request accepted getCertificateById. Validate id field.");
-        if (validator.isPositiveAndParsableId(id)) {
+        String idResponse = validator.isPositiveAndParsableIdResponse(id);
+        if (idResponse.isEmpty()) {
 
             log.debug("Get certificate by id from service.");
             Certificate certificateById = certificateService.getCertificateById(Long.parseLong(id));
@@ -65,7 +65,7 @@ public class CertificateController {
 
             log.debug("Response to client.");
             return ResponseEntity.ok(certificateByIdANDHateoas);
-        } else throw certificateInvalidRequestException(id);
+        } else throw certificateInvalidRequestException(idResponse);
     }
 
     @GetMapping("/search")
@@ -85,14 +85,19 @@ public class CertificateController {
 
     @PostMapping
     public ResponseEntity<Certificate> createCertificate(@RequestBody Certificate newCertificate) {
-        log.debug("Request accepted createCertificate. Create new certificate by service.");
-        Certificate certificate = certificateService.createCertificate(newCertificate);
 
-        log.debug("Add hateoas to created certificate.");
-        Certificate certificateAndHateoas = hateoasSupport.addHateoasSupportToSingleCertificate(certificate);
+        log.debug("Request accepted createCertificate. Validate new certificate fields.");
+        String certificateResponse = validator.isValidCertificateFieldsWithErrorResponse(newCertificate);
+        if (certificateResponse.isEmpty()) {
+            log.debug("Create new certificate by service.");
+            Certificate certificate = certificateService.createCertificate(newCertificate);
 
-        log.debug("Response to client.");
-        return ResponseEntity.ok(certificateAndHateoas);
+            log.debug("Add hateoas to created certificate.");
+            Certificate certificateAndHateoas = hateoasSupport.addHateoasSupportToSingleCertificate(certificate);
+
+            log.debug("Response to client.");
+            return ResponseEntity.ok(certificateAndHateoas);
+        } else throw certificateInvalidRequestException(certificateResponse);
     }
 
     @PatchMapping("/{id}")
@@ -100,9 +105,10 @@ public class CertificateController {
             @PathVariable("id") String id,
             @RequestBody Certificate patchCertificate) {
 
-        log.debug("Request accepted getCertificateById. Validate id field.");
-        if (validator.isPositiveAndParsableId(id)) {
-
+        log.debug("Request accepted getCertificateById. Validate id and certificate fields.");
+        String idResponse = validator.isPositiveAndParsableIdResponse(id);
+        String certificateResponse = validator.isValidCertificateFieldsWithErrorResponse(patchCertificate);
+        if ((idResponse + certificateResponse).isEmpty()) {
             log.debug("Update certificate.");
             Certificate certificate = certificateService.patchCertificate(Long.parseLong(id), patchCertificate);
 
@@ -111,7 +117,7 @@ public class CertificateController {
 
             log.debug("Response to client.");
             return ResponseEntity.ok(certificateAndHateoas);
-        } else throw certificateInvalidRequestException(id);
+        } else throw certificateInvalidRequestException(idResponse + certificateResponse);
     }
 
     @DeleteMapping("/{id}")
@@ -119,20 +125,19 @@ public class CertificateController {
             @PathVariable("id") String id) {
 
         log.debug("Request accepted deleteCertificateById. Validate id field.");
-        if (validator.isPositiveAndParsableId(id)) {
-
+        String idResponse = validator.isPositiveAndParsableIdResponse(id);
+        if (idResponse.isEmpty()) {
             log.debug("Delete certificate.");
             certificateService.deleteCertificateById(Long.parseLong(id));
 
             log.debug("Response to client.");
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }
-        throw certificateInvalidRequestException(id);
+        throw certificateInvalidRequestException(idResponse);
     }
 
-    private CertificateInvalidRequestException certificateInvalidRequestException(String id) {
-        log.error("Invalid input ( id = " + id + " ). Only a positive number is allowed ( 1 and more ).");
-        return new CertificateInvalidRequestException("Invalid input ( id = " + id
-                + " ). Only a positive number is allowed ( 1 and more ).");
+    private CertificateInvalidRequestException certificateInvalidRequestException(String message) {
+        log.error(message);
+        return new CertificateInvalidRequestException(message);
     }
 }
