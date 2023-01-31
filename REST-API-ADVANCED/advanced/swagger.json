@@ -57,12 +57,35 @@
           "200": {
             "description": "OK",
             "content": {
-              "*/*": {
+              "application/hal+json": {
                 "schema": {
                   "$ref": "#/components/schemas/CollectionModelTag"
                 }
               }
             }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage400"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage404"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "INTERNAL SERVER ERROR"
           }
         }
       },
@@ -85,12 +108,35 @@
           "200": {
             "description": "OK",
             "content": {
-              "*/*": {
+              "application/hal+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Tag"
                 }
               }
             }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage400"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage404"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "INTERNAL SERVER ERROR"
           }
         }
       }
@@ -141,12 +187,35 @@
           "200": {
             "description": "OK",
             "content": {
-              "*/*": {
+              "application/hal+json": {
                 "schema": {
                   "$ref": "#/components/schemas/CollectionModelOrder"
                 }
               }
             }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage400"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage404"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "INTERNAL SERVER ERROR"
           }
         }
       },
@@ -169,12 +238,35 @@
           "200": {
             "description": "OK",
             "content": {
-              "*/*": {
+              "application/hal+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Order"
                 }
               }
             }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage400"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage404"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "INTERNAL SERVER ERROR"
           }
         }
       }
@@ -225,12 +317,35 @@
           "200": {
             "description": "OK",
             "content": {
-              "*/*": {
+              "application/hal+json": {
                 "schema": {
                   "$ref": "#/components/schemas/CollectionModelCertificate"
                 }
               }
             }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage400"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage404"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "INTERNAL SERVER ERROR"
           }
         }
       },
@@ -253,12 +368,35 @@
           "200": {
             "description": "OK",
             "content": {
-              "*/*": {
+              "application/hal+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Certificate"
                 }
               }
             }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage400"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage404"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "INTERNAL SERVER ERROR"
           }
         }
       }
@@ -283,12 +421,35 @@
           "200": {
             "description": "OK",
             "content": {
-              "*/*": {
+              "application/hal+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Certificate"
                 }
               }
             }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage400"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage404"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "INTERNAL SERVER ERROR"
           }
         }
       },
@@ -308,15 +469,31 @@
           }
         ],
         "responses": {
-          "200": {
-            "description": "OK",
+          "204": {
+            "description": "The resource was deleted successfully"
+          },
+          "400": {
+            "description": "Bad Request",
             "content": {
-              "*/*": {
+              "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/HeadersBuilderObject"
+                  "$ref": "#/components/schemas/ErrorMessage400"
                 }
               }
             }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage404"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "INTERNAL SERVER ERROR"
           }
         }
       },
@@ -349,12 +526,35 @@
           "200": {
             "description": "OK",
             "content": {
-              "*/*": {
+              "application/hal+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Certificate"
                 }
               }
             }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage400"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage404"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "INTERNAL SERVER ERROR"
           }
         }
       }
@@ -405,12 +605,35 @@
           "200": {
             "description": "OK",
             "content": {
-              "*/*": {
+              "application/hal+json": {
                 "schema": {
                   "$ref": "#/components/schemas/CollectionModelUser"
                 }
               }
             }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage400"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage404"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "INTERNAL SERVER ERROR"
           }
         }
       }
@@ -435,12 +658,35 @@
           "200": {
             "description": "OK",
             "content": {
-              "*/*": {
+              "application/hal+json": {
                 "schema": {
                   "$ref": "#/components/schemas/User"
                 }
               }
             }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage400"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage404"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "INTERNAL SERVER ERROR"
           }
         }
       }
@@ -466,12 +712,35 @@
           "200": {
             "description": "OK",
             "content": {
-              "*/*": {
+              "application/hal+json": {
                 "schema": {
                   "$ref": "#/components/schemas/CollectionModelOrder"
                 }
               }
             }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage400"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage404"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "INTERNAL SERVER ERROR"
           }
         }
       }
@@ -496,12 +765,35 @@
           "200": {
             "description": "OK",
             "content": {
-              "*/*": {
+              "application/hal+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Tag"
                 }
               }
             }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage400"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage404"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "INTERNAL SERVER ERROR"
           }
         }
       },
@@ -522,15 +814,31 @@
           }
         ],
         "responses": {
-          "200": {
-            "description": "OK",
+          "204": {
+            "description": "The resource was deleted successfully"
+          },
+          "400": {
+            "description": "Bad Request",
             "content": {
-              "*/*": {
+              "application/json": {
                 "schema": {
-                  "type": "string"
+                  "$ref": "#/components/schemas/ErrorMessage400"
                 }
               }
             }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage404"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "INTERNAL SERVER ERROR"
           }
         }
       }
@@ -545,12 +853,35 @@
           "200": {
             "description": "OK",
             "content": {
-              "*/*": {
+              "application/hal+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Tag"
                 }
               }
             }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage400"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage404"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "INTERNAL SERVER ERROR"
           }
         }
       }
@@ -575,12 +906,35 @@
           "200": {
             "description": "OK",
             "content": {
-              "*/*": {
+              "application/hal+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Order"
                 }
               }
             }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage400"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage404"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "INTERNAL SERVER ERROR"
           }
         }
       }
@@ -642,12 +996,35 @@
           "200": {
             "description": "OK",
             "content": {
-              "*/*": {
+              "application/hal+json": {
                 "schema": {
                   "$ref": "#/components/schemas/CollectionModelCertificate"
                 }
               }
             }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage400"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage404"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "INTERNAL SERVER ERROR"
           }
         }
       }
@@ -655,38 +1032,6 @@
   },
   "components": {
     "schemas": {
-      "Link": {
-        "type": "object",
-        "properties": {
-          "rel": {
-            "type": "string"
-          },
-          "href": {
-            "type": "string"
-          },
-          "hreflang": {
-            "type": "string"
-          },
-          "media": {
-            "type": "string"
-          },
-          "title": {
-            "type": "string"
-          },
-          "type": {
-            "type": "string"
-          },
-          "deprecation": {
-            "type": "string"
-          },
-          "profile": {
-            "type": "string"
-          },
-          "name": {
-            "type": "string"
-          }
-        }
-      },
       "Tag": {
         "type": "object",
         "properties": {
@@ -802,7 +1147,7 @@
               "$ref": "#/components/schemas/Link"
             }
           },
-          "content": {
+          "User": {
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/User"
@@ -819,7 +1164,7 @@
               "$ref": "#/components/schemas/Link"
             }
           },
-          "content": {
+          "Order": {
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/Order"
@@ -836,7 +1181,7 @@
               "$ref": "#/components/schemas/Link"
             }
           },
-          "content": {
+          "Tag": {
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/Tag"
@@ -853,7 +1198,7 @@
               "$ref": "#/components/schemas/Link"
             }
           },
-          "content": {
+          "Certificate": {
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/Certificate"
@@ -861,8 +1206,66 @@
           }
         }
       },
+      "Link": {
+        "type": "object",
+        "properties": {
+          "rel": {
+            "type": "string"
+          },
+          "href": {
+            "type": "string"
+          },
+          "hreflang": {
+            "type": "string"
+          },
+          "media": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "deprecation": {
+            "type": "string"
+          },
+          "profile": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          }
+        }
+      },
       "HeadersBuilderObject": {
         "type": "object"
+      },
+      "ErrorMessage400": {
+        "type": "object",
+        "properties": {
+          "errorMessage": {
+            "type": "string",
+            "example": "Bad request"
+          },
+          "errorCode": {
+            "type": "integer",
+            "example": 40099
+          }
+        }
+      },
+      "ErrorMessage404": {
+        "type": "object",
+        "properties": {
+          "errorMessage": {
+            "type": "string",
+            "example": "Not Found"
+          },
+          "errorCode": {
+            "type": "integer",
+            "example": 40499
+          }
+        }
       }
     }
   }

@@ -2,10 +2,10 @@ package com.epam.esm.certificate.controller;
 
 import com.epam.esm.certificate.entity.Certificate;
 import com.epam.esm.certificate.exception.CertificateInvalidRequestException;
+import com.epam.esm.certificate.hateoas.CertificateHateoasSupport;
 import com.epam.esm.certificate.service.CertificateService;
 import com.epam.esm.certificate.service.CertificateServiceImpl;
 import com.epam.esm.errorhandle.validation.Validator;
-import com.epam.esm.hateoas.HateoasSupport;
 import lombok.extern.slf4j.Slf4j;
 import org.springdoc.api.annotations.ParameterObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,13 +23,13 @@ import java.util.List;
 public class CertificateController {
 
     private final CertificateService certificateService;
-    private final HateoasSupport hateoasSupport;
+    private final CertificateHateoasSupport hateoasSupport;
     private final Validator validator;
 
     @Autowired
     public CertificateController(
             CertificateServiceImpl certificateService,
-            HateoasSupport hateoasSupport,
+            CertificateHateoasSupport hateoasSupport,
             Validator validator) {
         this.certificateService = certificateService;
         this.hateoasSupport = hateoasSupport;

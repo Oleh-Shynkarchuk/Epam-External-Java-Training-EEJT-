@@ -1,9 +1,9 @@
 package com.epam.esm.tag.controller;
 
 import com.epam.esm.errorhandle.validation.Validator;
-import com.epam.esm.hateoas.HateoasSupport;
 import com.epam.esm.tag.entity.Tag;
 import com.epam.esm.tag.exception.TagInvalidRequestException;
+import com.epam.esm.tag.hateoas.TagHateoasSupport;
 import com.epam.esm.tag.service.TagService;
 import lombok.extern.slf4j.Slf4j;
 import org.springdoc.api.annotations.ParameterObject;
@@ -22,11 +22,11 @@ import java.util.List;
 public class TagController {
 
     private final TagService tagService;
-    private final HateoasSupport hateoasSupport;
+    private final TagHateoasSupport hateoasSupport;
     private final Validator validator;
 
     @Autowired
-    public TagController(TagService tagService, HateoasSupport hateoasSupport, Validator validator) {
+    public TagController(TagService tagService, TagHateoasSupport hateoasSupport, Validator validator) {
         this.tagService = tagService;
         this.hateoasSupport = hateoasSupport;
         this.validator = validator;

@@ -1,9 +1,9 @@
 package com.epam.esm.order.controller;
 
 import com.epam.esm.errorhandle.validation.Validator;
-import com.epam.esm.hateoas.HateoasSupport;
 import com.epam.esm.order.entity.Order;
 import com.epam.esm.order.exception.OrderInvalidRequestException;
+import com.epam.esm.order.hateoas.OrderHateoasSupport;
 import com.epam.esm.order.service.OrderService;
 import lombok.extern.slf4j.Slf4j;
 import org.springdoc.api.annotations.ParameterObject;
@@ -21,11 +21,11 @@ import java.util.List;
 public class OrderController {
 
     private final OrderService orderService;
-    private final HateoasSupport hateoasSupport;
+    private final OrderHateoasSupport hateoasSupport;
     private final Validator validator;
 
     @Autowired
-    public OrderController(OrderService orderService, HateoasSupport hateoasSupport, Validator validator) {
+    public OrderController(OrderService orderService, OrderHateoasSupport hateoasSupport, Validator validator) {
         this.orderService = orderService;
         this.hateoasSupport = hateoasSupport;
         this.validator = validator;

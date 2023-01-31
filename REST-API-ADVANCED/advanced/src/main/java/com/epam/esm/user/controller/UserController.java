@@ -1,9 +1,9 @@
 package com.epam.esm.user.controller;
 
 import com.epam.esm.errorhandle.validation.Validator;
-import com.epam.esm.hateoas.HateoasSupport;
 import com.epam.esm.user.entity.User;
 import com.epam.esm.user.exception.UserInvalidRequestException;
+import com.epam.esm.user.hateoas.UserHateoasSupport;
 import com.epam.esm.user.sevice.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springdoc.api.annotations.ParameterObject;
@@ -24,11 +24,11 @@ import java.util.List;
 public class UserController {
 
     private final UserService userService;
-    private final HateoasSupport hateoasSupport;
+    private final UserHateoasSupport hateoasSupport;
     private final Validator validator;
 
     @Autowired
-    public UserController(UserService userService, HateoasSupport hateoasSupport, Validator validator) {
+    public UserController(UserService userService, UserHateoasSupport hateoasSupport, Validator validator) {
         this.userService = userService;
         this.hateoasSupport = hateoasSupport;
         this.validator = validator;
