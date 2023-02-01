@@ -12,20 +12,51 @@ import java.math.BigDecimal;
 
 @Configuration
 public class CertificateValidator extends Validator {
-    public String isValidCertificateFieldsWithErrorResponse(Certificate newCertificate) {
+    public String isCreatableCertificateFieldsWithErrorResponse(Certificate newCertificate) {
         StringBuilder errorStringBuilder = new StringBuilder();
+        if (StringUtils.isEmpty(newCertificate.getName()) ||
+                StringUtils.isBlank(newCertificate.getName())) {
+            errorStringBuilder.append("Invalid certificate field name ( name = ")
+                    .append(newCertificate.getName())
+                    .append("). Name cannot be empty!");
+        }
         if (StringUtils.isEmpty(newCertificate.getDurationOfDays()) ||
                 !NumberUtils.isDigits(newCertificate.getDurationOfDays()) ||
                 !(Integer.parseInt(newCertificate.getDurationOfDays()) > 0)) {
             errorStringBuilder.append("Invalid certificate field  duration ( duration = ")
                     .append(newCertificate.getDurationOfDays())
-                    .append("). Duration must be positive number!");
+                    .append("). Duration for new certificate must be positive number!");
         }
-        if (StringUtils.isEmpty(String.valueOf(newCertificate.getPrice())) ||
+        if (newCertificate.getPrice() == null ||
                 newCertificate.getPrice().compareTo(BigDecimal.ZERO) < 0) {
             errorStringBuilder.append("Invalid certificate field price ( price = ")
                     .append(newCertificate.getPrice())
-                    .append("). Price must be positive or zero!");
+                    .append("). Price for new certificate must be positive or zero!");
+        }
+        if (!CollectionUtils.isEmpty(newCertificate.getTags())) {
+            newCertificate.getTags().stream()
+                    .map(this::isValidTagErrorResponse)
+                    .forEach(errorStringBuilder::append);
+        }
+        return errorStringBuilder.toString();
+    }
+
+    public String isUpdatableCertificateFieldsWithErrorResponse(Certificate newCertificate) {
+        StringBuilder errorStringBuilder = new StringBuilder();
+        if (StringUtils.isNotEmpty(newCertificate.getDurationOfDays())) {
+            if (!NumberUtils.isDigits(newCertificate.getDurationOfDays()) ||
+                    !(Integer.parseInt(newCertificate.getDurationOfDays()) > 0)) {
+                errorStringBuilder.append("Invalid certificate field  duration ( duration = ")
+                        .append(newCertificate.getDurationOfDays())
+                        .append("). Duration must be positive number!");
+            }
+        }
+        if (newCertificate.getPrice() != null) {
+            if (newCertificate.getPrice().compareTo(BigDecimal.ZERO) < 0) {
+                errorStringBuilder.append("Invalid certificate field price ( price = ")
+                        .append(newCertificate.getPrice())
+                        .append("). Price must be positive or zero!");
+            }
         }
         if (!CollectionUtils.isEmpty(newCertificate.getTags())) {
             newCertificate.getTags().stream()
@@ -36,7 +67,8 @@ public class CertificateValidator extends Validator {
     }
 
     private String isValidTagErrorResponse(Tag newTag) {
-        if (StringUtils.isEmpty(newTag.getName())) {
+        if (StringUtils.isEmpty(newTag.getName()) ||
+                StringUtils.isBlank(newTag.getName())) {
             return ("Invalid tag field name ( name = "
                     + newTag.getName() + "). Name cannot be empty!");
         }

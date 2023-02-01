@@ -21,6 +21,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -43,31 +44,21 @@ public class CertificateServiceImpl implements CertificateService {
         log.debug("Start of get all certificates method in service layer." +
                 "For valid non erroneous pageable request get amount of all certificates in repository");
         long countOfCertificates = certificateRepository.count();
-
-        log.debug("Validate pagination request.");
         Pageable pageable = validator.validPageableRequest(countOfCertificates, paginationCriteria);
-
-        log.debug("Get certificates from repository with pagination");
         Page<Certificate> all = certificateRepository.findAll(pageable);
-
         log.debug("Emptiness check.");
         if (all.isEmpty()) {
             throw getCertificateNotFoundException();
         }
-        log.debug("Service send received certificates from repository");
         return all.toList();
     }
 
     @Override
     public Certificate getCertificateById(long id) {
-
         log.debug("Start of getCertificateById method in service layer. " +
                 "Get certificate by id from repository");
-        Certificate certificate = certificateRepository.findById(id).
+        return certificateRepository.findById(id).
                 orElseThrow(this::getCertificateNotFoundException);
-
-        log.debug("Service send received certificate from repository");
-        return certificate;
     }
 
     @Override
@@ -78,17 +69,12 @@ public class CertificateServiceImpl implements CertificateService {
         if (certificateIsExist(newCertificate)) {
             throw certificateInvalidRequestException(newCertificate);
         }
-        log.debug("Set valid data before creation.");
         newCertificate.setId(null);
         newCertificate.setCreateDate(LocalDateTime.now().toString());
         newCertificate.setLastUpdateDate(LocalDateTime.now().toString());
         newCertificate.setTags(getActualTagList(newCertificate));
-
         log.debug("Saving a new certificate in repository.");
-        Certificate savedCertificate = certificateRepository.saveAndFlush(newCertificate);
-
-        log.debug("Return saved certificate from repository");
-        return savedCertificate;
+        return certificateRepository.saveAndFlush(newCertificate);
     }
 
     @Override
@@ -107,15 +93,11 @@ public class CertificateServiceImpl implements CertificateService {
                 orElseThrow(this::getCertificateNotFoundException)
                 .merge(patchCertificate);
 
-        log.debug("Set valid data before updating.");
         patchCertificate.setTags(getActualTagList(patchCertificate));
         patchCertificate.setLastUpdateDate(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
 
         log.debug("Saving updated version of certificate in repository.");
-        Certificate certificate = certificateRepository.saveAndFlush(patchCertificate);
-
-        log.debug("Return saved certificate from repository");
-        return certificate;
+        return certificateRepository.saveAndFlush(patchCertificate);
     }
 
     @Override
@@ -123,27 +105,21 @@ public class CertificateServiceImpl implements CertificateService {
         log.debug("Start of delete method by id in service layer." +
                 "Existence check");
         if (certificateRepository.existsById(id)) {
-
             log.debug("Deleting certificate from repository");
             certificateRepository.deleteById(id);
-            log.debug("Successful!");
-
         } else throw getCertificateNotFoundException();
     }
 
     @Override
     public List<Certificate> getCertificateByTagsName(Pageable pageRequest, List<String> tagName) {
-
         log.debug("Start of get certificate by several tags name method in service layer." +
                 "Get certificates from repository");
         Page<Certificate> certificates = certificateRepository.
                 findByTagsNameAndPagination(tagName, (long) tagName.size(), pageRequest);
-
         log.debug("Emptiness check.");
         if (certificates.isEmpty()) {
             throw getCertificateNotFoundException();
         }
-        log.debug("Service send received data from repository");
         return certificates.toList();
     }
 
@@ -157,23 +133,23 @@ public class CertificateServiceImpl implements CertificateService {
         if (allById.size() != idList.size()) {
             throw getCertificateNotFoundException();
         }
-
-        log.debug("Service send received data from repository");
         return allById;
     }
 
     private List<Tag> getActualTagList(Certificate updateCertificate) {
-
         log.debug("Save new tags or select existing ones");
         List<Tag> list = new ArrayList<>();
-        log.debug("Emptiness check.");
         if (!CollectionUtils.isEmpty(updateCertificate.getTags())) {
             for (Tag tag : updateCertificate.getTags()) {
-                log.debug("Select an existing one from repository or save new tag into repository");
-                list.add(tagService.getTagByName(tag.getName()).orElse(tagService.createTag(tag)));
+                log.debug("Select an existing one from repository or save new tag into repository." +
+                        "Tag object =" + tag);
+                Optional<Tag> tagByName = tagService.getTagByName(tag.getName());
+                tagByName.ifPresent(list::add);
+                if (tagByName.isEmpty()) {
+                    list.add(tagService.createTag(tag));
+                }
             }
         }
-        log.debug("return tag list for certificate");
         return list;
     }
 

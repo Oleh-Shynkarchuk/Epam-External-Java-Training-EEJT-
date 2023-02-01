@@ -45,18 +45,12 @@ public class OrderServiceImpl implements OrderService {
         log.debug("Start of getAllOrders method in service layer." +
                 "For valid non erroneous pageable request get amount of all orders in repository");
         long amountOfOrders = orderRepository.count();
-
-        log.debug("Validate pagination request.");
         Pageable pageable = validator.validPageableRequest(amountOfOrders, paginationCriteria);
-
-        log.debug("Get orders from repository with pagination");
         Page<Order> all = orderRepository.findAll(pageable);
-
         log.debug("Emptiness check.");
         if (all.isEmpty()) {
             throw orderNotFoundException();
         }
-        log.debug("Service return received orders from repository");
         return all.toList();
     }
 
@@ -65,10 +59,7 @@ public class OrderServiceImpl implements OrderService {
 
         log.debug("Start of getOrderById method in service layer. " +
                 "Get order by id from repository");
-        Order order = orderRepository.findById(id).orElseThrow(this::orderNotFoundException);
-
-        log.debug("Service return received order from repository");
-        return order;
+        return orderRepository.findById(id).orElseThrow(this::orderNotFoundException);
     }
 
     @Override
@@ -85,11 +76,8 @@ public class OrderServiceImpl implements OrderService {
         newOrder.setTotalPrice(totalPrice);
         newOrder.setPurchaseDate(LocalDateTime.now().toString());
 
-        log.debug("Send new order to repository");
-        Order order = orderRepository.saveAndFlush(newOrder);
-
-        log.debug("Service return received new order from repository");
-        return order;
+        log.debug("Save new order in repository");
+        return orderRepository.saveAndFlush(newOrder);
     }
 
     private List<Long> getCertificateIdList(Order newOrder) {

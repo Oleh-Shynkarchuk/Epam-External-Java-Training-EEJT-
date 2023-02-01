@@ -22,7 +22,11 @@ public class OrderValidator extends Validator {
                         .append("). Only a positive number is allowed ( 1 and more ).");
             }
         }
-        if (UserMustBeEnteredWithID(newOrder)) {
+        if (ObjectUtils.isEmpty(newOrder.getUser())) {
+            errorStringBuilder.append("Invalid user object = ")
+                    .append(newOrder.getUser())
+                    .append("). Order must contains user data.");
+        } else if (UserMustBeEnteredWithID(newOrder)) {
             errorStringBuilder.append("Invalid user field  id ( id = ")
                     .append(newOrder.getUser().getId())
                     .append("). Only a positive number is allowed ( 1 and more ).");
@@ -31,8 +35,7 @@ public class OrderValidator extends Validator {
     }
 
     private boolean UserMustBeEnteredWithID(Order newOrder) {
-        return ObjectUtils.isEmpty(newOrder.getUser()) ||
-                StringUtils.isEmpty(String.valueOf(newOrder.getUser().getId())) ||
+        return StringUtils.isEmpty(String.valueOf(newOrder.getUser().getId())) ||
                 newOrder.getUser().getId() <= 0;
     }
 }

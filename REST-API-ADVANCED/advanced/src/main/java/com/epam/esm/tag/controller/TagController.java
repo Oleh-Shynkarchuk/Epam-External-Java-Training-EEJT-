@@ -35,12 +35,10 @@ public class TagController {
     @GetMapping
     public ResponseEntity<CollectionModel<Tag>> getAllTag(@ParameterObject Pageable paginationCriteria) {
 
-        log.debug("Request accepted getAllTag. Send request to service.");
+        log.debug("Request accepted getAllTag. " +
+                "Pagination object request." + paginationCriteria);
         List<Tag> allTag = tagService.getAllTag(paginationCriteria);
-
-        log.debug("Add hateoas to tags");
         CollectionModel<Tag> tagsAndHateoas = hateoasSupport.addHateoasSupportToAllTag(allTag, paginationCriteria);
-
         log.debug("Send response to client");
         return ResponseEntity.ok(tagsAndHateoas);
     }
@@ -48,16 +46,12 @@ public class TagController {
     @GetMapping("/{id}")
     public ResponseEntity<Tag> getTagById(@PathVariable String id) {
 
-        log.debug("Request accepted getTagById. Validate id field.");
+        log.debug("Request accepted getTagById. " +
+                "Id param request = " + id);
         String idResponse = validator.isPositiveAndParsableIdResponse(id);
         if (idResponse.isEmpty()) {
-
-            log.debug("Send request to service");
             Tag serviceTag = tagService.getTag(Long.parseLong(id));
-
-            log.debug("Add hateoas to tag");
             Tag tagAndHateoas = hateoasSupport.addHateoasSupportToSingleTag(serviceTag);
-
             log.debug("Send response to client");
             return ResponseEntity.ok(tagAndHateoas);
         } else {
@@ -67,28 +61,21 @@ public class TagController {
 
     @GetMapping("/best")
     public ResponseEntity<Tag> getMostWidelyUsedTag() {
-
         log.debug("Request accepted getMostWidelyUsedTag. Send request to service.");
         Tag mostWidelyUsedTag = tagService.getMostWidelyUsedTag();
-
-        log.debug("Add hateoas to tag");
         Tag tagAndHateoas = hateoasSupport.addHateoasSupportToSingleTag(mostWidelyUsedTag);
-
         log.debug("Send response to client");
         return ResponseEntity.ok(tagAndHateoas);
     }
 
     @PostMapping
     public ResponseEntity<Tag> createTag(@RequestBody Tag newTag) {
-        log.debug("Request accepted create new Tag. Validate tag field.");
-        String result = validator.isValidTagErrorResponse(newTag);
+        log.debug("Request accepted create new Tag. " +
+                "new Tag object request : " + newTag.toString());
+        String result = validator.isCreatableTagFieldsErrorResponse(newTag);
         if (result.isEmpty()) {
-            log.debug("Send request to service.");
             Tag serviceTag = tagService.createTag(newTag);
-
-            log.debug("Add hateoas to tag");
             Tag tagAndHateoas = hateoasSupport.addHateoasSupportToSingleTag(serviceTag);
-
             log.debug("Send response to client");
             return ResponseEntity.ok(tagAndHateoas);
         } else {
@@ -99,13 +86,11 @@ public class TagController {
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteTag(@PathVariable String id) {
 
-        log.debug("Request accepted deleteTag. Validate id field.");
+        log.debug("Request accepted deleteTag." +
+                "Id param request = " + id);
         String idResponse = validator.isPositiveAndParsableIdResponse(id);
         if (idResponse.isEmpty()) {
-
-            log.debug("Send request to service");
             tagService.deleteTag(Long.valueOf(id));
-
             log.debug("Send response to client");
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         } else {

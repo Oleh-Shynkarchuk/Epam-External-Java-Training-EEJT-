@@ -8,7 +8,7 @@ import org.springframework.data.domain.Pageable;
 
 
 @Configuration
-public abstract class Validator {
+public class Validator {
 
     public Pageable validPageableRequest(long availableAmount, Pageable paginationCriteria) {
         if (availableAmountOfItemsEnoughForPagination(paginationCriteria, availableAmount)) {
@@ -21,7 +21,7 @@ public abstract class Validator {
     }
 
     public String isPositiveAndParsableIdResponse(String id) {
-        if (NumberUtils.isParsable(id) && Long.parseLong(id) > 0) {
+        if (!NumberUtils.isParsable(id) || Long.parseLong(id) <= 0) {
             return "Invalid input ( id = " + id + " ). Only a positive number is allowed ( 1 and more ).";
         } else return "";
     }

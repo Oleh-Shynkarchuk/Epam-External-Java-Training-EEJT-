@@ -8,8 +8,9 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class TagValidator extends Validator {
 
-    public String isValidTagErrorResponse(Tag newTag) {
-        if (StringUtils.isEmpty(newTag.getName())) {
+    public String isCreatableTagFieldsErrorResponse(Tag newTag) {
+        if (StringUtils.isEmpty(newTag.getName()) ||
+                StringUtils.isBlank(newTag.getName())) {
             return ("Invalid tag field name ( name = "
                     + newTag.getName() + "). Name cannot be empty!");
         }

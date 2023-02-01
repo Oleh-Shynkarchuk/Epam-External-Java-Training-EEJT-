@@ -9,6 +9,10 @@ import java.util.Optional;
 
 @Repository
 public interface TagRepository extends JpaRepository<Tag, Long> {
+    Optional<Tag> findByName(String name);
+
+    boolean existsByName(String name);
+
     @Query(value = """
             SELECT tags.id FROM certificates
             LEFT JOIN certificates_has_tags ON certificates.id = certificates_id
@@ -21,6 +25,4 @@ public interface TagRepository extends JpaRepository<Tag, Long> {
             GROUP BY tags.id ORDER BY count(tags.name) DESC LIMIT 1
              """, nativeQuery = true)
     Long findId();
-
-    Optional<Tag> getTagByName(String name);
 }

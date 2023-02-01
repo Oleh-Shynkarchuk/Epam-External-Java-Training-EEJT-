@@ -39,13 +39,11 @@ public class CertificateController {
     @GetMapping
     public ResponseEntity<CollectionModel<Certificate>> getAllGiftCertificates(
             @ParameterObject Pageable paginationCriteria) {
-        log.debug("Request accepted getAllGiftCertificates. Get all certificates from service.");
+        log.debug("Request accepted getAllGiftCertificates. " +
+                "Pagination details = " + paginationCriteria.toString());
         List<Certificate> allCertificate = certificateService.getAllCertificates(paginationCriteria);
-
-        log.debug("Add hateoas to certificates.");
         CollectionModel<Certificate> allCertificatesAndHateoas = hateoasSupport
                 .addHateoasSupportToCertificateList(allCertificate, paginationCriteria);
-
         log.debug("Response to client.");
         return ResponseEntity.ok(allCertificatesAndHateoas);
     }
@@ -53,16 +51,12 @@ public class CertificateController {
     @GetMapping("/{id}")
     public ResponseEntity<Certificate> getCertificateById(
             @PathVariable("id") String id) {
-        log.debug("Request accepted getCertificateById. Validate id field.");
+        log.debug("Request accepted getCertificateById. " +
+                "Request id = " + id);
         String idResponse = validator.isPositiveAndParsableIdResponse(id);
         if (idResponse.isEmpty()) {
-
-            log.debug("Get certificate by id from service.");
             Certificate certificateById = certificateService.getCertificateById(Long.parseLong(id));
-
-            log.debug("Add hateoas to certificate.");
             Certificate certificateByIdANDHateoas = hateoasSupport.addHateoasSupportToSingleCertificate(certificateById);
-
             log.debug("Response to client.");
             return ResponseEntity.ok(certificateByIdANDHateoas);
         } else throw certificateInvalidRequestException(idResponse);
@@ -72,29 +66,25 @@ public class CertificateController {
     public ResponseEntity<CollectionModel<Certificate>> getCertificateBySeveralTagsName(
             @ParameterObject Pageable pageable,
             @RequestParam List<String> tagName) {
-        log.debug("Request accepted getCertificateBySeveralTagsName. Get certificates from service.");
-        List<Certificate> certificateByTagsName = certificateService.getCertificateByTagsName(pageable, tagName);
-
-        log.debug("Add hateoas to certificates.");
+        log.debug("Request accepted getCertificateBySeveralTagsName. " +
+                "Pagination details = " + pageable.toString() +
+                "Tag name request list : " + tagName.toString());
+        List<Certificate> certificateByTagsName = certificateService.
+                getCertificateByTagsName(pageable, tagName);
         CollectionModel<Certificate> certificatesAndHateoas = hateoasSupport.
                 addHateoasSupport(certificateByTagsName, pageable, tagName);
-
         log.debug("Response to client.");
         return ResponseEntity.ok(certificatesAndHateoas);
     }
 
     @PostMapping
     public ResponseEntity<Certificate> createCertificate(@RequestBody Certificate newCertificate) {
-
-        log.debug("Request accepted createCertificate. Validate new certificate fields.");
-        String certificateResponse = validator.isValidCertificateFieldsWithErrorResponse(newCertificate);
+        log.debug("Request accepted createCertificate." +
+                "newCertificate object request : " + newCertificate.toString());
+        String certificateResponse = validator.isCreatableCertificateFieldsWithErrorResponse(newCertificate);
         if (certificateResponse.isEmpty()) {
-            log.debug("Create new certificate by service.");
             Certificate certificate = certificateService.createCertificate(newCertificate);
-
-            log.debug("Add hateoas to created certificate.");
             Certificate certificateAndHateoas = hateoasSupport.addHateoasSupportToSingleCertificate(certificate);
-
             log.debug("Response to client.");
             return ResponseEntity.ok(certificateAndHateoas);
         } else throw certificateInvalidRequestException(certificateResponse);
@@ -105,16 +95,14 @@ public class CertificateController {
             @PathVariable("id") String id,
             @RequestBody Certificate patchCertificate) {
 
-        log.debug("Request accepted getCertificateById. Validate id and certificate fields.");
+        log.debug("Request accepted getCertificateById. " +
+                "Id request = " + id +
+                "updatedCertificate object request : " + patchCertificate.toString());
         String idResponse = validator.isPositiveAndParsableIdResponse(id);
-        String certificateResponse = validator.isValidCertificateFieldsWithErrorResponse(patchCertificate);
+        String certificateResponse = validator.isUpdatableCertificateFieldsWithErrorResponse(patchCertificate);
         if ((idResponse + certificateResponse).isEmpty()) {
-            log.debug("Update certificate.");
             Certificate certificate = certificateService.patchCertificate(Long.parseLong(id), patchCertificate);
-
-            log.debug("Add hateoas to updated certificate.");
             Certificate certificateAndHateoas = hateoasSupport.addHateoasSupportToSingleCertificate(certificate);
-
             log.debug("Response to client.");
             return ResponseEntity.ok(certificateAndHateoas);
         } else throw certificateInvalidRequestException(idResponse + certificateResponse);
@@ -124,12 +112,11 @@ public class CertificateController {
     public ResponseEntity<String> deleteCertificateById(
             @PathVariable("id") String id) {
 
-        log.debug("Request accepted deleteCertificateById. Validate id field.");
+        log.debug("Request accepted deleteCertificateById." +
+                "Id request = " + id);
         String idResponse = validator.isPositiveAndParsableIdResponse(id);
         if (idResponse.isEmpty()) {
-            log.debug("Delete certificate.");
             certificateService.deleteCertificateById(Long.parseLong(id));
-
             log.debug("Response to client.");
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }

@@ -31,18 +31,12 @@ public class UserServiceImpl implements UserService {
         log.debug("Start of get all users method in service layer." +
                 "For valid non erroneous pageable request get amount of all users in repository");
         long amountOfAllUsers = userRepository.count();
-
-        log.debug("Validate pagination request.");
         Pageable pageable = validator.validPageableRequest(amountOfAllUsers, paginationCriteria);
-
-        log.debug("Get users from repository with pagination");
         Page<User> allUsers = userRepository.findAll(pageable);
-
         log.debug("Emptiness check.");
         if (allUsers.isEmpty()) {
             throw userNotFoundException();
         }
-        log.debug("Service send received certificates from repository to controller");
         return allUsers.toList();
     }
 
@@ -50,10 +44,7 @@ public class UserServiceImpl implements UserService {
     public User getUserById(long id) {
         log.debug("Start of getUserById method in service layer. " +
                 "Get user by id from repository");
-        User user = userRepository.findById(id).orElseThrow(this::userNotFoundException);
-
-        log.debug("Service send received user from repository");
-        return user;
+        return userRepository.findById(id).orElseThrow(this::userNotFoundException);
     }
 
     private UserNotFoundException userNotFoundException() {

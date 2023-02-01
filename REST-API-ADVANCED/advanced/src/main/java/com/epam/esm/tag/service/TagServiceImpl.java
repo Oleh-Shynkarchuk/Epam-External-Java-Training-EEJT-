@@ -2,6 +2,7 @@ package com.epam.esm.tag.service;
 
 import com.epam.esm.ErrorConstants;
 import com.epam.esm.tag.entity.Tag;
+import com.epam.esm.tag.exception.TagInvalidRequestException;
 import com.epam.esm.tag.exception.TagNotFoundException;
 import com.epam.esm.tag.repo.TagRepository;
 import com.epam.esm.tag.validation.TagValidator;
@@ -32,18 +33,12 @@ public class TagServiceImpl implements TagService {
         log.debug("Start of getAllTag method in service layer." +
                 "For valid non erroneous pageable request get amount of all tags in repository");
         long count = tagRepository.count();
-
-        log.debug("Validate pagination request.");
         Pageable pageable = validator.validPageableRequest(count, paginationCriteria);
-
-        log.debug("Get tags from repository with pagination");
         Page<Tag> allTags = tagRepository.findAll(pageable);
-
         log.debug("Emptiness check.");
         if (allTags.isEmpty()) {
             throw tagNotFoundException();
         }
-        log.debug("Service return received tags from repository");
         return allTags.toList();
     }
 
@@ -51,29 +46,23 @@ public class TagServiceImpl implements TagService {
     public Tag getTag(Long id) {
         log.debug("Start of getTagById method in service layer. " +
                 "Get tag by id from repository");
-        Tag tag = tagRepository.findById(id).orElseThrow(this::tagNotFoundException);
-
-        log.debug("Service return received tag from repository");
-        return tag;
+        return tagRepository.findById(id).orElseThrow(this::tagNotFoundException);
     }
 
     public Optional<Tag> getTagByName(String tagName) {
         log.debug("Start of existByName method in service layer. " +
                 "Get optionalTag by name in repository");
-        Optional<Tag> tagByName = tagRepository.getTagByName(tagName);
-
-        log.debug("Service return received tag from repository");
-        return tagByName;
+        return tagRepository.findByName(tagName);
     }
 
     @Override
     public Tag createTag(Tag newTag) {
         log.debug("Start of create new tag method in service layer. " +
                 "Save new tag in repository");
-        Tag tag = tagRepository.saveAndFlush(newTag);
-
-        log.debug("Service return received new tag from repository");
-        return tag;
+        if (tagIsExistByName(newTag.getName())) {
+            throw tagInvalidRequestException(newTag);
+        }
+        return tagRepository.save(newTag);
     }
 
     @Override
@@ -93,14 +82,22 @@ public class TagServiceImpl implements TagService {
         Long id = tagRepository.findId();
 
         log.debug("Get MostWidelyUsedTag in repository by received id");
-        Tag tag = getTag(id);
+        return getTag(id);
+    }
 
-        log.debug("Service return received new MostWidelyUsedTag from repository");
-        return tag;
+    private boolean tagIsExistByName(String name) {
+        return tagRepository.existsByName(name);
     }
 
     private TagNotFoundException tagNotFoundException() {
         log.error(ErrorConstants.TAG_NOT_FOUND_MESSAGE);
         return new TagNotFoundException();
+    }
+
+    private TagInvalidRequestException tagInvalidRequestException(Tag newTag) {
+        log.error("Tag with ( name =  " + newTag.getName()
+                + ") already exist. This field must be unique, change it and try again.");
+        return new TagInvalidRequestException("Tag with ( name =  " + newTag.getName()
+                + ") already exist. This field must be unique, change it and try again.");
     }
 }

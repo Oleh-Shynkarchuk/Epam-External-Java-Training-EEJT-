@@ -37,29 +37,22 @@ public class UserController {
 
     @GetMapping
     public ResponseEntity<CollectionModel<User>> getAllUser(@ParameterObject Pageable paginationCriteria) {
-        log.debug("Request accepted getAllUser. Send request to service");
+        log.debug("Request accepted getAllUser. " +
+                "Pagination object request = " + paginationCriteria.toString());
         List<User> allUser = userService.getAllUser(paginationCriteria);
-
-        log.debug("Add hateoas to user");
         CollectionModel<User> usersAndHateoas = hateoasSupport.addHateoasSupportToUserList(allUser, paginationCriteria);
-
         log.debug("Send response to client");
         return ResponseEntity.ok(usersAndHateoas);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<User> getUser(@PathVariable String id) {
-
-        log.debug("Request accepted getUserById. Validate id field.");
+        log.debug("Request accepted getUserById. " +
+                "Id param request = " + id);
         String idResponse = validator.isPositiveAndParsableIdResponse(id);
         if (idResponse.isEmpty()) {
-
-            log.debug("Send request to service");
             User userById = userService.getUserById(Long.parseLong(id));
-
-            log.debug("Add hateoas to user");
             User userAndHateoas = hateoasSupport.addHateoasSupportToSingleUser(userById);
-
             log.debug("Send response to client");
             return ResponseEntity.ok(userAndHateoas);
         } else {
