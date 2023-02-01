@@ -5,10 +5,10 @@ import com.epam.esm.certificate.entity.Certificate;
 import com.epam.esm.order.entity.Order;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
-@Configuration
+@Component
 public class OrderValidator extends Validator {
     public String isValidOrderFieldsWithErrorResponse(Order newOrder) {
         StringBuilder errorStringBuilder = new StringBuilder();

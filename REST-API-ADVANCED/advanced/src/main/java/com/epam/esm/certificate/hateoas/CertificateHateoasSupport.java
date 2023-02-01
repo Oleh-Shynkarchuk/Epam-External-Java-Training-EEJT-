@@ -4,14 +4,14 @@ import com.epam.esm.certificate.controller.CertificateController;
 import com.epam.esm.certificate.entity.Certificate;
 import com.epam.esm.tag.hateoas.TagHateoasSupport;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.data.domain.Pageable;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 
-@Configuration
+@Component
 public class CertificateHateoasSupport {
 
     private final TagHateoasSupport tagHateoasSupport;

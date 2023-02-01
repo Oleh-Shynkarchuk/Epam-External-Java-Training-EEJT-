@@ -5,14 +5,14 @@ import com.epam.esm.order.controller.OrderController;
 import com.epam.esm.order.entity.Order;
 import com.epam.esm.user.hateoas.UserHateoasSupport;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.data.domain.Pageable;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 
-@Configuration
+@Component
 public class OrderHateoasSupport {
     private final CertificateHateoasSupport hateoasSupport;
     private final UserHateoasSupport userHateoasSupport;

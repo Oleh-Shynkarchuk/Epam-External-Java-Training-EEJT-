@@ -2,12 +2,12 @@ package com.epam.esm;
 
 
 import org.apache.commons.lang3.math.NumberUtils;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Component;
 
 
-@Configuration
+@Component
 public class Validator {
 
     public Pageable validPageableRequest(long availableAmount, Pageable paginationCriteria) {

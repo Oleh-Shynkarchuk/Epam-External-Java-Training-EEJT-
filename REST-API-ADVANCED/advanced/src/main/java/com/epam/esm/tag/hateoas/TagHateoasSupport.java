@@ -3,14 +3,14 @@ package com.epam.esm.tag.hateoas;
 import com.epam.esm.tag.controller.TagController;
 import com.epam.esm.tag.entity.Tag;
 import org.springdoc.api.annotations.ParameterObject;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.data.domain.Pageable;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 
-@Configuration
+@Component
 public class TagHateoasSupport {
     public Tag addHateoasSupportToSingleTag(Tag t) {
         return t.add(

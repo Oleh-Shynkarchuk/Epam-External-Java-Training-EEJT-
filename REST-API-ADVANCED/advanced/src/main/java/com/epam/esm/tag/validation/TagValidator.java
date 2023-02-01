@@ -3,9 +3,9 @@ package com.epam.esm.tag.validation;
 import com.epam.esm.Validator;
 import com.epam.esm.tag.entity.Tag;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.stereotype.Component;
 
-@Configuration
+@Component
 public class TagValidator extends Validator {
 
     public String isCreatableTagFieldsErrorResponse(Tag newTag) {

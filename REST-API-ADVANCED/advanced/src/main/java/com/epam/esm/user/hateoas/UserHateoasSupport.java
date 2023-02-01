@@ -2,14 +2,14 @@ package com.epam.esm.user.hateoas;
 
 import com.epam.esm.user.controller.UserController;
 import com.epam.esm.user.entity.User;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.data.domain.Pageable;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 
-@Configuration
+@Component
 public class UserHateoasSupport {
     public CollectionModel<User> addHateoasSupportToUserList(List<User> allUser, Pageable paginationCriteria) {
         allUser.forEach(this::addHateoasSupport);

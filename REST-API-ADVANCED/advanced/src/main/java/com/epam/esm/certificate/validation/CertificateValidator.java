@@ -5,12 +5,12 @@ import com.epam.esm.certificate.entity.Certificate;
 import com.epam.esm.tag.entity.Tag;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
 import java.math.BigDecimal;
 
-@Configuration
+@Component
 public class CertificateValidator extends Validator {
     public String isCreatableCertificateFieldsWithErrorResponse(Certificate newCertificate) {
         StringBuilder errorStringBuilder = new StringBuilder();
