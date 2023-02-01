@@ -44,7 +44,7 @@ public class CertificateController {
         List<Certificate> allCertificate = certificateService.getAllCertificates(paginationCriteria);
         CollectionModel<Certificate> allCertificatesAndHateoas = hateoasSupport
                 .addHateoasSupportToCertificateList(allCertificate, paginationCriteria);
-        log.debug("Response to client.");
+        log.debug("Response Certificates:" + allCertificatesAndHateoas.toString() + " to client.");
         return ResponseEntity.ok(allCertificatesAndHateoas);
     }
 
@@ -56,8 +56,9 @@ public class CertificateController {
         String idResponse = validator.isPositiveAndParsableIdResponse(id);
         if (idResponse.isEmpty()) {
             Certificate certificateById = certificateService.getCertificateById(Long.parseLong(id));
-            Certificate certificateByIdANDHateoas = hateoasSupport.addHateoasSupportToSingleCertificate(certificateById);
-            log.debug("Response to client.");
+            Certificate certificateByIdANDHateoas = hateoasSupport.
+                    addHateoasSupportToSingleCertificate(certificateById);
+            log.debug("Response certificate:" + certificateByIdANDHateoas.toString() + " to client.");
             return ResponseEntity.ok(certificateByIdANDHateoas);
         } else throw certificateInvalidRequestException(idResponse);
     }
@@ -73,7 +74,7 @@ public class CertificateController {
                 getCertificateByTagsName(pageable, tagName);
         CollectionModel<Certificate> certificatesAndHateoas = hateoasSupport.
                 addHateoasSupport(certificateByTagsName, pageable, tagName);
-        log.debug("Response to client.");
+        log.debug("Response certificate : " + certificatesAndHateoas.toString() + " to client.");
         return ResponseEntity.ok(certificatesAndHateoas);
     }
 
@@ -84,7 +85,8 @@ public class CertificateController {
         String certificateResponse = validator.isCreatableCertificateFieldsWithErrorResponse(newCertificate);
         if (certificateResponse.isEmpty()) {
             Certificate certificate = certificateService.createCertificate(newCertificate);
-            Certificate certificateAndHateoas = hateoasSupport.addHateoasSupportToSingleCertificate(certificate);
+            Certificate certificateAndHateoas = hateoasSupport.
+                    addHateoasSupportToSingleCertificate(certificate);
             log.debug("Response to client.");
             return ResponseEntity.ok(certificateAndHateoas);
         } else throw certificateInvalidRequestException(certificateResponse);
@@ -103,7 +105,7 @@ public class CertificateController {
         if ((idResponse + certificateResponse).isEmpty()) {
             Certificate certificate = certificateService.patchCertificate(Long.parseLong(id), patchCertificate);
             Certificate certificateAndHateoas = hateoasSupport.addHateoasSupportToSingleCertificate(certificate);
-            log.debug("Response to client.");
+            log.debug("Response certificate: " + certificateAndHateoas.toString() + " to client.");
             return ResponseEntity.ok(certificateAndHateoas);
         } else throw certificateInvalidRequestException(idResponse + certificateResponse);
     }
@@ -117,7 +119,7 @@ public class CertificateController {
         String idResponse = validator.isPositiveAndParsableIdResponse(id);
         if (idResponse.isEmpty()) {
             certificateService.deleteCertificateById(Long.parseLong(id));
-            log.debug("Response to client.");
+            log.debug("Successful delete.");
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }
         throw certificateInvalidRequestException(idResponse);

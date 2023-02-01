@@ -39,7 +39,7 @@ public class TagController {
                 "Pagination object request." + paginationCriteria);
         List<Tag> allTag = tagService.getAllTag(paginationCriteria);
         CollectionModel<Tag> tagsAndHateoas = hateoasSupport.addHateoasSupportToAllTag(allTag, paginationCriteria);
-        log.debug("Send response to client");
+        log.debug("Send response tags list : " + tagsAndHateoas.toString() + " to client");
         return ResponseEntity.ok(tagsAndHateoas);
     }
 
@@ -52,7 +52,7 @@ public class TagController {
         if (idResponse.isEmpty()) {
             Tag serviceTag = tagService.getTag(Long.parseLong(id));
             Tag tagAndHateoas = hateoasSupport.addHateoasSupportToSingleTag(serviceTag);
-            log.debug("Send response to client");
+            log.debug("Send response tag: " + tagAndHateoas.toString() + " to client");
             return ResponseEntity.ok(tagAndHateoas);
         } else {
             throw tagInvalidRequestException(idResponse);
@@ -64,7 +64,7 @@ public class TagController {
         log.debug("Request accepted getMostWidelyUsedTag. Send request to service.");
         Tag mostWidelyUsedTag = tagService.getMostWidelyUsedTag();
         Tag tagAndHateoas = hateoasSupport.addHateoasSupportToSingleTag(mostWidelyUsedTag);
-        log.debug("Send response to client");
+        log.debug("Send response tag: " + tagAndHateoas.toString() + " to client");
         return ResponseEntity.ok(tagAndHateoas);
     }
 
@@ -76,7 +76,7 @@ public class TagController {
         if (result.isEmpty()) {
             Tag serviceTag = tagService.createTag(newTag);
             Tag tagAndHateoas = hateoasSupport.addHateoasSupportToSingleTag(serviceTag);
-            log.debug("Send response to client");
+            log.debug("Send response tag: " + tagAndHateoas.toString() + " to client");
             return ResponseEntity.ok(tagAndHateoas);
         } else {
             throw tagInvalidRequestException(result);
@@ -91,7 +91,7 @@ public class TagController {
         String idResponse = validator.isPositiveAndParsableIdResponse(id);
         if (idResponse.isEmpty()) {
             tagService.deleteTag(Long.valueOf(id));
-            log.debug("Send response to client");
+            log.debug("Successful deleted tag");
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         } else {
             throw tagInvalidRequestException(idResponse);

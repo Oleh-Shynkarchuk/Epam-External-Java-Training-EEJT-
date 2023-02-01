@@ -39,8 +39,9 @@ public class OrderController {
         log.debug("Request accepted getAllOrder. " +
                 "Pagination request object = " + paginationCriteria.toString());
         List<Order> allOrder = orderService.getAllOrder(paginationCriteria);
-        CollectionModel<Order> orderCollectionModel = hateoasSupport.addHateoasSupportToOrderList(allOrder, paginationCriteria);
-        log.debug("Send response to client");
+        CollectionModel<Order> orderCollectionModel = hateoasSupport.
+                addHateoasSupportToOrderList(allOrder, paginationCriteria);
+        log.debug("Send response all Orders: " + orderCollectionModel.toString() + " to client");
         return ResponseEntity.ok(orderCollectionModel);
     }
 
@@ -53,7 +54,7 @@ public class OrderController {
         if (idResponse.isEmpty()) {
             Order serviceOrder = orderService.getOrder(Long.parseLong(id));
             Order orderAndHateoas = hateoasSupport.addHateoasSupportToSingleOrder(serviceOrder);
-            log.debug("Send response to client");
+            log.debug("Send response order: " + orderAndHateoas.toString() + " to client");
             return ResponseEntity.ok(orderAndHateoas);
         } else {
             throw orderInvalidRequestException(idResponse);
@@ -69,7 +70,7 @@ public class OrderController {
         if (orderResponse.isEmpty()) {
             Order order = orderService.createOrder(newOrder);
             Order orderAndHateoas = hateoasSupport.addHateoasSupportToSingleOrder(order);
-            log.debug("Send response to client");
+            log.debug("Send response order: " + orderAndHateoas.toString() + "to client");
             return ResponseEntity.ok(orderAndHateoas);
         } else throw orderInvalidRequestException(orderResponse);
     }

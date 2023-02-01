@@ -41,7 +41,7 @@ public class UserController {
                 "Pagination object request = " + paginationCriteria.toString());
         List<User> allUser = userService.getAllUser(paginationCriteria);
         CollectionModel<User> usersAndHateoas = hateoasSupport.addHateoasSupportToUserList(allUser, paginationCriteria);
-        log.debug("Send response to client");
+        log.debug("Send response users list: " + usersAndHateoas.toString() + " to client");
         return ResponseEntity.ok(usersAndHateoas);
     }
 
@@ -53,7 +53,7 @@ public class UserController {
         if (idResponse.isEmpty()) {
             User userById = userService.getUserById(Long.parseLong(id));
             User userAndHateoas = hateoasSupport.addHateoasSupportToSingleUser(userById);
-            log.debug("Send response to client");
+            log.debug("Send response user : " + userAndHateoas.toString() + " to client");
             return ResponseEntity.ok(userAndHateoas);
         } else {
             log.error(idResponse);
