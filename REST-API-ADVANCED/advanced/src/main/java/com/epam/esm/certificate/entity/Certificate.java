@@ -17,7 +17,6 @@ import java.util.Objects;
 @Entity
 @Getter
 @Setter
-@ToString
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "certificates")
@@ -39,7 +38,6 @@ public class Certificate extends RepresentationModel<Certificate> {
     @Column(name = "last_update_date")
     private String lastUpdateDate;
     @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
-    @ToString.Exclude
     @JoinTable(name = "certificates_has_tags",
             joinColumns = @JoinColumn(name = "certificates_id"),
             inverseJoinColumns = @JoinColumn(name = "tags_id"))

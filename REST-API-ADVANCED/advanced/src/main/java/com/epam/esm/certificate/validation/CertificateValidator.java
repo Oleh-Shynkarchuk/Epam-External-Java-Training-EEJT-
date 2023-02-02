@@ -3,6 +3,7 @@ package com.epam.esm.certificate.validation;
 import com.epam.esm.Validator;
 import com.epam.esm.certificate.entity.Certificate;
 import com.epam.esm.tag.entity.Tag;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.stereotype.Component;
@@ -27,7 +28,7 @@ public class CertificateValidator extends Validator {
                     .append(newCertificate.getDurationOfDays())
                     .append("). Duration for new certificate must be positive number!");
         }
-        if (newCertificate.getPrice() == null ||
+        if (ObjectUtils.isEmpty(newCertificate.getPrice()) ||
                 newCertificate.getPrice().compareTo(BigDecimal.ZERO) < 0) {
             errorStringBuilder.append("Invalid certificate field price ( price = ")
                     .append(newCertificate.getPrice())

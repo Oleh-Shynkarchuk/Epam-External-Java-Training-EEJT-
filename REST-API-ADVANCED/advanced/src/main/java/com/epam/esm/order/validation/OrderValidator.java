@@ -4,7 +4,6 @@ import com.epam.esm.Validator;
 import com.epam.esm.certificate.entity.Certificate;
 import com.epam.esm.order.entity.Order;
 import org.apache.commons.lang3.ObjectUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
@@ -16,7 +15,7 @@ public class OrderValidator extends Validator {
             errorStringBuilder.append("Order must contains certificates");
         }
         for (Certificate certificate : newOrder.getCertificates()) {
-            if (StringUtils.isEmpty(String.valueOf(certificate.getId())) || certificate.getId() <= 0) {
+            if (ObjectUtils.isEmpty(certificate.getId()) || certificate.getId() <= 0) {
                 errorStringBuilder.append("Invalid certificate field  id ( id = ")
                         .append(certificate.getId())
                         .append("). Only a positive number is allowed ( 1 and more ).");
@@ -35,7 +34,7 @@ public class OrderValidator extends Validator {
     }
 
     private boolean UserMustBeEnteredWithID(Order newOrder) {
-        return StringUtils.isEmpty(String.valueOf(newOrder.getUser().getId())) ||
+        return ObjectUtils.isEmpty(newOrder.getUser().getId()) ||
                 newOrder.getUser().getId() <= 0;
     }
 }

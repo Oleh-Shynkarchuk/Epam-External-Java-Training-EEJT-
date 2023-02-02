@@ -25,7 +25,7 @@ public class OrderHateoasSupport {
 
     public Order addHateoasSupportToSingleOrder(Order order) {
         hateoasSupport.addHateoasSupportToCertificateList(order.getCertificates(), Pageable.unpaged());
-        userHateoasSupport.addHateoasSupport(order.getUser());
+        userHateoasSupport.addHateoasSupportToSingleUser(order.getUser());
         return order.add(
                 WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(OrderController.class)
                         .getOrderById(String.valueOf(order.getId()))).withRel("getOrder"),
