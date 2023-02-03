@@ -43,7 +43,7 @@ class UserServiceImplTest {
         Mockito.when(validator.validPageableRequest(availableAmountOfOrders, pageable)).thenReturn(pageable);
         Mockito.when(userRepository.findAll(pageable)).thenReturn(expected);
 
-        assertEquals(expected.toList(), userService.getAllUser(pageable));
+        assertEquals(expected.toList(), userService.getAllUsers(pageable));
     }
 
     @Test
@@ -57,7 +57,7 @@ class UserServiceImplTest {
         Mockito.when(validator.validPageableRequest(availableAmountOfOrders, pageable)).thenReturn(pageable);
         Mockito.when(userRepository.findAll(pageable)).thenReturn(expected);
 
-        assertThrows(UserNotFoundException.class, () -> userService.getAllUser(pageable));
+        assertThrows(UserNotFoundException.class, () -> userService.getAllUsers(pageable));
     }
 
     @Test

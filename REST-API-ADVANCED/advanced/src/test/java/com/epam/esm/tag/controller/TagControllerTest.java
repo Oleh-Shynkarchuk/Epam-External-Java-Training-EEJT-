@@ -64,7 +64,7 @@ class TagControllerTest {
         List<Tag> tags = List.of(tag1, tag2, tag3);
         String expected = jsonMapper.writeValueAsString(CollectionModel.of(tags));
 
-        Mockito.when(tagService.getAllTag(pageable))
+        Mockito.when(tagService.getAllTags(pageable))
                 .thenReturn(tags);
         Mockito.when(hateoasSupport.addHateoasSupportToAllTag(tags, pageable))
                 .thenReturn(CollectionModel.of(tags));
@@ -75,7 +75,7 @@ class TagControllerTest {
                 .andReturn().getResponse().getContentAsString();
 
         assertEquals(response, expected);
-        Mockito.verify(tagService).getAllTag(pageable);
+        Mockito.verify(tagService).getAllTags(pageable);
         Mockito.verify(hateoasSupport).addHateoasSupportToAllTag(tags, pageable);
     }
 
@@ -86,7 +86,7 @@ class TagControllerTest {
         String expected = jsonMapper.writeValueAsString(tag1);
 
         Mockito.when(validator.isPositiveAndParsableIdResponse(String.valueOf(request))).thenReturn("");
-        Mockito.when(tagService.getTag(request))
+        Mockito.when(tagService.getTagById(request))
                 .thenReturn(tag1);
         Mockito.when(hateoasSupport.addHateoasSupportToSingleTag(tag1))
                 .thenReturn(tag1);
@@ -180,7 +180,7 @@ class TagControllerTest {
     void deleteTag() throws Exception {
         long id = 1L;
         Mockito.when(validator.isPositiveAndParsableIdResponse(String.valueOf(id))).thenReturn("");
-        Mockito.doNothing().when(tagService).deleteTag(id);
+        Mockito.doNothing().when(tagService).deleteTagById(id);
         String response = mockMvc.perform(MockMvcRequestBuilders.delete("/v1/api/tag/1")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isNoContent())
@@ -188,7 +188,7 @@ class TagControllerTest {
 
         assertTrue(response.isEmpty());
         Mockito.verify(validator).isPositiveAndParsableIdResponse(String.valueOf(id));
-        Mockito.verify(tagService).deleteTag(id);
+        Mockito.verify(tagService).deleteTagById(id);
     }
 
     @Test

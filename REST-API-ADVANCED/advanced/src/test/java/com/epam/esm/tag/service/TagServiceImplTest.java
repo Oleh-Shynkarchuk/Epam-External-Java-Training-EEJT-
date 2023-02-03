@@ -43,7 +43,7 @@ class TagServiceImplTest {
         Mockito.when(validator.validPageableRequest(availableAmountOfOrders, pageable)).thenReturn(pageable);
         Mockito.when(tagRepository.findAll(pageable)).thenReturn(expected);
 
-        assertEquals(expected.toList(), tagService.getAllTag(pageable));
+        assertEquals(expected.toList(), tagService.getAllTags(pageable));
     }
 
     @Test
@@ -56,7 +56,7 @@ class TagServiceImplTest {
         Mockito.when(validator.validPageableRequest(availableAmountOfOrders, pageable)).thenReturn(pageable);
         Mockito.when(tagRepository.findAll(pageable)).thenReturn(expected);
 
-        assertThrows(TagNotFoundException.class, () -> tagService.getAllTag(pageable));
+        assertThrows(TagNotFoundException.class, () -> tagService.getAllTags(pageable));
     }
 
 
@@ -67,7 +67,7 @@ class TagServiceImplTest {
 
         Mockito.when(tagRepository.findById(requestId)).thenReturn(Optional.of(expected));
 
-        assertEquals(expected, tagService.getTag(requestId));
+        assertEquals(expected, tagService.getTagById(requestId));
     }
 
     @Test
@@ -76,7 +76,7 @@ class TagServiceImplTest {
 
         Mockito.when(tagRepository.findById(requestId)).thenReturn(Optional.empty());
 
-        assertThrows(TagNotFoundException.class, () -> tagService.getTag(requestId));
+        assertThrows(TagNotFoundException.class, () -> tagService.getTagById(requestId));
     }
 
     @Test
@@ -116,7 +116,7 @@ class TagServiceImplTest {
         Mockito.when(tagRepository.existsById(requestId)).thenReturn(true);
         Mockito.doNothing().when(tagRepository).deleteById(requestId);
 
-        assertDoesNotThrow(() -> tagService.deleteTag(requestId));
+        assertDoesNotThrow(() -> tagService.deleteTagById(requestId));
         Mockito.verify(tagRepository).deleteById(requestId);
     }
 
@@ -126,7 +126,7 @@ class TagServiceImplTest {
 
         Mockito.when(tagRepository.existsById(requestId)).thenReturn(false);
 
-        assertThrows(TagNotFoundException.class, () -> tagService.deleteTag(requestId));
+        assertThrows(TagNotFoundException.class, () -> tagService.deleteTagById(requestId));
     }
 
     @Test

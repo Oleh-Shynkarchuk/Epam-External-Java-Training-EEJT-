@@ -46,9 +46,9 @@ class OrderServiceImplTest {
         long availableAmountOfOrders = 2L;
         Pageable pageable = PageRequest.of(0, 20);
         Order order1 = Order.builder().totalPrice(BigDecimal.valueOf(250))
-                .purchaseDate(LocalDateTime.now().toString()).build();
+                .purchaseDate(LocalDateTime.now()).build();
         Order order2 = Order.builder().totalPrice(BigDecimal.valueOf(250))
-                .purchaseDate(LocalDateTime.now().toString()).build();
+                .purchaseDate(LocalDateTime.now()).build();
         Page<Order> expected = new PageImpl<>(List.of(order1, order2), pageable, availableAmountOfOrders);
 
         Mockito.when(orderRepository.count()).thenReturn(availableAmountOfOrders);
@@ -75,7 +75,7 @@ class OrderServiceImplTest {
     void getOrderById() {
         long requestId = 1L;
         Order expected = Order.builder().totalPrice(BigDecimal.valueOf(250))
-                .purchaseDate(LocalDateTime.now().toString()).build();
+                .purchaseDate(LocalDateTime.now()).build();
 
         Mockito.when(orderRepository.findById(requestId)).thenReturn(Optional.of(expected));
 
@@ -99,10 +99,10 @@ class OrderServiceImplTest {
         Order request = Order.builder().totalPrice(price).
                 certificates(List.of(certificate))
                 .user(user)
-                .purchaseDate(LocalDateTime.now().toString()).build();
+                .purchaseDate(LocalDateTime.now()).build();
         Order response = Order.builder().id(1L).totalPrice(price)
                 .certificates(List.of(certificate)).user(user)
-                .purchaseDate(LocalDateTime.now().toString()).build();
+                .purchaseDate(LocalDateTime.now()).build();
 
         Mockito.when(certificateService.findAllById(List.of(1L))).thenReturn(List.of(certificate));
         Mockito.when(userService.getUserById(1L)).thenReturn(user);

@@ -47,7 +47,7 @@ class CertificateControllerTest {
     @InjectMocks
     private CertificateController certificateController;
 
-    private final JsonMapper jsonMapper = new JsonMapper();
+    private final JsonMapper jsonMapper = JsonMapper.builder().findAndAddModules().build();
 
     private MockMvc mockMvc;
 
@@ -69,11 +69,11 @@ class CertificateControllerTest {
         List<Tag> tags = List.of(firstTag, secondTag);
         Certificate certificate1 = Certificate.builder().id(id).name("TestCertificate1")
                 .description("test description").price(BigDecimal.valueOf(200))
-                .lastUpdateDate(LocalDateTime.now().toString())
+                .lastUpdateDate(LocalDateTime.now())
                 .durationOfDays("25").tags(tags).build();
         Certificate certificate2 = Certificate.builder().id(id + 1).name("TestCertificate2")
                 .description("UPDATED DESCRIPTION").price(BigDecimal.valueOf(200))
-                .lastUpdateDate(LocalDateTime.now().toString())
+                .lastUpdateDate(LocalDateTime.now())
                 .durationOfDays("25").tags(tags).build();
         List<Certificate> certificateList = List.of(certificate1, certificate2);
         CollectionModel<Certificate> certificateCollectionModel = CollectionModel.of(certificateList);
@@ -102,7 +102,7 @@ class CertificateControllerTest {
         List<Tag> tags = List.of(firstTag, secondTag);
         Certificate expectedCertificate = Certificate.builder().id(id).name("TestCertificate1")
                 .description("UPDATED DESCRIPTION").price(BigDecimal.valueOf(200))
-                .lastUpdateDate(LocalDateTime.now().toString())
+                .lastUpdateDate(LocalDateTime.now())
                 .durationOfDays("25").tags(tags).build();
         Mockito.when(validator.isPositiveAndParsableIdResponse(String.valueOf(id))).thenReturn("");
         Mockito.when(certificateService.getCertificateById(id)).thenReturn(expectedCertificate);
@@ -146,11 +146,11 @@ class CertificateControllerTest {
         List<Tag> tags = List.of(firstTag, secondTag);
         Certificate certificate1 = Certificate.builder().id(id).name("TestCertificate1")
                 .description("test description").price(BigDecimal.valueOf(200))
-                .lastUpdateDate(LocalDateTime.now().toString())
+                .lastUpdateDate(LocalDateTime.now())
                 .durationOfDays("25").tags(tags).build();
         Certificate certificate2 = Certificate.builder().id(id + 1).name("TestCertificate2")
                 .description("test description").price(BigDecimal.valueOf(200))
-                .lastUpdateDate(LocalDateTime.now().toString())
+                .lastUpdateDate(LocalDateTime.now())
                 .durationOfDays("25").tags(tags).build();
         List<Certificate> certificateList = List.of(certificate1, certificate2);
         CollectionModel<Certificate> certificateCollectionModel = CollectionModel.of(certificateList);
@@ -180,13 +180,13 @@ class CertificateControllerTest {
         List<Tag> tags = List.of(firstTag, secondTag);
         Certificate newCertificate = Certificate.builder().id(null).name("TestCertificate1")
                 .description("UPDATED DESCRIPTION").price(BigDecimal.valueOf(200))
-                .createDate(LocalDateTime.now().toString())
-                .lastUpdateDate(LocalDateTime.now().toString())
+                .createDate(LocalDateTime.now())
+                .lastUpdateDate(LocalDateTime.now())
                 .durationOfDays("25").tags(tags).build();
         Certificate created = Certificate.builder().id(1L).name("TestCertificate1")
                 .description("UPDATED DESCRIPTION").price(BigDecimal.valueOf(200))
-                .createDate(LocalDateTime.now().toString())
-                .lastUpdateDate(LocalDateTime.now().toString())
+                .createDate(LocalDateTime.now())
+                .lastUpdateDate(LocalDateTime.now())
                 .durationOfDays("25").tags(tags).build();
 
         String expected = jsonMapper.writeValueAsString(created);
@@ -212,8 +212,8 @@ class CertificateControllerTest {
 
         Certificate newCertificate = Certificate.builder().id(null).name("TestCertificate1")
                 .description("UPDATED DESCRIPTION").price(BigDecimal.valueOf(-200))
-                .createDate(LocalDateTime.now().toString())
-                .lastUpdateDate(LocalDateTime.now().toString())
+                .createDate(LocalDateTime.now())
+                .lastUpdateDate(LocalDateTime.now())
                 .durationOfDays("25").tags(null).build();
 
         String expected = jsonMapper.writeValueAsString(Map.of("errorCode", ErrorConstants.CERTIFICATE_INVALID_REQUEST_ERROR_CODE,
@@ -242,13 +242,13 @@ class CertificateControllerTest {
         List<Tag> tags = List.of(firstTag, secondTag);
         Certificate newCertificate = Certificate.builder().id(null).name("TestCertificate1")
                 .description("UPDATED DESCRIPTION").price(BigDecimal.valueOf(200))
-                .createDate(LocalDateTime.now().toString())
-                .lastUpdateDate(LocalDateTime.now().toString())
+                .createDate(LocalDateTime.now())
+                .lastUpdateDate(LocalDateTime.now())
                 .durationOfDays("25").tags(tags).build();
         Certificate patched = Certificate.builder().id(id).name("TestCertificate1")
                 .description("UPDATED DESCRIPTION").price(BigDecimal.valueOf(200))
-                .createDate(LocalDateTime.now().toString())
-                .lastUpdateDate(LocalDateTime.now().toString())
+                .createDate(LocalDateTime.now())
+                .lastUpdateDate(LocalDateTime.now())
                 .durationOfDays("25").tags(tags).build();
 
         String expected = jsonMapper.writeValueAsString(patched);
@@ -276,8 +276,8 @@ class CertificateControllerTest {
         long id = -1L;
         Certificate newCertificate = Certificate.builder().id(null).name("TestCertificate1")
                 .description("UPDATED DESCRIPTION").price(BigDecimal.valueOf(-200))
-                .createDate(LocalDateTime.now().toString())
-                .lastUpdateDate(LocalDateTime.now().toString())
+                .createDate(LocalDateTime.now())
+                .lastUpdateDate(LocalDateTime.now())
                 .durationOfDays("25").tags(null).build();
 
         String expected = jsonMapper.writeValueAsString(Map.of("errorCode", ErrorConstants.CERTIFICATE_INVALID_REQUEST_ERROR_CODE,
@@ -310,8 +310,8 @@ class CertificateControllerTest {
 
         Certificate newCertificate = Certificate.builder().id(null).name("TestCertificate1")
                 .description("UPDATED DESCRIPTION").price(BigDecimal.valueOf(200))
-                .createDate(LocalDateTime.now().toString())
-                .lastUpdateDate(LocalDateTime.now().toString())
+                .createDate(LocalDateTime.now())
+                .lastUpdateDate(LocalDateTime.now())
                 .durationOfDays("25").tags(null).build();
 
         Mockito.when(validator.isPositiveAndParsableIdResponse(String.valueOf(id)))

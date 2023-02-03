@@ -62,7 +62,7 @@ class UserControllerTest {
         List<User> userList = List.of(user1, user2);
         String expected = jsonMapper.writeValueAsString(CollectionModel.of(userList));
 
-        Mockito.when(userService.getAllUser(pageable))
+        Mockito.when(userService.getAllUsers(pageable))
                 .thenReturn(userList);
         Mockito.when(hateoasSupport.addHateoasSupportToUserList(userList, pageable))
                 .thenReturn(CollectionModel.of(userList));
@@ -73,7 +73,7 @@ class UserControllerTest {
                 .andReturn().getResponse().getContentAsString();
 
         assertEquals(response, expected);
-        Mockito.verify(userService).getAllUser(pageable);
+        Mockito.verify(userService).getAllUsers(pageable);
         Mockito.verify(hateoasSupport).addHateoasSupportToUserList(userList, pageable);
     }
 

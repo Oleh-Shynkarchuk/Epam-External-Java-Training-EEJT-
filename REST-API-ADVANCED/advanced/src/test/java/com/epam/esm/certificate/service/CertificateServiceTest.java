@@ -19,8 +19,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 
@@ -157,7 +155,6 @@ class CertificateServiceTest {
 
     @Test
     void patchCertificateReturnUpdatedCertificate() {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         Tag firstTag = Tag.builder().id(1L).name("TestTag1").build();
         Tag secondTag = Tag.builder().id(2L).name("TestTag2").build();
         List<Tag> tags = List.of(firstTag, secondTag);
@@ -170,7 +167,6 @@ class CertificateServiceTest {
                 .durationOfDays("25").tags(tags).build();
         Certificate expectedCertificate = Certificate.builder().id(id).name("TestCertificate1")
                 .description("UPDATED DESCRIPTION").price(BigDecimal.valueOf(200))
-                .lastUpdateDate(LocalDateTime.now().format(formatter))
                 .durationOfDays("25").tags(tags).build();
 
 

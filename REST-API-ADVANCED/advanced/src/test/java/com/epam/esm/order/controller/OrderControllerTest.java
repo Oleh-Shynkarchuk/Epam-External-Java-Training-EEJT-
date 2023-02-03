@@ -22,6 +22,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.math.BigDecimal;
 import java.net.URI;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
@@ -61,20 +62,23 @@ class OrderControllerTest {
         Tag tag1 = Tag.builder().id(1L).name("testTag1").build();
         Tag tag2 = Tag.builder().id(2L).name("testTag2").build();
         Tag tag3 = Tag.builder().id(3L).name("testTag3").build();
-        Certificate certificate1 = Certificate.builder().id(1L).name("testCertificate1").description("first description").
-                durationOfDays("10").price(BigDecimal.valueOf(21050, 2)).createDate("2022-12-24 12:51:55")
-                .lastUpdateDate("2022-12-24 12:51:55").tags(List.of(tag1, tag2)).build();
+        Certificate certificate1 = Certificate.builder().id(1L).name("testCertificate1")
+                .description("first description").
+                durationOfDays("10").price(BigDecimal.valueOf(21050, 2))
+                .createDate(LocalDateTime.parse("2022-12-24T12:51:55"))
+                .lastUpdateDate(LocalDateTime.parse("2022-12-24T12:51:55")).tags(List.of(tag1, tag2)).build();
         Certificate certificate2 = Certificate.builder().id(2L).name("testCertificate2").durationOfDays("5").
                 description("second description").price(BigDecimal.valueOf(14530, 2))
-                .createDate("2022-12-24 23:51:55").lastUpdateDate("2022-12-24 23:51:55")
+                .createDate(LocalDateTime.parse("2022-12-24T23:51:55"))
+                .lastUpdateDate(LocalDateTime.parse("2022-12-24T23:51:55"))
                 .tags(List.of(tag2, tag3)).build();
         List<Order> expected =
                 List.of(Order.builder().id(1L).totalPrice(BigDecimal.valueOf(35580, 2))
-                                .purchaseDate("2022-12-24 15:51:55").user(
+                                .purchaseDate(LocalDateTime.parse("2022-12-24T15:51:55")).user(
                                         User.builder().id(1L).email("testUser1@mail.com").build()).
                                 certificates(List.of(certificate1, certificate2)).build(),
                         Order.builder().id(2L).totalPrice(BigDecimal.valueOf(14530, 2))
-                                .purchaseDate("2022-12-24 17:54:35").user(
+                                .purchaseDate(LocalDateTime.parse("2022-12-24T17:54:35")).user(
                                         User.builder().id(2L).email("testUser2@mail.com").build()).
                                 certificates(List.of(certificate2)).build());
         final String authorsUrl = restTemplate.getRootUri() + "/v1/api/order";
@@ -113,10 +117,11 @@ class OrderControllerTest {
         Tag tag3 = Tag.builder().id(3L).name("testTag3").build();
         Certificate certificate2 = Certificate.builder().id(2L).name("testCertificate2").durationOfDays("5").
                 description("second description").price(BigDecimal.valueOf(14530, 2))
-                .createDate("2022-12-24 23:51:55").lastUpdateDate("2022-12-24 23:51:55")
+                .createDate(LocalDateTime.parse("2022-12-24T23:51:55"))
+                .lastUpdateDate(LocalDateTime.parse("2022-12-24T23:51:55"))
                 .tags(List.of(tag2, tag3)).build();
         Order expected = Order.builder().id(id).totalPrice(BigDecimal.valueOf(14530, 2))
-                .purchaseDate("2022-12-24 17:54:35").user(
+                .purchaseDate(LocalDateTime.parse("2022-12-24T17:54:35")).user(
                         User.builder().id(2L).email("testUser2@mail.com").build()).
                 certificates(List.of(certificate2)).build();
         final String authorsUrl = restTemplate.getRootUri() + "/v1/api/order";
@@ -148,8 +153,9 @@ class OrderControllerTest {
                                 + " ). Only a positive number is allowed ( 1 and more )."));
 
         ResponseEntity<String> responseEntity =
-                restTemplate.exchange(uri + "/{id}", HttpMethod.GET, requestEntity, new ParameterizedTypeReference<>() {
-                }, id);
+                restTemplate.exchange(uri + "/{id}", HttpMethod.GET, requestEntity,
+                        new ParameterizedTypeReference<>() {
+                        }, id);
 
         assertAll(
                 () -> assertEquals(HttpStatus.BAD_REQUEST, responseEntity.getStatusCode()),
@@ -187,9 +193,11 @@ class OrderControllerTest {
         Order newOrder = Order.builder().certificates(List.of(Certificate.builder().id(1L).build())).user(User.builder().id(2L).build()).build();
         Tag tag1 = Tag.builder().id(1L).name("testTag1").build();
         Tag tag2 = Tag.builder().id(2L).name("testTag2").build();
-        Certificate certificate1 = Certificate.builder().id(1L).name("testCertificate1").description("first description").
-                durationOfDays("10").price(BigDecimal.valueOf(21050, 2)).createDate("2022-12-24 12:51:55")
-                .lastUpdateDate("2022-12-24 12:51:55").tags(List.of(tag1, tag2)).build();
+        Certificate certificate1 = Certificate.builder().id(1L).name("testCertificate1")
+                .description("first description").
+                durationOfDays("10").price(BigDecimal.valueOf(21050, 2))
+                .createDate(LocalDateTime.parse("2022-12-24T12:51:55"))
+                .lastUpdateDate(LocalDateTime.parse("2022-12-24T12:51:55")).tags(List.of(tag1, tag2)).build();
         User user = User.builder().id(2L).email("testUser2@mail.com").build();
         Order expected = Order.builder().id(3L).totalPrice(certificate1.getPrice()).certificates(List.of(certificate1)).user(user).build();
         HttpEntity<Order> request = new HttpEntity<>(newOrder);
