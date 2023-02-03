@@ -15,15 +15,15 @@ public class TagHateoasSupport {
     public Tag addHateoasSupportToSingleTag(Tag t) {
         return t.add(
                 WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(TagController.class)
-                        .getTagById(String.valueOf(t.getId()))).withRel("getTag"),
+                        .getTagById(String.valueOf(t.getId()))).withRel("getTagById"),
                 WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(TagController.class)
                         .getMostWidelyUsedTag()).withRel("getMostWidelyUsedTag"),
                 WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(TagController.class)
-                        .getAllTag(Pageable.unpaged())).withRel("getAllTag"),
+                        .getAllTags(Pageable.unpaged())).withRel("getAllTags"),
                 WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(TagController.class)
                         .createTag(Tag.builder().build())).withRel("createNewTag"),
                 WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(TagController.class)
-                        .deleteTag(String.valueOf(t.getId()))).withRel("deleteTag")
+                        .deleteTagById(String.valueOf(t.getId()))).withRel("deleteTagById")
         );
     }
 
@@ -31,7 +31,7 @@ public class TagHateoasSupport {
         allTag.forEach(this::addHateoasSupportToTag);
         return CollectionModel.of(allTag).add(
                 WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(TagController.class)
-                        .getAllTag(paginationCriteria)).withRel("getAllTag"),
+                        .getAllTags(paginationCriteria)).withRel("getAllTags"),
                 WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(TagController.class)
                         .getMostWidelyUsedTag()).withRel("getMostWidelyUsedTag"),
                 WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(TagController.class)
@@ -43,9 +43,9 @@ public class TagHateoasSupport {
         if (t.getLinks().isEmpty()) {
             t.add(
                     WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(TagController.class)
-                            .getTagById(String.valueOf(t.getId()))).withRel("getTag"),
+                            .getTagById(String.valueOf(t.getId()))).withRel("getTagById"),
                     WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(TagController.class)
-                            .deleteTag(String.valueOf(t.getId()))).withRel("deleteTag")
+                            .deleteTagById(String.valueOf(t.getId()))).withRel("deleteTagById")
             );
         }
     }

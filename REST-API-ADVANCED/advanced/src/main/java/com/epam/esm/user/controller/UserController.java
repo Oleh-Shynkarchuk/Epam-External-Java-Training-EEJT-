@@ -37,9 +37,9 @@ public class UserController {
 
     @GetMapping
     public ResponseEntity<CollectionModel<User>> getAllUser(@ParameterObject Pageable paginationCriteria) {
-        log.debug("Request accepted getAllUser. " +
+        log.debug("Request accepted getAllUsers. " +
                 "Pagination object request = " + paginationCriteria.toString());
-        List<User> allUser = userService.getAllUser(paginationCriteria);
+        List<User> allUser = userService.getAllUsers(paginationCriteria);
         CollectionModel<User> usersAndHateoas = hateoasSupport.addHateoasSupportToUserList(allUser, paginationCriteria);
         log.debug("Send response users list: " + usersAndHateoas.toString() + " to client");
         return ResponseEntity.ok(usersAndHateoas);
@@ -55,9 +55,8 @@ public class UserController {
             User userAndHateoas = hateoasSupport.addHateoasSupportToSingleUser(userById);
             log.debug("Send response user : " + userAndHateoas.toString() + " to client");
             return ResponseEntity.ok(userAndHateoas);
-        } else {
-            log.error(idResponse);
-            throw new UserInvalidRequestException(idResponse);
         }
+        log.error(idResponse);
+        throw new UserInvalidRequestException(idResponse);
     }
 }

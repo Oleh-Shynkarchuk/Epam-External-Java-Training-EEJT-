@@ -15,7 +15,7 @@ public class UserHateoasSupport {
         allUser.forEach(this::addHateoasSupport);
         return CollectionModel.of(allUser).add(
                 WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(UserController.class)
-                        .getAllUser(paginationCriteria)).withRel("getAllUser")
+                        .getAllUser(paginationCriteria)).withRel("getAllUsers")
         );
     }
 
@@ -24,7 +24,7 @@ public class UserHateoasSupport {
                 WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(UserController.class)
                         .getUser(String.valueOf(user.getId()))).withRel("getUser"),
                 WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(UserController.class)
-                        .getAllUser(Pageable.unpaged())).withRel("getAllUser"));
+                        .getAllUser(Pageable.unpaged())).withRel("getAllUsers"));
     }
 
     public void addHateoasSupport(User user) {

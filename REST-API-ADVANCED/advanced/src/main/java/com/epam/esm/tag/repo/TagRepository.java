@@ -9,11 +9,7 @@ import java.util.Optional;
 
 @Repository
 public interface TagRepository extends JpaRepository<Tag, Long> {
-    Optional<Tag> findByName(String name);
-
-    boolean existsByName(String name);
-
-    @Query(value = """
+    String MOST_WIDELY_USED_TAG_ID = """
             SELECT tags.id FROM certificates
             LEFT JOIN certificates_has_tags ON certificates.id = certificates_id
             LEFT JOIN tags ON tags_id = tags.id JOIN order_has_certificate
@@ -23,6 +19,12 @@ public interface TagRepository extends JpaRepository<Tag, Long> {
             ( SELECT user_id FROM gifts.customer_order GROUP BY user_id
             ORDER BY SUM(price) DESC LIMIT 1 )
             GROUP BY tags.id ORDER BY count(tags.name) DESC LIMIT 1
-             """, nativeQuery = true)
+            """;
+
+    Optional<Tag> findByName(String name);
+
+    boolean existsByName(String name);
+
+    @Query(value = MOST_WIDELY_USED_TAG_ID, nativeQuery = true)
     Long findId();
 }

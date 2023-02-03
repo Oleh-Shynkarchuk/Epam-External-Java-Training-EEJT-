@@ -33,11 +33,11 @@ public class TagController {
     }
 
     @GetMapping
-    public ResponseEntity<CollectionModel<Tag>> getAllTag(@ParameterObject Pageable paginationCriteria) {
+    public ResponseEntity<CollectionModel<Tag>> getAllTags(@ParameterObject Pageable paginationCriteria) {
 
-        log.debug("Request accepted getAllTag. " +
+        log.debug("Request accepted getAllTags. " +
                 "Pagination object request." + paginationCriteria);
-        List<Tag> allTag = tagService.getAllTag(paginationCriteria);
+        List<Tag> allTag = tagService.getAllTags(paginationCriteria);
         CollectionModel<Tag> tagsAndHateoas = hateoasSupport.addHateoasSupportToAllTag(allTag, paginationCriteria);
         log.debug("Send response tags list : " + tagsAndHateoas.toString() + " to client");
         return ResponseEntity.ok(tagsAndHateoas);
@@ -50,13 +50,12 @@ public class TagController {
                 "Id param request = " + id);
         String idResponse = validator.isPositiveAndParsableIdResponse(id);
         if (idResponse.isEmpty()) {
-            Tag serviceTag = tagService.getTag(Long.parseLong(id));
+            Tag serviceTag = tagService.getTagById(Long.parseLong(id));
             Tag tagAndHateoas = hateoasSupport.addHateoasSupportToSingleTag(serviceTag);
             log.debug("Send response tag: " + tagAndHateoas.toString() + " to client");
             return ResponseEntity.ok(tagAndHateoas);
-        } else {
-            throw tagInvalidRequestException(idResponse);
         }
+        throw tagInvalidRequestException(idResponse);
     }
 
     @GetMapping("/best")
@@ -78,24 +77,23 @@ public class TagController {
             Tag tagAndHateoas = hateoasSupport.addHateoasSupportToSingleTag(serviceTag);
             log.debug("Send response tag: " + tagAndHateoas.toString() + " to client");
             return ResponseEntity.ok(tagAndHateoas);
-        } else {
-            throw tagInvalidRequestException(result);
         }
+        throw tagInvalidRequestException(result);
+
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteTag(@PathVariable String id) {
+    public ResponseEntity<String> deleteTagById(@PathVariable String id) {
 
-        log.debug("Request accepted deleteTag." +
+        log.debug("Request accepted deleteTagById." +
                 "Id param request = " + id);
         String idResponse = validator.isPositiveAndParsableIdResponse(id);
         if (idResponse.isEmpty()) {
-            tagService.deleteTag(Long.valueOf(id));
+            tagService.deleteTagById(Long.valueOf(id));
             log.debug("Successful deleted tag");
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        } else {
-            throw tagInvalidRequestException(idResponse);
         }
+        throw tagInvalidRequestException(idResponse);
     }
 
     private TagInvalidRequestException tagInvalidRequestException(String message) {

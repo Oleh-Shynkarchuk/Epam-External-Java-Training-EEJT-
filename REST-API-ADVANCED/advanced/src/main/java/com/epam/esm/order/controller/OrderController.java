@@ -56,9 +56,8 @@ public class OrderController {
             Order orderAndHateoas = hateoasSupport.addHateoasSupportToSingleOrder(serviceOrder);
             log.debug("Send response order: " + orderAndHateoas.toString() + " to client");
             return ResponseEntity.ok(orderAndHateoas);
-        } else {
-            throw orderInvalidRequestException(idResponse);
         }
+        throw orderInvalidRequestException(idResponse);
     }
 
     @PostMapping()
@@ -72,7 +71,8 @@ public class OrderController {
             Order orderAndHateoas = hateoasSupport.addHateoasSupportToSingleOrder(order);
             log.debug("Send response order: " + orderAndHateoas.toString() + "to client");
             return ResponseEntity.ok(orderAndHateoas);
-        } else throw orderInvalidRequestException(orderResponse);
+        }
+        throw orderInvalidRequestException(orderResponse);
     }
 
     private OrderInvalidRequestException orderInvalidRequestException(String message) {

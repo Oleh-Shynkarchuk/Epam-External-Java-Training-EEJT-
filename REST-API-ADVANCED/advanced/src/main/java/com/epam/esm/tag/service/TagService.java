@@ -7,15 +7,15 @@ import java.util.List;
 import java.util.Optional;
 
 public interface TagService {
-    List<Tag> getAllTag(Pageable paginationCriteria);
+    List<Tag> getAllTags(Pageable paginationCriteria);
 
-    Tag getTag(Long id);
+    Tag getTagById(Long id);
 
     Optional<Tag> getTagByName(String tagName);
 
     Tag createTag(Tag newTag);
 
-    void deleteTag(Long id);
+    void deleteTagById(Long id);
 
     Tag getMostWidelyUsedTag();
 

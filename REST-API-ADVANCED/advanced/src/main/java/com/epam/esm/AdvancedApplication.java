@@ -3,8 +3,10 @@ package com.epam.esm;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
 @SpringBootApplication
+@EnableJpaAuditing
 public class AdvancedApplication
         implements CommandLineRunner {
 
@@ -53,8 +55,8 @@ public class AdvancedApplication
 //                    .description(faker.ancient().god())
 //                    .price(new BigDecimal(BigInteger.valueOf(random.nextInt(100001)), 2))
 //                    .durationOfDays(String.valueOf(random.nextInt(365) + 1))
-//                    .createDate(LocalDateTime.now().toString())
-//                    .lastUpdateDate(LocalDateTime.now().toString())
+//                    .createDate(LocalDateTime.now())
+//                    .lastUpdateDate(LocalDateTime.now())
 //                    .tags(generateTags(tags, random))
 //                    .build();
 //            while (certificateRepository.existsByName(newCertificate.getName())) {
@@ -63,8 +65,8 @@ public class AdvancedApplication
 //                        .description(faker.ancient().god())
 //                        .price(new BigDecimal(BigInteger.valueOf(random.nextInt(100001)), 2))
 //                        .durationOfDays(String.valueOf(random.nextInt(365) + 1))
-//                        .createDate(LocalDateTime.now().toString())
-//                        .lastUpdateDate(LocalDateTime.now().toString())
+//                        .createDate(LocalDateTime.now())
+//                        .lastUpdateDate(LocalDateTime.now())
 //                        .tags(generateTags(tags, random))
 //                        .build();
 //            }
@@ -79,7 +81,7 @@ public class AdvancedApplication
 //                    .certificates(tempList.stream().toList())
 //                    .user(users.get(random.nextInt(users.size())))
 //                    .totalPrice(getTotalPrice(tempList.stream().toList()))
-//                    .purchaseDate(LocalDateTime.now().toString()).build();
+//                    .purchaseDate(LocalDateTime.now()).build();
 //            orders.add(order);
 //        }
 //        orderRepository.saveAllAndFlush(orders);

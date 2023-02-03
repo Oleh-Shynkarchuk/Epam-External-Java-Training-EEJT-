@@ -9,5 +9,5 @@ public interface UserService {
 
     User getUserById(long id);
 
-    List<User> getAllUser(Pageable pageable);
+    List<User> getAllUsers(Pageable pageable);
 }

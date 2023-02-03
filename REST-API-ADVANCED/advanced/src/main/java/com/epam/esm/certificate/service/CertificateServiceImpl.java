@@ -13,12 +13,11 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -70,8 +69,6 @@ public class CertificateServiceImpl implements CertificateService {
             throw certificateInvalidRequestException(newCertificate);
         }
         newCertificate.setId(null);
-        newCertificate.setCreateDate(LocalDateTime.now().toString());
-        newCertificate.setLastUpdateDate(LocalDateTime.now().toString());
         newCertificate.setTags(getActualTagList(newCertificate));
         log.debug("Saving a new certificate in repository.");
         return certificateRepository.saveAndFlush(newCertificate);
@@ -79,6 +76,7 @@ public class CertificateServiceImpl implements CertificateService {
 
     @Override
     @Transactional
+    @Modifying
     public Certificate patchCertificate(Long id, Certificate patchCertificate) {
         log.debug("Start of patch certificate method in service layer." +
                 "Uniqueness check.");
@@ -92,10 +90,7 @@ public class CertificateServiceImpl implements CertificateService {
         patchCertificate = certificateRepository.findById(id).
                 orElseThrow(this::getCertificateNotFoundException)
                 .merge(patchCertificate);
-
         patchCertificate.setTags(getActualTagList(patchCertificate));
-        patchCertificate.setLastUpdateDate(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
-
         log.debug("Saving updated version of certificate in repository.");
         return certificateRepository.saveAndFlush(patchCertificate);
     }
@@ -107,7 +102,8 @@ public class CertificateServiceImpl implements CertificateService {
         if (certificateRepository.existsById(id)) {
             log.debug("Deleting certificate from repository");
             certificateRepository.deleteById(id);
-        } else throw getCertificateNotFoundException();
+        }
+        throw getCertificateNotFoundException();
     }
 
     @Override

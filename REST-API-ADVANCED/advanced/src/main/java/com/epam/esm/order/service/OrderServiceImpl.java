@@ -15,7 +15,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -56,7 +55,6 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public Order getOrder(Long id) {
-
         log.debug("Start of getOrderById method in service layer. " +
                 "Get order by id from repository");
         return orderRepository.findById(id).orElseThrow(this::orderNotFoundException);
@@ -64,18 +62,15 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public Order createOrder(Order newOrder) {
-
         log.debug("Start of create new order method in service layer." +
                 "Set data to order fields");
-        BigDecimal totalPrice = new BigDecimal(0);
         newOrder.setCertificates(certificateService.findAllById(getCertificateIdList(newOrder)));
+        BigDecimal totalPrice = new BigDecimal(0);
         for (Certificate certificate : newOrder.getCertificates()) {
             totalPrice = totalPrice.add(certificate.getPrice());
         }
-        newOrder.setUser(userService.getUserById(newOrder.getUser().getId()));
         newOrder.setTotalPrice(totalPrice);
-        newOrder.setPurchaseDate(LocalDateTime.now().toString());
-
+        newOrder.setUser(userService.getUserById(newOrder.getUser().getId()));
         log.debug("Save new order in repository");
         return orderRepository.saveAndFlush(newOrder);
     }

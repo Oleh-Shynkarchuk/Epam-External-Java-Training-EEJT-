@@ -29,8 +29,8 @@ public class TagServiceImpl implements TagService {
     }
 
     @Override
-    public List<Tag> getAllTag(Pageable paginationCriteria) {
-        log.debug("Start of getAllTag method in service layer." +
+    public List<Tag> getAllTags(Pageable paginationCriteria) {
+        log.debug("Start of getAllTags method in service layer." +
                 "For valid non erroneous pageable request get amount of all tags in repository");
         long count = tagRepository.count();
         Pageable pageable = validator.validPageableRequest(count, paginationCriteria);
@@ -43,7 +43,7 @@ public class TagServiceImpl implements TagService {
     }
 
     @Override
-    public Tag getTag(Long id) {
+    public Tag getTagById(Long id) {
         log.debug("Start of getTagById method in service layer. " +
                 "Get tag by id from repository");
         return tagRepository.findById(id).orElseThrow(this::tagNotFoundException);
@@ -66,13 +66,14 @@ public class TagServiceImpl implements TagService {
     }
 
     @Override
-    public void deleteTag(Long id) {
+    public void deleteTagById(Long id) {
         log.debug("Start of deleteTagById method in service layer. " +
                 "Return check result is exist tag by id in repository");
         if (tagRepository.existsById(id)) {
             log.debug("Deleting tag in repository");
             tagRepository.deleteById(id);
-        } else throw tagNotFoundException();
+        }
+        throw tagNotFoundException();
     }
 
     @Override
@@ -82,7 +83,7 @@ public class TagServiceImpl implements TagService {
         Long id = tagRepository.findId();
 
         log.debug("Get MostWidelyUsedTag in repository by received id");
-        return getTag(id);
+        return getTagById(id);
     }
 
     private boolean tagIsExistByName(String name) {

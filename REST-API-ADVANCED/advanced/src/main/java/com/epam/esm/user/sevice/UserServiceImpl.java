@@ -27,7 +27,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<User> getAllUser(Pageable paginationCriteria) {
+    public List<User> getAllUsers(Pageable paginationCriteria) {
         log.debug("Start of get all users method in service layer." +
                 "For valid non erroneous pageable request get amount of all users in repository");
         long amountOfAllUsers = userRepository.count();

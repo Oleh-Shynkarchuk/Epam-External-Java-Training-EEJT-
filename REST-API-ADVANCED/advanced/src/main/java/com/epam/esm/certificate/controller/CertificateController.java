@@ -60,7 +60,8 @@ public class CertificateController {
                     addHateoasSupportToSingleCertificate(certificateById);
             log.debug("Response certificate:" + certificateByIdANDHateoas.toString() + " to client.");
             return ResponseEntity.ok(certificateByIdANDHateoas);
-        } else throw certificateInvalidRequestException(idResponse);
+        }
+        throw certificateInvalidRequestException(idResponse);
     }
 
     @GetMapping("/search")
@@ -89,7 +90,8 @@ public class CertificateController {
                     addHateoasSupportToSingleCertificate(certificate);
             log.debug("Response to client.");
             return ResponseEntity.ok(certificateAndHateoas);
-        } else throw certificateInvalidRequestException(certificateResponse);
+        }
+        throw certificateInvalidRequestException(certificateResponse);
     }
 
     @PatchMapping("/{id}")
@@ -107,7 +109,8 @@ public class CertificateController {
             Certificate certificateAndHateoas = hateoasSupport.addHateoasSupportToSingleCertificate(certificate);
             log.debug("Response certificate: " + certificateAndHateoas.toString() + " to client.");
             return ResponseEntity.ok(certificateAndHateoas);
-        } else throw certificateInvalidRequestException(idResponse + certificateResponse);
+        }
+        throw certificateInvalidRequestException(idResponse + certificateResponse);
     }
 
     @DeleteMapping("/{id}")

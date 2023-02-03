@@ -5,11 +5,15 @@ import com.epam.esm.tag.entity.Tag;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import org.springframework.hateoas.RepresentationModel;
 
 import javax.persistence.*;
 import javax.validation.constraints.Min;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 
@@ -21,6 +25,8 @@ import java.util.Objects;
 @NoArgsConstructor
 @Table(name = "certificates")
 @Builder
+@ToString
+@EntityListeners(AuditingEntityListener.class)
 public class Certificate extends RepresentationModel<Certificate> {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -34,10 +40,13 @@ public class Certificate extends RepresentationModel<Certificate> {
     @Min(value = 0)
     private String durationOfDays;
     @Column(name = "create_date")
-    private String createDate;
+    @CreatedDate
+    private LocalDateTime createDate;
     @Column(name = "last_update_date")
-    private String lastUpdateDate;
-    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
+    @LastModifiedDate
+    private LocalDateTime lastUpdateDate;
+    @ManyToMany
+    @ToString.Exclude
     @JoinTable(name = "certificates_has_tags",
             joinColumns = @JoinColumn(name = "certificates_id"),
             inverseJoinColumns = @JoinColumn(name = "tags_id"))
