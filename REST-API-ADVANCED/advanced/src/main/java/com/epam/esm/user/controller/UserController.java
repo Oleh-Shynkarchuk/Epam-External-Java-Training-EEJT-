@@ -11,6 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -46,7 +48,8 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<User> getUser(@PathVariable String id) {
+    @PreAuthorize("#id == #user.id.toString()")
+    public ResponseEntity<User> getUser(@AuthenticationPrincipal User user, @PathVariable String id) {
         log.debug("Request accepted getUserById. " +
                 "Id param request = " + id);
         String idResponse = validator.isPositiveAndParsableIdResponse(id);
@@ -54,6 +57,7 @@ public class UserController {
             User userById = userService.getUserById(Long.parseLong(id));
             User userAndHateoas = hateoasSupport.addHateoasSupportToSingleUser(userById);
             log.debug("Send response user : " + userAndHateoas.toString() + " to client");
+//            return ResponseEntity.ok(UserDTO.from(userAndHateoas));
             return ResponseEntity.ok(userAndHateoas);
         }
         log.error(idResponse);

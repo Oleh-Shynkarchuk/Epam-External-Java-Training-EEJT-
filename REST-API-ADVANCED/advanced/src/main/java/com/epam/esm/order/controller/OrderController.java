@@ -5,6 +5,7 @@ import com.epam.esm.order.exception.OrderInvalidRequestException;
 import com.epam.esm.order.hateoas.OrderHateoasSupport;
 import com.epam.esm.order.service.OrderService;
 import com.epam.esm.order.validation.OrderValidator;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springdoc.api.annotations.ParameterObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,20 +19,12 @@ import java.util.List;
 @Slf4j
 @RestController
 @RequestMapping("/v1/api/order")
+@RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class OrderController {
 
     private final OrderService orderService;
     private final OrderHateoasSupport hateoasSupport;
     private final OrderValidator validator;
-
-    @Autowired
-    public OrderController(OrderService orderService,
-                           OrderHateoasSupport hateoasSupport,
-                           OrderValidator validator) {
-        this.orderService = orderService;
-        this.hateoasSupport = hateoasSupport;
-        this.validator = validator;
-    }
 
     @GetMapping
     public ResponseEntity<CollectionModel<Order>> getAllOrder(@ParameterObject Pageable paginationCriteria) {
