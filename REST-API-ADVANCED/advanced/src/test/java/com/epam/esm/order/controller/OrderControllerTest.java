@@ -3,8 +3,11 @@ package com.epam.esm.order.controller;
 import com.epam.esm.ErrorConstants;
 import com.epam.esm.certificate.entity.Certificate;
 import com.epam.esm.order.entity.Order;
+import com.epam.esm.security.dto.AuthUserDTO;
+import com.epam.esm.security.dto.TokenDTO;
 import com.epam.esm.tag.entity.Tag;
 import com.epam.esm.user.entity.User;
+import com.epam.esm.user.entity.roles.Role;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import org.junit.jupiter.api.BeforeEach;
@@ -23,6 +26,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import java.math.BigDecimal;
 import java.net.URI;
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -34,7 +38,7 @@ class OrderControllerTest {
 
     private final TestRestTemplate restTemplate;
     private HttpEntity<Object> requestEntity;
-
+    private String accessToken;
     @Autowired
     OrderControllerTest(TestRestTemplate restTemplate) {
         this.restTemplate = restTemplate;
@@ -43,10 +47,22 @@ class OrderControllerTest {
 
     @BeforeEach
     void setUp() {
+        AuthUserDTO authUserDTO = new AuthUserDTO("testUser3@mail.com",
+                "TestPassword");
+        HttpEntity<Object> registerEntity = new HttpEntity<>(authUserDTO);
+
+        final String loginAuthorsUrl = restTemplate.getRootUri() + "/v1/api/auth/register";
+        restTemplate.exchange(loginAuthorsUrl, HttpMethod.POST, registerEntity, TokenDTO.class);
+
+        final String authorsUrl = restTemplate.getRootUri() + "/v1/api/auth/login";
+
+        ResponseEntity<TokenDTO> responseEntity =
+                restTemplate.exchange(authorsUrl, HttpMethod.POST, registerEntity, TokenDTO.class);
+        accessToken = responseEntity.getBody().getAccessToken();
         HttpHeaders headers = new HttpHeaders();
-        headers.set("accept", "application/json");
-        headers.set("Authorization", "Bearer JWT TOKEN HERE");
-        requestEntity = new HttpEntity<>(null, headers);
+        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+        headers.setBearerAuth(responseEntity.getBody().getAccessToken());
+        requestEntity = new HttpEntity<>("body", headers);
     }
 
     @Test
@@ -75,11 +91,11 @@ class OrderControllerTest {
         List<Order> expected =
                 List.of(Order.builder().id(1L).totalPrice(BigDecimal.valueOf(35580, 2))
                                 .purchaseDate(LocalDateTime.parse("2022-12-24T15:51:55")).user(
-                                        User.builder().id(1L).email("testUser1@mail.com").build()).
+                                        User.builder().id(1L).email("testUser1@mail.com").role(Role.USER).build()).
                                 certificates(List.of(certificate1, certificate2)).build(),
                         Order.builder().id(2L).totalPrice(BigDecimal.valueOf(14530, 2))
                                 .purchaseDate(LocalDateTime.parse("2022-12-24T17:54:35")).user(
-                                        User.builder().id(2L).email("testUser2@mail.com").build()).
+                                        User.builder().id(2L).email("testUser2@mail.com").role(Role.USER).build()).
                                 certificates(List.of(certificate2)).build());
         final String authorsUrl = restTemplate.getRootUri() + "/v1/api/order";
 
@@ -198,9 +214,12 @@ class OrderControllerTest {
                 durationOfDays("10").price(BigDecimal.valueOf(21050, 2))
                 .createDate(LocalDateTime.parse("2022-12-24T12:51:55"))
                 .lastUpdateDate(LocalDateTime.parse("2022-12-24T12:51:55")).tags(List.of(tag1, tag2)).build();
-        User user = User.builder().id(2L).email("testUser2@mail.com").build();
+        User user = User.builder().id(2L).email("testUser2@mail.com").role(Role.USER).build();
         Order expected = Order.builder().id(3L).totalPrice(certificate1.getPrice()).certificates(List.of(certificate1)).user(user).build();
-        HttpEntity<Order> request = new HttpEntity<>(newOrder);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+        headers.setBearerAuth(accessToken);
+        HttpEntity<Order> request = new HttpEntity<>(newOrder, headers);
         ResponseEntity<Order> responseEntity =
                 restTemplate.exchange(uri, HttpMethod.POST, request, Order.class);
         if (responseEntity.getBody() != null) {
