@@ -5,6 +5,7 @@ import com.epam.esm.tag.exception.TagInvalidRequestException;
 import com.epam.esm.tag.hateoas.TagHateoasSupport;
 import com.epam.esm.tag.service.TagService;
 import com.epam.esm.tag.validation.TagValidator;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springdoc.api.annotations.ParameterObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,18 +20,12 @@ import java.util.List;
 @Slf4j
 @RestController
 @RequestMapping("/v1/api/tag")
+@RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class TagController {
 
     private final TagService tagService;
     private final TagHateoasSupport hateoasSupport;
     private final TagValidator validator;
-
-    @Autowired
-    public TagController(TagService tagService, TagHateoasSupport hateoasSupport, TagValidator validator) {
-        this.tagService = tagService;
-        this.hateoasSupport = hateoasSupport;
-        this.validator = validator;
-    }
 
     @GetMapping
     public ResponseEntity<CollectionModel<Tag>> getAllTags(@ParameterObject Pageable paginationCriteria) {

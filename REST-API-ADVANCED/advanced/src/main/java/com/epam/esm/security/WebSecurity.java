@@ -124,8 +124,8 @@ public class WebSecurity {
 
     @Bean
     @Qualifier("jwtRefresherTokenAuthProvider")
-    JwtAuthenticationProvider jwtRefresherTokenAuthProvider() {
-        JwtAuthenticationProvider provider = new JwtAuthenticationProvider(jwtRefreshTokenDecoder());
+    JwtAuthenticationProvider jwtRefresherTokenAuthProvider(JwtToUserConverter jwtToUserConverter, JwtDecoder jwtRefreshTokenDecoder) {
+        JwtAuthenticationProvider provider = new JwtAuthenticationProvider(jwtRefreshTokenDecoder);
         provider.setJwtAuthenticationConverter(jwtToUserConverter);
         return provider;
     }

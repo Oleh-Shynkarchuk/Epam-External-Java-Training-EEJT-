@@ -5,6 +5,7 @@ import com.epam.esm.user.entity.User;
 import com.epam.esm.user.exception.UserInvalidRequestException;
 import com.epam.esm.user.hateoas.UserHateoasSupport;
 import com.epam.esm.user.sevice.UserService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springdoc.api.annotations.ParameterObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,19 +24,12 @@ import java.util.List;
 @Slf4j
 @RestController
 @RequestMapping("/v1/api/user")
+@RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class UserController {
 
     private final UserService userService;
     private final UserHateoasSupport hateoasSupport;
     private final Validator validator;
-
-    @Autowired
-    public UserController(UserService userService, UserHateoasSupport hateoasSupport, Validator validator) {
-        this.userService = userService;
-        this.hateoasSupport = hateoasSupport;
-        this.validator = validator;
-
-    }
 
     @GetMapping
     public ResponseEntity<CollectionModel<User>> getAllUser(@ParameterObject Pageable paginationCriteria) {

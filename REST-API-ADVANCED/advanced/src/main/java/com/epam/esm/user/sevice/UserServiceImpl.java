@@ -5,6 +5,7 @@ import com.epam.esm.Validator;
 import com.epam.esm.user.entity.User;
 import com.epam.esm.user.exception.UserNotFoundException;
 import com.epam.esm.user.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -20,18 +21,12 @@ import java.util.List;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class UserServiceImpl implements UserService, UserDetailsManager {
 
     private final UserRepository userRepository;
     private final Validator validator;
     private final PasswordEncoder passwordEncoder;
-
-    @Autowired
-    public UserServiceImpl(UserRepository userRepository, Validator validator, PasswordEncoder passwordEncoder) {
-        this.userRepository = userRepository;
-        this.validator = validator;
-        this.passwordEncoder = passwordEncoder;
-    }
 
     @Override
     public List<User> getAllUsers(Pageable paginationCriteria) {

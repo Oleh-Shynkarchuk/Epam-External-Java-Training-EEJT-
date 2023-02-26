@@ -37,6 +37,8 @@ public class TokenGenerator {
                 .issuedAt(now)
                 .expiresAt(now.plus(5, ChronoUnit.MINUTES))
                 .subject(String.valueOf(user.getId()))
+                .claim("role", user.getRole())
+                .claim("provider", user.getProvider())
                 .build();
         return accessTokenEncoder.encode(JwtEncoderParameters.from(jwtClaimsSet)).getTokenValue();
     }
@@ -49,6 +51,8 @@ public class TokenGenerator {
                 .issuedAt(now)
                 .expiresAt(now.plus(30, ChronoUnit.DAYS))
                 .subject(String.valueOf(user.getId()))
+                .claim("role", user.getRole())
+                .claim("provider", user.getProvider())
                 .build();
         return refreshTokenEncoder.encode(JwtEncoderParameters.from(jwtClaimsSet)).getTokenValue();
     }
@@ -60,7 +64,6 @@ public class TokenGenerator {
             );
         }
         TokenDTO tokenDTO = new TokenDTO();
-        System.out.println(user);
         tokenDTO.setUserId(String.valueOf(user.getId()));
         tokenDTO.setAccessToken(createAccessToken(authentication));
 

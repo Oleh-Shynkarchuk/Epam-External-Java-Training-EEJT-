@@ -22,7 +22,6 @@ import java.util.Arrays;
 
 @Component
 @Slf4j
-
 public class KeyUtils {
 
     private final Environment environment;

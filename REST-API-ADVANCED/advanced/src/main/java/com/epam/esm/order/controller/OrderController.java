@@ -5,6 +5,7 @@ import com.epam.esm.order.exception.OrderInvalidRequestException;
 import com.epam.esm.order.hateoas.OrderHateoasSupport;
 import com.epam.esm.order.service.OrderService;
 import com.epam.esm.order.validation.OrderValidator;
+import com.epam.esm.user.entity.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springdoc.api.annotations.ParameterObject;
@@ -12,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -31,7 +33,15 @@ public class OrderController {
 
         log.debug("Request accepted getAllOrder. " +
                 "Pagination request object = " + paginationCriteria.toString());
+        System.out.println(SecurityContextHolder.getContext().getAuthentication());
         List<Order> allOrder = orderService.getAllOrder(paginationCriteria);
+        System.out.println("here");
+        allOrder.forEach(order -> {
+            System.out.println(order.getCertificates());
+            System.out.println(order.getUser());
+            System.out.println(order.getId());
+            System.out.println(order.getPurchaseDate());
+        });
         CollectionModel<Order> orderCollectionModel = hateoasSupport.
                 addHateoasSupportToOrderList(allOrder, paginationCriteria);
         log.debug("Send response all Orders: " + orderCollectionModel.toString() + " to client");
@@ -58,6 +68,7 @@ public class OrderController {
 
         log.debug("Request accepted getOrderById. " +
                 "new Order object request = " + newOrder.toString());
+        newOrder.setUser((User) SecurityContextHolder.getContext().getAuthentication().getPrincipal());
         String orderResponse = validator.isValidOrderFieldsWithErrorResponse(newOrder);
         if (orderResponse.isEmpty()) {
             Order order = orderService.createOrder(newOrder);

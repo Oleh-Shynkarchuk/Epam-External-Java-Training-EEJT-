@@ -12,6 +12,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @EnableJpaAuditing
 @EnableFeignClients
 public class AdvancedApplication {
+
     public static void main(String[] args) {
         SpringApplication.run(AdvancedApplication.class, args);
     }
@@ -20,4 +21,5 @@ public class AdvancedApplication {
     PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
+
 }
