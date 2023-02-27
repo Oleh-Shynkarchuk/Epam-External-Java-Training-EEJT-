@@ -11,8 +11,9 @@ insert into certificates_has_tags values (1,2)
 insert into certificates_has_tags values (2,2)
 insert into certificates_has_tags values (2,3)
 
-insert into users (email,password,role) values ('testUser1@mail.com','TestPassword','USER')
-insert into users (email,password,role) values ('testUser2@mail.com','TestPassword','ADMIN')
+insert into users (email,password,role,provider) values ('testUser3@mail.com','$2a$10$4vsKr.gKZtJV3TyCpOrePONcbkR7/RywupRuiPFVvZukCgfRNmSP.','USER','SELF')
+insert into users (email,password,role,provider) values ('testUser2@mail.com','TestPassword','ADMIN','SELF')
+insert into users (email,password,role,provider) values ('testUser1@mail.com','TestPassword','USER','SELF')
 
 insert into customer_order (price,purchase,user_id) values (355.8,'2022-12-24 15:51:55',1)
 insert into customer_order (price,purchase,user_id) values (145.3,'2022-12-24 17:54:35',2)

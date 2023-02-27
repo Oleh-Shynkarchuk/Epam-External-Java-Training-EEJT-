@@ -2,6 +2,7 @@ package com.epam.esm.security.controller;
 
 import com.epam.esm.ErrorConstants;
 import com.epam.esm.security.dto.AuthUserDTO;
+import com.epam.esm.security.dto.OidcDTO;
 import com.epam.esm.security.dto.TokenDTO;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.json.JsonMapper;
@@ -118,7 +119,7 @@ class AuthControllerTest {
             @Sql(executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD, scripts =
                     "classpath:cleanup.sql")
     })
-    void loginShouldReturnBadCredentials() throws JsonProcessingException {
+    void loginShouldReturnBadCredentials() {
         AuthUserDTO authUserDTO = new AuthUserDTO("testUser1@mail.com",
                 "WrongPassword");
         HttpEntity<Object> requestEntity = new HttpEntity<>(authUserDTO);
@@ -153,7 +154,7 @@ class AuthControllerTest {
                 "TestPassword");
         HttpEntity<Object> requestEntity = new HttpEntity<>(authUserDTO);
 
-        final String loginAuthorsUrl = restTemplate.getRootUri() + "/v1/api/auth/register";
+        final String loginAuthorsUrl = restTemplate.getRootUri() + "/v1/api/auth/login";
         ResponseEntity<TokenDTO> responseEntity =
                 restTemplate.exchange(loginAuthorsUrl, HttpMethod.POST, requestEntity, TokenDTO.class);
 
@@ -207,6 +208,38 @@ class AuthControllerTest {
             @Sql(executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD, scripts =
                     "classpath:cleanup.sql")
     })
-    void oidc() {
+    void oidcReturnInvalidValueMessageAndBadRequestStatus() throws JsonProcessingException {
+        OidcDTO oidcDTO = OidcDTO.builder().idToken("eyJhbGciOiJSUzI1NiIsImtpZCI6ImI0OWM1MDYyZ" +
+                        "Dg5MGY1Y2U0NDllODkwYzg4ZThkZDk4YzRmZWUwYWIiLCJ0eXAiOiJKV1QifQ.eyJpc3MiO" +
+                        "iJodHRwczovL2FjY291bnRzLmdvb2dsZS5jb20iLCJhenAiOiIxMzA3MDAyNzI3NzYtMzkxc" +
+                        "TMxNmNmazUxMWlhOTJjMGswOWRqYjM4b2U3OGsuYXBwcy5nb29nbGV1c2VyY29udGVudC5jb2" +
+                        "0iLCJhdWQiOiIxMzA3MDAyNzI3NzYtMzkxcTMxNmNmazUxMWlhOTJjMGswOWRqYjM4b2U3OGsu" +
+                        "YXBwcy5nb29nbGV1c2VyY29udGVudC5jb20iLCJzdWIiOiIxMDcyMzg4ODE0MzA2NDEyMDg0NDI" +
+                        "iLCJlbWFpbCI6Im9sZWguc2h5bmthcmNodWtAZ21haWwuY29tIiwiZW1haWxfdmVyaWZpZWQiOnR" +
+                        "ydWUsImF0X2hhc2giOiIyc3VaaEpDYW1NbVJEVHVGSDhsd2pBIiwibmFtZSI6Ik9sZWggU2h5bmth" +
+                        "cmNodWsiLCJwaWN0dXJlIjoiaHR0cHM6Ly9saDMuZ29vZ2xldXNlcmNvbnRlbnQuY29tL2EvQUVkR" +
+                        "lRwNllFWGRzSHlISktOczdEQUJnZ2NmUEctOHQweUN4R0JyVkVianh5Zz1zOTYtYyIsImdpdmVuX25" +
+                        "hbWUiOiJPbGVoIiwiZmFtaWx5X25hbWUiOiJTaHlua2FyY2h1ayIsImxvY2FsZSI6InVrIiwiaWF0I" +
+                        "joxNjc2NDY5NDQ2LCJleHAiOjE2NzY0NzMwNDZ9.juW_na3PD7DkK93Cjdb0ElgJGa9kabjQp8GNJw" +
+                        "I5f7eQaVDU_zTTLOnoQvmhqNiw1pA4uehTtVsREEhEqZUyhDzVpivgd3hFnE9evew21AN_1SGDO9R" +
+                        "XKIpUDn16lPniDAp4kTGLNbTD5AGjGg-rWq2Es2ppYiYvabeN2rxI4u6ORYVSQqj1qXWC7wIim4rJ" +
+                        "4efGxxMftam4huuu5XJZBaiDYKmMAYIEaU1ldgVnOyj7qJINHpRtHAA2eYyc34BvAbSseEpuKSHr5" +
+                        "yZMO915woj96Jf1lM82oSyiIQ3ZTjzjcrTfkpPqG8OAAA3lPpmxGAvyKJhicBOc1ItmTG491Q")
+                .build();
+        HttpEntity<OidcDTO> tokenRequestEntity = new HttpEntity<>(oidcDTO);
+        final String tokenAuthorsUrl = restTemplate.getRootUri() + "/v1/api/auth/oidc";
+        ResponseEntity<String> responseEntity =
+                restTemplate.exchange(tokenAuthorsUrl, HttpMethod.POST, tokenRequestEntity, String.class);
+
+        String expected = JsonMapper.builder().build().writeValueAsString(
+                Map.of(CODE, ErrorConstants.SECURITY_INVALID_TOKEN,
+                        MESSAGE, "Invalid Value")
+        );
+
+        assertAll(
+                () -> assertEquals(HttpStatus.BAD_REQUEST, responseEntity.getStatusCode()),
+                () -> assertEquals(MediaType.APPLICATION_JSON, responseEntity.getHeaders().getContentType()),
+                () -> assertEquals(expected, responseEntity.getBody())
+        );
     }
 }
