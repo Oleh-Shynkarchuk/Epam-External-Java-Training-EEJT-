@@ -1,9 +1,11 @@
 package com.epam.esm.user.entity;
 
 import com.epam.esm.order.entity.Order;
+import com.epam.esm.user.entity.authoritydeserializer.CustomAuthorityDeserializer;
 import com.epam.esm.user.entity.provider.Provider;
 import com.epam.esm.user.entity.roles.Role;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import lombok.*;
 import org.springframework.hateoas.RepresentationModel;
 import org.springframework.security.core.GrantedAuthority;
@@ -48,10 +50,13 @@ public class User extends RepresentationModel<User> implements UserDetails {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         User that = (User) o;
-        return Objects.equals(id, that.id) && Objects.equals(email, that.email) && Objects.equals(password, that.password);
+        return Objects.equals(id, that.id)
+                && Objects.equals(email, that.email)
+                && Objects.equals(password, that.password);
     }
 
     @Override
+    @JsonDeserialize(using = CustomAuthorityDeserializer.class)
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority(role.name()));
     }

@@ -32,7 +32,7 @@ public class OrderHateoasSupport {
                 WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(OrderController.class)
                         .getAllOrder(Pageable.unpaged())).withRel("getAllOrders"),
                 WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(OrderController.class).
-                        createNewOrder(Order.builder().build())).withRel("createNewOrder")
+                        createNewOrder(List.of())).withRel("createNewOrder")
         );
     }
 
@@ -44,7 +44,7 @@ public class OrderHateoasSupport {
                 WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(OrderController.class)
                         .getAllOrder(paginationCriteria)).withRel("getAllOrders"),
                 WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(OrderController.class)
-                        .createNewOrder(Order.builder().build())).withRel("createNewOrder")
+                        .createNewOrder(List.of())).withRel("createNewOrder")
         );
     }
 

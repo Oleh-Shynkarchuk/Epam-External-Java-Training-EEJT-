@@ -2,7 +2,6 @@ package com.epam.esm.security.feign.errordecoder;
 
 import com.epam.esm.security.feign.exception.BadRequestException;
 import com.epam.esm.security.feign.exception.ExceptionMessage;
-import com.epam.esm.security.feign.exception.NotFoundException;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import feign.Response;
 import feign.codec.ErrorDecoder;
@@ -22,9 +21,6 @@ public class FeignErrorDecoder implements ErrorDecoder {
         }
         if (response.status() == 400) {
             return new BadRequestException(message.getError_description() != null ? message.getError_description() : "Bad Request");
-        }
-        if (response.status() == 404) {
-            return new NotFoundException(message.getError_description() != null ? message.getError_description() : "Not found");
         }
         return new Default().decode(methodKey, response);
     }

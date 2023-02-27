@@ -3,6 +3,7 @@ package com.epam.esm.order.entity;
 import com.epam.esm.certificate.entity.Certificate;
 import com.epam.esm.user.entity.User;
 import lombok.*;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import org.springframework.hateoas.RepresentationModel;
@@ -32,13 +33,11 @@ public class Order extends RepresentationModel<Order> {
     private LocalDateTime purchaseDate;
     @ManyToMany(fetch = FetchType.LAZY,
             cascade = CascadeType.MERGE)
-
     @JoinTable(name = "order_has_certificate",
             joinColumns = @JoinColumn(name = "order_id"),
             inverseJoinColumns = @JoinColumn(name = "certificate_id"))
     private List<Certificate> certificates;
     @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.MERGE, targetEntity = User.class)
-
     @JoinColumn(name = "user_id")
     private User user;
 
@@ -52,5 +51,17 @@ public class Order extends RepresentationModel<Order> {
         if (!Objects.equals(purchaseDate, that.purchaseDate)) return false;
         if (!Objects.equals(certificates, that.certificates)) return false;
         return Objects.equals(user, that.user);
+    }
+
+    @NotNull
+    @Override
+    public String toString() {
+        return "Order{" +
+                "id=" + id +
+                ", totalPrice=" + totalPrice +
+                ", purchaseDate=" + purchaseDate +
+                ", certificates=" + certificates +
+                ", user=" + user +
+                '}';
     }
 }

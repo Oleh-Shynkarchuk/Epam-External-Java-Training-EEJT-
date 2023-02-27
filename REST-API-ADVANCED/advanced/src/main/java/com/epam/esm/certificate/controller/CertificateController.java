@@ -5,7 +5,6 @@ import com.epam.esm.certificate.exception.CertificateInvalidRequestException;
 import com.epam.esm.certificate.hateoas.CertificateHateoasSupport;
 import com.epam.esm.certificate.service.CertificateService;
 import com.epam.esm.certificate.validation.CertificateValidator;
-import com.epam.esm.user.entity.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springdoc.api.annotations.ParameterObject;
@@ -14,7 +13,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -109,13 +107,11 @@ public class CertificateController {
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteCertificateById(
             @PathVariable("id") String id) {
-//        System.out.println(user);
-        User principal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        System.out.println(principal);
         log.debug("Request accepted deleteCertificateById." +
                 "Id request = {}", id);
         String idResponse = validator.isPositiveAndParsableIdResponse(id);
         if (idResponse.isEmpty()) {
+            certificateService.deleteCertificateById(Long.parseLong(id));
             log.debug("Successful delete.");
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }

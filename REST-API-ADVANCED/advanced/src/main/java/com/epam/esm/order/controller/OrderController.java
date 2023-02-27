@@ -1,5 +1,6 @@
 package com.epam.esm.order.controller;
 
+import com.epam.esm.certificate.entity.Certificate;
 import com.epam.esm.order.entity.Order;
 import com.epam.esm.order.exception.OrderInvalidRequestException;
 import com.epam.esm.order.hateoas.OrderHateoasSupport;
@@ -33,15 +34,7 @@ public class OrderController {
 
         log.debug("Request accepted getAllOrder. " +
                 "Pagination request object = " + paginationCriteria.toString());
-        System.out.println(SecurityContextHolder.getContext().getAuthentication());
         List<Order> allOrder = orderService.getAllOrder(paginationCriteria);
-        System.out.println("here");
-        allOrder.forEach(order -> {
-            System.out.println(order.getCertificates());
-            System.out.println(order.getUser());
-            System.out.println(order.getId());
-            System.out.println(order.getPurchaseDate());
-        });
         CollectionModel<Order> orderCollectionModel = hateoasSupport.
                 addHateoasSupportToOrderList(allOrder, paginationCriteria);
         log.debug("Send response all Orders: " + orderCollectionModel.toString() + " to client");
@@ -64,12 +57,13 @@ public class OrderController {
     }
 
     @PostMapping()
-    public ResponseEntity<Order> createNewOrder(@RequestBody Order newOrder) {
-
+    public ResponseEntity<Order> createNewOrder(@RequestBody List<Certificate> orderList) {
+        String orderResponse = validator.isValidOrderFieldsWithErrorResponse(orderList);
+        Order newOrder = Order.builder().certificates(orderList)
+                .user((User) SecurityContextHolder.getContext().getAuthentication().getPrincipal())
+                .build();
         log.debug("Request accepted getOrderById. " +
-                "new Order object request = " + newOrder.toString());
-        newOrder.setUser((User) SecurityContextHolder.getContext().getAuthentication().getPrincipal());
-        String orderResponse = validator.isValidOrderFieldsWithErrorResponse(newOrder);
+                "new Order object request = " + newOrder);
         if (orderResponse.isEmpty()) {
             Order order = orderService.createOrder(newOrder);
             Order orderAndHateoas = hateoasSupport.addHateoasSupportToSingleOrder(order);

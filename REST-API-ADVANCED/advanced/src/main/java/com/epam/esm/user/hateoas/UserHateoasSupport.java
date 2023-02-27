@@ -22,7 +22,7 @@ public class UserHateoasSupport {
     public User addHateoasSupportToSingleUser(User user) {
         return user.add(
                 WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(UserController.class)
-                        .getUser(user, String.valueOf(user.getId()))).withRel("getUser"),
+                        .getUser(String.valueOf(user.getId()))).withRel("getUser"),
                 WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(UserController.class)
                         .getAllUser(Pageable.unpaged())).withRel("getAllUsers"));
     }
@@ -31,7 +31,7 @@ public class UserHateoasSupport {
         if (user.getLinks().isEmpty()) {
             user.add(
                     WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(UserController.class)
-                            .getUser(user, String.valueOf(user.getId()))).withRel("getUser"));
+                            .getUser(String.valueOf(user.getId()))).withRel("getUser"));
         }
     }
 }
