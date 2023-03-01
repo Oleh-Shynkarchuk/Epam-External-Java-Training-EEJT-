@@ -2,6 +2,7 @@ package com.epam.esm.security;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
@@ -66,18 +67,7 @@ public class KeyUtils {
         File privateKeyFile = new File(privateKeyPath);
         if (privateKeyFile.exists() && publicKeyFile.exists()) {
             try {
-                KeyFactory keyFactory = KeyFactory.getInstance("RSA");
-
-                byte[] publicKeyBytes = Files.readAllBytes(publicKeyFile.toPath());
-                EncodedKeySpec encodedPublicKeySpec = new X509EncodedKeySpec(publicKeyBytes);
-                PublicKey publicKey = keyFactory.generatePublic(encodedPublicKeySpec);
-
-                byte[] privateKeyBytes = Files.readAllBytes(privateKeyFile.toPath());
-                PKCS8EncodedKeySpec encodedPrivateKeySpec = new PKCS8EncodedKeySpec(privateKeyBytes);
-                PrivateKey privateKey = keyFactory.generatePrivate(encodedPrivateKeySpec);
-
-                keyPair = new KeyPair(publicKey, privateKey);
-                return keyPair;
+                return getKeyPairFromFiles(publicKeyFile, privateKeyFile);
             } catch (NoSuchAlgorithmException | IOException | InvalidKeySpecException e) {
                 throw new RuntimeException(e);
             }
@@ -86,27 +76,20 @@ public class KeyUtils {
                 throw new RuntimeException("public and private key don`t exist");
             }
         }
-        File directory = new File("access-refresh-token-keys");
-        if (!directory.exists()) {
-            boolean mkdirs = directory.mkdirs();
-        }
+        createDirectoryForKeyPair();
         try {
-            log.info("Generating new keypair: {},{}", privateKeyPath, privateKeyPath);
-            KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
-            keyPairGenerator.initialize(2048);
-            keyPair = keyPairGenerator.generateKeyPair();
-            try (FileOutputStream fileOutputStream = new FileOutputStream(publicKeyPath)) {
-                X509EncodedKeySpec keySpec = new X509EncodedKeySpec(keyPair.getPublic().getEncoded());
-                fileOutputStream.write(keySpec.getEncoded());
-            }
-            try (FileOutputStream fileOutputStream = new FileOutputStream(privateKeyPath)) {
-                PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(keyPair.getPrivate().getEncoded());
-                fileOutputStream.write(keySpec.getEncoded());
-            }
+            keyPair = generateNewKeypair(privateKeyPath, publicKeyPath);
         } catch (NoSuchAlgorithmException | IOException e) {
             throw new RuntimeException(e);
         }
         return keyPair;
+    }
+
+    private void createDirectoryForKeyPair() {
+        File directory = new File("access-refresh-token-keys");
+        if (!directory.exists()) {
+            boolean mkdirs = directory.mkdirs();
+        }
     }
 
     public RSAPublicKey getAccessTokenPublicKey() {
@@ -123,5 +106,43 @@ public class KeyUtils {
 
     public RSAPrivateKey getRefreshTokenPrivateKey() {
         return (RSAPrivateKey) getRefreshTokenKeyPair().getPrivate();
+    }
+
+    private PublicKey getPublicKey(File publicKeyFile, KeyFactory keyFactory) throws IOException, InvalidKeySpecException {
+        byte[] publicKeyBytes = Files.readAllBytes(publicKeyFile.toPath());
+        EncodedKeySpec encodedPublicKeySpec = new X509EncodedKeySpec(publicKeyBytes);
+        return keyFactory.generatePublic(encodedPublicKeySpec);
+    }
+
+    private PrivateKey getPrivateKey(File privateKeyFile, KeyFactory keyFactory) throws IOException, InvalidKeySpecException {
+        byte[] privateKeyBytes = Files.readAllBytes(privateKeyFile.toPath());
+        PKCS8EncodedKeySpec encodedPrivateKeySpec = new PKCS8EncodedKeySpec(privateKeyBytes);
+        return keyFactory.generatePrivate(encodedPrivateKeySpec);
+    }
+
+    @NotNull
+    private KeyPair getKeyPairFromFiles(File publicKeyFile, File privateKeyFile) throws NoSuchAlgorithmException, IOException, InvalidKeySpecException {
+        KeyPair keyPair;
+        KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+        keyPair = new KeyPair(getPublicKey(publicKeyFile, keyFactory), getPrivateKey(privateKeyFile, keyFactory));
+        return keyPair;
+    }
+
+    @NotNull
+    private KeyPair generateNewKeypair(String privateKeyPath, String publicKeyPath) throws NoSuchAlgorithmException, IOException {
+        KeyPair keyPair;
+        log.info("Generating new keypair: {},{}", privateKeyPath, privateKeyPath);
+        KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
+        keyPairGenerator.initialize(2048);
+        keyPair = keyPairGenerator.generateKeyPair();
+        try (FileOutputStream fileOutputStream = new FileOutputStream(publicKeyPath)) {
+            X509EncodedKeySpec keySpec = new X509EncodedKeySpec(keyPair.getPublic().getEncoded());
+            fileOutputStream.write(keySpec.getEncoded());
+        }
+        try (FileOutputStream fileOutputStream = new FileOutputStream(privateKeyPath)) {
+            PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(keyPair.getPrivate().getEncoded());
+            fileOutputStream.write(keySpec.getEncoded());
+        }
+        return keyPair;
     }
 }

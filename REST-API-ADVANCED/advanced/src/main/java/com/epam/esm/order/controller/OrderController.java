@@ -18,6 +18,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Set;
 
 @Slf4j
 @RestController
@@ -57,9 +58,9 @@ public class OrderController {
     }
 
     @PostMapping()
-    public ResponseEntity<Order> createNewOrder(@RequestBody List<Certificate> orderList) {
-        String orderResponse = validator.isValidOrderFieldsWithErrorResponse(orderList);
-        Order newOrder = Order.builder().certificates(orderList)
+    public ResponseEntity<Order> createNewOrder(@RequestBody Set<Certificate> orderList) {
+        String orderResponse = validator.isValidOrderFieldsWithErrorResponse(orderList.stream().toList());
+        Order newOrder = Order.builder().certificates(orderList.stream().toList())
                 .user((User) SecurityContextHolder.getContext().getAuthentication().getPrincipal())
                 .build();
         log.debug("Request accepted getOrderById. " +

@@ -1,8 +1,8 @@
 package com.epam.esm.security.controller;
 
-import com.epam.esm.security.dto.AuthUserDTO;
-import com.epam.esm.security.dto.OidcDTO;
-import com.epam.esm.security.dto.TokenDTO;
+import com.epam.esm.security.model.AuthUserModel;
+import com.epam.esm.security.model.OpenIdConnectionModel;
+import com.epam.esm.security.model.TokenModel;
 import com.epam.esm.security.service.JwtService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,26 +20,26 @@ public class AuthController {
     private final JwtService jwtService;
 
     @PostMapping("/register")
-    public ResponseEntity<TokenDTO> register(@RequestBody AuthUserDTO signupUser) {
-        TokenDTO register = jwtService.register(signupUser);
+    public ResponseEntity<TokenModel> register(@RequestBody AuthUserModel signupUser) {
+        TokenModel register = jwtService.register(signupUser);
         return ResponseEntity.ok(register);
     }
 
     @PostMapping("/login")
-    public ResponseEntity<TokenDTO> login(@RequestBody AuthUserDTO loginUser) {
-        TokenDTO login = jwtService.login(loginUser);
+    public ResponseEntity<TokenModel> login(@RequestBody AuthUserModel loginUser) {
+        TokenModel login = jwtService.login(loginUser);
         return ResponseEntity.ok(login);
     }
 
     @PostMapping("/token")
-    public ResponseEntity<TokenDTO> token(@RequestBody TokenDTO tokenDTO) {
-        TokenDTO refresh = jwtService.refresh(tokenDTO);
+    public ResponseEntity<TokenModel> token(@RequestBody TokenModel tokenModel) {
+        TokenModel refresh = jwtService.refresh(tokenModel);
         return ResponseEntity.ok(refresh);
     }
 
     @PostMapping("/oidc")
-    public ResponseEntity<TokenDTO> oidc(@RequestBody OidcDTO oidcDTO) {
-        TokenDTO oidc = jwtService.oidc(oidcDTO);
-        return ResponseEntity.ok(oidc);
+    public ResponseEntity<TokenModel> oidc(@RequestBody OpenIdConnectionModel oidc) {
+        TokenModel token = jwtService.oidc(oidc);
+        return ResponseEntity.ok(token);
     }
 }

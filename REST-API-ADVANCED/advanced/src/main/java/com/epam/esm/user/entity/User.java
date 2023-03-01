@@ -85,4 +85,12 @@ public class User extends RepresentationModel<User> implements UserDetails {
     public boolean isEnabled() {
         return true;
     }
+
+    public boolean isAdmin() {
+        return this.role.equals(Role.ADMIN);
+    }
+
+    public boolean isGoogleProvider() {
+        return this.provider.equals(Provider.GOOGLE);
+    }
 }

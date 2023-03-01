@@ -1,4 +1,4 @@
-package com.epam.esm.security.dto;
+package com.epam.esm.security.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -9,7 +9,8 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class AuthUserDTO {
-    private String username;
-    private String password;
+public class TokenModel {
+    private String userId;
+    private String accessToken;
+    private String refreshToken;
 }

@@ -21,13 +21,13 @@ import org.springframework.security.authentication.dao.DaoAuthenticationProvider
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationProvider;
-import org.springframework.security.provisioning.UserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 
 
@@ -38,21 +38,23 @@ public class WebSecurity {
     private final JwtToUserConverter jwtToUserConverter;
     private final KeyUtils keyUtils;
     private final PasswordEncoder passwordEncoder;
-    private final UserDetailsManager userDetailsManager;
     private final RestAuthenticationEntryPoint restAuthenticationEntryPoint;
     private final RestAccessDeniedHandler restAccessDeniedHandler;
+    private final UserDetailsService userDetailsService;
 
     @Autowired
     public WebSecurity(JwtToUserConverter jwtToUserConverter,
                        KeyUtils keyUtils,
                        PasswordEncoder passwordEncoder,
-                       UserDetailsManager userDetailsManager, RestAuthenticationEntryPoint restAuthenticationEntryPoint, RestAccessDeniedHandler restAccessDeniedHandler) {
+                       RestAuthenticationEntryPoint restAuthenticationEntryPoint,
+                       RestAccessDeniedHandler restAccessDeniedHandler,
+                       UserDetailsService userDetailsService) {
         this.jwtToUserConverter = jwtToUserConverter;
         this.keyUtils = keyUtils;
         this.passwordEncoder = passwordEncoder;
-        this.userDetailsManager = userDetailsManager;
         this.restAuthenticationEntryPoint = restAuthenticationEntryPoint;
         this.restAccessDeniedHandler = restAccessDeniedHandler;
+        this.userDetailsService = userDetailsService;
     }
 
     @Bean
@@ -77,10 +79,6 @@ public class WebSecurity {
                 .antMatchers(HttpMethod.PATCH).hasAuthority(Role.ADMIN.name())
                 .antMatchers(HttpMethod.DELETE).hasAuthority(Role.ADMIN.name())
                 .anyRequest().authenticated()
-//                .and()
-//                .exceptionHandling()
-//                .authenticationEntryPoint(restAuthenticationEntryPoint)
-//                .accessDeniedHandler(restAccessDeniedHandler)
                 .and()
                 .oauth2ResourceServer().jwt().jwtAuthenticationConverter(jwtToUserConverter)
                 .and().authenticationEntryPoint(restAuthenticationEntryPoint)
@@ -124,7 +122,9 @@ public class WebSecurity {
 
     @Bean
     @Qualifier("jwtRefresherTokenAuthProvider")
-    JwtAuthenticationProvider jwtRefresherTokenAuthProvider(JwtToUserConverter jwtToUserConverter, JwtDecoder jwtRefreshTokenDecoder) {
+    JwtAuthenticationProvider jwtRefresherTokenAuthProvider(
+            JwtToUserConverter jwtToUserConverter,
+            JwtDecoder jwtRefreshTokenDecoder) {
         JwtAuthenticationProvider provider = new JwtAuthenticationProvider(jwtRefreshTokenDecoder);
         provider.setJwtAuthenticationConverter(jwtToUserConverter);
         return provider;
@@ -134,7 +134,7 @@ public class WebSecurity {
     DaoAuthenticationProvider daoAuthenticationProvider() {
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
         provider.setPasswordEncoder(passwordEncoder);
-        provider.setUserDetailsService(userDetailsManager);
+        provider.setUserDetailsService(userDetailsService);
         return provider;
     }
 }

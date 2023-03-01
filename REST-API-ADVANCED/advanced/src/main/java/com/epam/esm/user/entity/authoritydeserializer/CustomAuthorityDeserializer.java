@@ -9,15 +9,15 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 import java.io.IOException;
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
 
 public class CustomAuthorityDeserializer extends JsonDeserializer<List<GrantedAuthority>> {
     @Override
-    public List<GrantedAuthority> deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException {
+    public List<GrantedAuthority> deserialize(JsonParser jp, DeserializationContext context) throws IOException {
         ObjectMapper mapper = (ObjectMapper) jp.getCodec();
         JsonNode jsonNode = mapper.readTree(jp);
-        List<GrantedAuthority> grantedAuthorities = new LinkedList<>();
+        List<GrantedAuthority> grantedAuthorities = new ArrayList<>();
         jsonNode.elements().forEachRemaining(node -> {
             JsonNode authority = node.get("authority");
             grantedAuthorities.add(new SimpleGrantedAuthority(authority.asText()));

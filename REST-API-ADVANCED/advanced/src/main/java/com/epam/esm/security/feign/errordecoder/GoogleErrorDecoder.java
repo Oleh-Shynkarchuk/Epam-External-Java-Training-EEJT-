@@ -9,7 +9,7 @@ import feign.codec.ErrorDecoder;
 import java.io.IOException;
 import java.io.InputStream;
 
-public class FeignErrorDecoder implements ErrorDecoder {
+public class GoogleErrorDecoder implements ErrorDecoder {
     @Override
     public Exception decode(String methodKey, Response response) {
         ExceptionMessage message;
@@ -20,7 +20,7 @@ public class FeignErrorDecoder implements ErrorDecoder {
             return new Exception(e.getMessage());
         }
         if (response.status() == 400) {
-            return new BadRequestException(message.getError_description() != null ? message.getError_description() : "Bad Request");
+            return new BadRequestException(message.getErrorDescription() != null ? message.getErrorDescription() : "Bad Request");
         }
         return new Default().decode(methodKey, response);
     }

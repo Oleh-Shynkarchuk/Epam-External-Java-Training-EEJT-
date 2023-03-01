@@ -11,9 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.provisioning.UserDetailsManager;
 import org.springframework.stereotype.Service;
 
 import java.text.MessageFormat;
@@ -22,11 +21,10 @@ import java.util.List;
 @Slf4j
 @Service
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
-public class UserServiceImpl implements UserService, UserDetailsManager {
+public class UserServiceImpl implements UserService, UserDetailsService {
 
     private final UserRepository userRepository;
     private final Validator validator;
-    private final PasswordEncoder passwordEncoder;
 
     @Override
     public List<User> getAllUsers(Pageable paginationCriteria) {
@@ -52,32 +50,6 @@ public class UserServiceImpl implements UserService, UserDetailsManager {
     private UserNotFoundException userNotFoundException() {
         log.error(ErrorConstants.USER_NOT_FOUND_MESSAGE);
         return new UserNotFoundException();
-    }
-
-    @Override
-    public void createUser(UserDetails user) {
-        ((User) user).setPassword(passwordEncoder.encode(user.getPassword()));
-        userRepository.save((User) user);
-    }
-
-    @Override
-    public void updateUser(UserDetails user) {
-
-    }
-
-    @Override
-    public void deleteUser(String username) {
-
-    }
-
-    @Override
-    public void changePassword(String oldPassword, String newPassword) {
-
-    }
-
-    @Override
-    public boolean userExists(String username) {
-        return userRepository.existsByEmail(username);
     }
 
     @Override
