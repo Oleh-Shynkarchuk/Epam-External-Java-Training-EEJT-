@@ -1,12 +1,12 @@
 package com.epam.esm.security.service;
 
 import com.epam.esm.security.TokenGenerator;
-import com.epam.esm.security.dto.AuthUserDTO;
-import com.epam.esm.security.dto.OidcDTO;
-import com.epam.esm.security.dto.TokenDTO;
 import com.epam.esm.security.exception.TokenBadRequestException;
-import com.epam.esm.security.feign.client.FeignClientsUtil;
-import com.epam.esm.security.feign.dto.TokenVerifiedDTO;
+import com.epam.esm.security.feign.client.GoogleAuthApiClient;
+import com.epam.esm.security.feign.tokenmodel.VerifiedTokenModel;
+import com.epam.esm.security.model.AuthUserModel;
+import com.epam.esm.security.model.OpenIdConnectionModel;
+import com.epam.esm.security.model.TokenModel;
 import com.epam.esm.user.entity.User;
 import com.epam.esm.user.entity.provider.Provider;
 import com.epam.esm.user.entity.roles.Role;
@@ -21,43 +21,42 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.provisioning.UserDetailsManager;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class JwtServiceTest {
 
     @Mock
-    private UserDetailsManager userDetailsManager;
-    @Mock
     private TokenGenerator tokenGenerator;
     @Mock
     private DaoAuthenticationProvider daoAuthenticationProvider;
     @Mock
-    private FeignClientsUtil feignClientsUtil;
+    private GoogleAuthApiClient googleAuthApiClient;
     @Mock
     private UserRepository userRepository;
-
+    @Mock
+    private PasswordEncoder passwordEncoder;
     @InjectMocks
     private JwtService jwtService;
 
     @Test
     void register() {
-        AuthUserDTO signupUser = new AuthUserDTO("TestUser", "TestPassword");
+        AuthUserModel signupUser = new AuthUserModel("TestUser", "TestPassword");
         User user = User.builder().email(signupUser.getUsername()).password(signupUser.getPassword())
-                .role(Role.USER).provider(Provider.SELF).build();
-        TokenDTO expected = new TokenDTO("1", "accessToken", "refreshToken");
+                .role(Role.USER).provider(Provider.BASIC).build();
+        TokenModel expected = new TokenModel("1", "accessToken", "refreshToken");
         UsernamePasswordAuthenticationToken authenticated = UsernamePasswordAuthenticationToken.
                 authenticated(user, signupUser.getPassword(), user.getAuthorities());
 
-        when(userDetailsManager.userExists(user.getUsername())).thenReturn(false);
-        doNothing().when(userDetailsManager).createUser(user);
+        when(passwordEncoder.encode(user.getPassword())).thenReturn(user.getPassword());
+        when(userRepository.existsByEmail(user.getUsername())).thenReturn(false);
+        when(userRepository.save(user)).thenReturn(user);
         when(tokenGenerator.createToken(authenticated)).thenReturn(expected);
 
 
@@ -66,24 +65,24 @@ class JwtServiceTest {
 
     @Test
     void registerThrowUserInvalidRequestExceptionCuzUserExist() {
-        AuthUserDTO signupUser = new AuthUserDTO("TestUser", "TestPassword");
+        AuthUserModel signupUser = new AuthUserModel("TestUser", "TestPassword");
         User user = User.builder().email(signupUser.getUsername()).password(signupUser.getPassword())
-                .role(Role.USER).provider(Provider.SELF).build();
-        when(userDetailsManager.userExists(user.getUsername())).thenReturn(true);
+                .role(Role.USER).provider(Provider.BASIC).build();
+        when(userRepository.existsByEmail(user.getUsername())).thenReturn(true);
 
         assertThrows(UserInvalidRequestException.class, () -> jwtService.register(signupUser));
     }
 
     @Test
     void login() {
-        AuthUserDTO loginUser = new AuthUserDTO("TestUser", "TestPassword");
+        AuthUserModel loginUser = new AuthUserModel("TestUser", "TestPassword");
         User user = User.builder().email(loginUser.getUsername()).password(loginUser.getPassword())
-                .role(Role.USER).provider(Provider.SELF).build();
+                .role(Role.USER).provider(Provider.BASIC).build();
         Authentication unauthenticated = UsernamePasswordAuthenticationToken.
                 unauthenticated(loginUser.getUsername(), loginUser.getPassword());
         Authentication authenticated = UsernamePasswordAuthenticationToken.
                 authenticated(user, loginUser.getPassword(), user.getAuthorities());
-        TokenDTO expected = new TokenDTO("1", "accessToken", "refreshToken");
+        TokenModel expected = new TokenModel("1", "accessToken", "refreshToken");
 
         when(daoAuthenticationProvider.authenticate(unauthenticated)).
                 thenReturn(authenticated);
@@ -94,7 +93,7 @@ class JwtServiceTest {
 
     @Test
     void loginThrowUserInvalidRequestExceptionCuzUserDoesNotExist() {
-        AuthUserDTO loginUser = new AuthUserDTO("TestUser", "TestPassword");
+        AuthUserModel loginUser = new AuthUserModel("TestUser", "TestPassword");
         Authentication authentication = UsernamePasswordAuthenticationToken.
                 unauthenticated(loginUser.getUsername(), loginUser.getPassword());
 
@@ -105,28 +104,28 @@ class JwtServiceTest {
 
     @Test
     void refreshThrowTokenBadRequestExceptionCuzEmptyToken() {
-        assertThrows(TokenBadRequestException.class, () -> jwtService.refresh(new TokenDTO()));
+        assertThrows(TokenBadRequestException.class, () -> jwtService.refresh(new TokenModel()));
     }
 
     @Test
     void oidcUpdateProviderToGoogle() {
         String idToken = "TestOidcToken";
         User user = User.builder().email("TestUser").password("TestPassword")
-                .role(Role.USER).provider(Provider.SELF).build();
+                .role(Role.USER).provider(Provider.BASIC).build();
         User beforeSave = User.builder().email("TestUser").password("TestPassword")
                 .role(Role.USER).provider(Provider.GOOGLE).build();
         User afterSave = User.builder().id(1L).email("TestUser").password("TestPassword")
                 .role(Role.USER).provider(Provider.GOOGLE).build();
         Authentication authentication = UsernamePasswordAuthenticationToken.
                 authenticated(afterSave, null, afterSave.getAuthorities());
-        TokenVerifiedDTO verifiedDTO = TokenVerifiedDTO.builder().email(user.getEmail()).build();
-        TokenDTO expected = new TokenDTO("1", "accessToken", "refreshToken");
+        VerifiedTokenModel verifiedDTO = VerifiedTokenModel.builder().email(user.getEmail()).build();
+        TokenModel expected = new TokenModel("1", "accessToken", "refreshToken");
 
-        when(feignClientsUtil.getVerifiedToken(idToken)).thenReturn(verifiedDTO);
+        when(googleAuthApiClient.getVerifiedToken(idToken)).thenReturn(verifiedDTO);
         when(userRepository.findByEmail(verifiedDTO.getEmail())).thenReturn(Optional.of(user));
         when(userRepository.save(beforeSave)).thenReturn(afterSave);
         when(tokenGenerator.createToken(authentication)).thenReturn(expected);
-        assertEquals(expected, jwtService.oidc(OidcDTO.builder().idToken(idToken).build()));
+        assertEquals(expected, jwtService.oidc(OpenIdConnectionModel.builder().idToken(idToken).build()));
     }
 
     @Test
@@ -138,13 +137,13 @@ class JwtServiceTest {
                 .role(Role.USER).provider(Provider.GOOGLE).build();
         Authentication authentication = UsernamePasswordAuthenticationToken.
                 authenticated(exist, null, exist.getAuthorities());
-        TokenVerifiedDTO verifiedDTO = TokenVerifiedDTO.builder().email(user.getEmail()).build();
-        TokenDTO expected = new TokenDTO("1", "accessToken", "refreshToken");
+        VerifiedTokenModel verifiedDTO = VerifiedTokenModel.builder().email(user.getEmail()).build();
+        TokenModel expected = new TokenModel("1", "accessToken", "refreshToken");
 
-        when(feignClientsUtil.getVerifiedToken(idToken)).thenReturn(verifiedDTO);
+        when(googleAuthApiClient.getVerifiedToken(idToken)).thenReturn(verifiedDTO);
         when(userRepository.findByEmail(verifiedDTO.getEmail())).thenReturn(Optional.of(exist));
         when(tokenGenerator.createToken(authentication)).thenReturn(expected);
-        assertEquals(expected, jwtService.oidc(OidcDTO.builder().idToken(idToken).build()));
+        assertEquals(expected, jwtService.oidc(OpenIdConnectionModel.builder().idToken(idToken).build()));
     }
 
     @Test
@@ -155,13 +154,13 @@ class JwtServiceTest {
 
         Authentication authentication = UsernamePasswordAuthenticationToken.
                 authenticated(user, null, user.getAuthorities());
-        TokenVerifiedDTO verifiedDTO = TokenVerifiedDTO.builder().email(user.getEmail()).build();
-        TokenDTO expected = new TokenDTO("1", "accessToken", "refreshToken");
+        VerifiedTokenModel verifiedDTO = VerifiedTokenModel.builder().email(user.getEmail()).build();
+        TokenModel expected = new TokenModel("1", "accessToken", "refreshToken");
 
-        when(feignClientsUtil.getVerifiedToken(idToken)).thenReturn(verifiedDTO);
+        when(googleAuthApiClient.getVerifiedToken(idToken)).thenReturn(verifiedDTO);
         when(userRepository.findByEmail(verifiedDTO.getEmail())).thenReturn(Optional.empty());
-        doNothing().when(userDetailsManager).createUser(user);
+        when(userRepository.save(user)).thenReturn(user);
         when(tokenGenerator.createToken(authentication)).thenReturn(expected);
-        assertEquals(expected, jwtService.oidc(OidcDTO.builder().idToken(idToken).build()));
+        assertEquals(expected, jwtService.oidc(OpenIdConnectionModel.builder().idToken(idToken).build()));
     }
 }

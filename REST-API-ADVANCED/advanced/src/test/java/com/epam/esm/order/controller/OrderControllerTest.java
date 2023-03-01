@@ -3,8 +3,8 @@ package com.epam.esm.order.controller;
 import com.epam.esm.ErrorConstants;
 import com.epam.esm.certificate.entity.Certificate;
 import com.epam.esm.order.entity.Order;
-import com.epam.esm.security.dto.AuthUserDTO;
-import com.epam.esm.security.dto.TokenDTO;
+import com.epam.esm.security.model.AuthUserModel;
+import com.epam.esm.security.model.TokenModel;
 import com.epam.esm.tag.entity.Tag;
 import com.epam.esm.user.entity.User;
 import com.epam.esm.user.entity.provider.Provider;
@@ -49,14 +49,14 @@ class OrderControllerTest {
     @BeforeEach
     void setUp() {
 
-        AuthUserDTO authUserDTO = new AuthUserDTO("testUser3@mail.com",
+        AuthUserModel authUserModel = new AuthUserModel("testUser3@mail.com",
                 "TestPassword");
-        HttpEntity<Object> loginEntity = new HttpEntity<>(authUserDTO);
+        HttpEntity<Object> loginEntity = new HttpEntity<>(authUserModel);
 
         final String authorsUrl = restTemplate.getRootUri() + "/v1/api/auth/login";
 
-        ResponseEntity<TokenDTO> responseEntity =
-                restTemplate.exchange(authorsUrl, HttpMethod.POST, loginEntity, TokenDTO.class);
+        ResponseEntity<TokenModel> responseEntity =
+                restTemplate.exchange(authorsUrl, HttpMethod.POST, loginEntity, TokenModel.class);
         headers = new HttpHeaders();
         headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
         if (ObjectUtils.isNotEmpty(responseEntity.getBody())) {
@@ -142,7 +142,7 @@ class OrderControllerTest {
         Order expected = Order.builder().id(id).totalPrice(BigDecimal.valueOf(14530, 2))
                 .purchaseDate(LocalDateTime.parse("2022-12-24T17:54:35")).user(
                         User.builder().id(2L).email("testUser2@mail.com")
-                                .password("TestPassword").role(Role.ADMIN).provider(Provider.SELF).build()).
+                                .password("TestPassword").role(Role.ADMIN).provider(Provider.BASIC).build()).
                 certificates(List.of(certificate2)).build();
         final String authorsUrl = restTemplate.getRootUri() + "/v1/api/order";
         requestEntity = new HttpEntity<>(headers);

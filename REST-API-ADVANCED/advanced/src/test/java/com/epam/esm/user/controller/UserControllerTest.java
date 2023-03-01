@@ -4,6 +4,7 @@ import com.epam.esm.ErrorConstants;
 import com.epam.esm.ErrorController;
 import com.epam.esm.Validator;
 import com.epam.esm.user.entity.User;
+import com.epam.esm.user.entity.provider.Provider;
 import com.epam.esm.user.entity.roles.Role;
 import com.epam.esm.user.hateoas.UserHateoasSupport;
 import com.epam.esm.user.sevice.UserServiceImpl;
@@ -58,8 +59,8 @@ class UserControllerTest {
     @Test
     void getAllUser() throws Exception {
         Pageable pageable = PageRequest.of(0, 20);
-        User user1 = User.builder().id(1L).email("testUser1@mail.com").role(Role.USER).build();
-        User user2 = User.builder().id(2L).email("testUser2@mail.com").role(Role.USER).build();
+        User user1 = User.builder().id(1L).email("testUser1@mail.com").role(Role.USER).provider(Provider.BASIC).build();
+        User user2 = User.builder().id(2L).email("testUser2@mail.com").role(Role.USER).provider(Provider.BASIC).build();
         List<User> userList = List.of(user1, user2);
         String expected = jsonMapper.writeValueAsString(CollectionModel.of(userList));
 
@@ -81,7 +82,7 @@ class UserControllerTest {
     @Test
     void getUser() throws Exception {
         long request = 1L;
-        User user1 = User.builder().id(1L).email("testUser1@mail.com").role(Role.USER).build();
+        User user1 = User.builder().id(1L).email("testUser1@mail.com").role(Role.USER).provider(Provider.BASIC).build();
         String expected = jsonMapper.writeValueAsString(user1);
 
         Mockito.when(validator.isPositiveAndParsableIdResponse(String.valueOf(request))).thenReturn("");

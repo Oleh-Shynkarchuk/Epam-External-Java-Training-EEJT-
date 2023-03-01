@@ -1,7 +1,7 @@
 package com.epam.esm.security;
 
 import com.epam.esm.order.entity.Order;
-import com.epam.esm.security.dto.TokenDTO;
+import com.epam.esm.security.model.TokenModel;
 import com.epam.esm.user.entity.User;
 import com.epam.esm.user.entity.provider.Provider;
 import com.epam.esm.user.entity.roles.Role;
@@ -38,10 +38,10 @@ class TokenGeneratorTest {
     @Test
     void createToken() {
         User user = User.builder().id(1L).email("test@email.com")
-                .password("TestPassword").role(Role.USER).provider(Provider.SELF).build();
+                .password("TestPassword").role(Role.USER).provider(Provider.BASIC).build();
         Authentication authentication = UsernamePasswordAuthenticationToken.
                 authenticated(user, user.getPassword(), user.getAuthorities());
-        TokenDTO token = tokenGenerator.createToken(authentication);
+        TokenModel token = tokenGenerator.createToken(authentication);
         String issuer = "myApp";
         Jwt decodedAccess = accessTokenDecoder.decode(token.getAccessToken());
         Jwt decodedRefresh = refreshTokenDecoder.decode(token.getRefreshToken());

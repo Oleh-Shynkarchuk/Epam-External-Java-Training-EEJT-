@@ -1,9 +1,9 @@
 package com.epam.esm.security.controller;
 
 import com.epam.esm.ErrorConstants;
-import com.epam.esm.security.dto.AuthUserDTO;
-import com.epam.esm.security.dto.OidcDTO;
-import com.epam.esm.security.dto.TokenDTO;
+import com.epam.esm.security.model.AuthUserModel;
+import com.epam.esm.security.model.OpenIdConnectionModel;
+import com.epam.esm.security.model.TokenModel;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import org.junit.jupiter.api.Test;
@@ -40,18 +40,18 @@ class AuthControllerTest {
                     "classpath:cleanup.sql")
     })
     void registerShouldReturnTokenDTO() {
-        AuthUserDTO authUserDTO = new AuthUserDTO("NewTestUser", "TestPassword");
-        HttpEntity<Object> requestEntity = new HttpEntity<>(authUserDTO);
+        AuthUserModel authUserModel = new AuthUserModel("NewTestUser", "TestPassword");
+        HttpEntity<Object> requestEntity = new HttpEntity<>(authUserModel);
         final String authorsUrl = restTemplate.getRootUri() + "/v1/api/auth/register";
-        ResponseEntity<TokenDTO> responseEntity =
-                restTemplate.exchange(authorsUrl, HttpMethod.POST, requestEntity, TokenDTO.class);
+        ResponseEntity<TokenModel> responseEntity =
+                restTemplate.exchange(authorsUrl, HttpMethod.POST, requestEntity, TokenModel.class);
         assertAll(
                 () -> assertEquals(HttpStatus.OK, responseEntity.getStatusCode()),
                 () -> assertEquals(MediaType.APPLICATION_JSON, responseEntity.getHeaders().getContentType()),
                 () -> {
                     if (responseEntity.getBody() != null) {
-                        assertEquals(TokenDTO.class, responseEntity.getBody().getClass());
-                    } else throw new Exception("TokenDTO was not created");
+                        assertEquals(TokenModel.class, responseEntity.getBody().getClass());
+                    } else throw new Exception("TokenModel was not created");
                 }
         );
     }
@@ -63,14 +63,14 @@ class AuthControllerTest {
                     "classpath:cleanup.sql")
     })
     void registerShouldReturnExceptionCuzUserIsAlreadyExist() throws JsonProcessingException {
-        AuthUserDTO authUserDTO = new AuthUserDTO("testUser1@mail.com",
+        AuthUserModel authUserModel = new AuthUserModel("testUser1@mail.com",
                 "TestPassword");
-        HttpEntity<Object> requestEntity = new HttpEntity<>(authUserDTO);
+        HttpEntity<Object> requestEntity = new HttpEntity<>(authUserModel);
         final String authorsUrl = restTemplate.getRootUri() + "/v1/api/auth/register";
 
         String expected = JsonMapper.builder().build().writeValueAsString
                 (Map.of(CODE, ErrorConstants.USER_INVALID_REQUEST_ERROR_CODE,
-                        MESSAGE, "User with ( name =  " + authUserDTO.getUsername()
+                        MESSAGE, "User with ( name =  " + authUserModel.getUsername()
                                 + ") already exist. This field must be unique, change it and try again."));
 
         ResponseEntity<String> responseEntity =
@@ -90,25 +90,25 @@ class AuthControllerTest {
                     "classpath:cleanup.sql")
     })
     void login() {
-        AuthUserDTO authUserDTO = new AuthUserDTO("testUser3@mail.com",
+        AuthUserModel authUserModel = new AuthUserModel("testUser3@mail.com",
                 "TestPassword");
-        HttpEntity<Object> requestEntity = new HttpEntity<>(authUserDTO);
+        HttpEntity<Object> requestEntity = new HttpEntity<>(authUserModel);
 
         final String loginAuthorsUrl = restTemplate.getRootUri() + "/v1/api/auth/register";
-        restTemplate.exchange(loginAuthorsUrl, HttpMethod.POST, requestEntity, TokenDTO.class);
+        restTemplate.exchange(loginAuthorsUrl, HttpMethod.POST, requestEntity, TokenModel.class);
 
         final String authorsUrl = restTemplate.getRootUri() + "/v1/api/auth/login";
 
-        ResponseEntity<TokenDTO> responseEntity =
-                restTemplate.exchange(authorsUrl, HttpMethod.POST, requestEntity, TokenDTO.class);
+        ResponseEntity<TokenModel> responseEntity =
+                restTemplate.exchange(authorsUrl, HttpMethod.POST, requestEntity, TokenModel.class);
 
         assertAll(
                 () -> assertEquals(HttpStatus.OK, responseEntity.getStatusCode()),
                 () -> assertEquals(MediaType.APPLICATION_JSON, responseEntity.getHeaders().getContentType()),
                 () -> {
                     if (responseEntity.getBody() != null) {
-                        assertEquals(TokenDTO.class, responseEntity.getBody().getClass());
-                    } else throw new Exception("TokenDTO was not created");
+                        assertEquals(TokenModel.class, responseEntity.getBody().getClass());
+                    } else throw new Exception("TokenModel was not created");
                 }
         );
     }
@@ -119,15 +119,15 @@ class AuthControllerTest {
             @Sql(executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD, scripts =
                     "classpath:cleanup.sql")
     })
-    void loginShouldReturnBadCredentials() {
-        AuthUserDTO authUserDTO = new AuthUserDTO("testUser1@mail.com",
+    void loginShouldReturnBadCredentials() throws JsonProcessingException {
+        AuthUserModel authUserModel = new AuthUserModel("testUser1@mail.com",
                 "WrongPassword");
-        HttpEntity<Object> requestEntity = new HttpEntity<>(authUserDTO);
+        HttpEntity<Object> requestEntity = new HttpEntity<>(authUserModel);
         final String authorsUrl = restTemplate.getRootUri() + "/v1/api/auth/login";
 
-        String expected = "{\"" + CODE + "\":" + "\"" + HttpServletResponse.SC_UNAUTHORIZED
-                + "\",\"" + MESSAGE + "\":" + "\"Bad credentials\"}";
-
+        String expected = JsonMapper.builder().build().writeValueAsString(Map.of(
+                CODE, HttpServletResponse.SC_UNAUTHORIZED,
+                MESSAGE, "Bad credentials"));
         ResponseEntity<String> responseEntity =
                 restTemplate.exchange(authorsUrl, HttpMethod.POST, requestEntity, String.class);
 
@@ -150,13 +150,13 @@ class AuthControllerTest {
     })
     void token() throws Exception {
 
-        AuthUserDTO authUserDTO = new AuthUserDTO("testUser3@mail.com",
+        AuthUserModel authUserModel = new AuthUserModel("testUser3@mail.com",
                 "TestPassword");
-        HttpEntity<Object> requestEntity = new HttpEntity<>(authUserDTO);
+        HttpEntity<Object> requestEntity = new HttpEntity<>(authUserModel);
 
         final String loginAuthorsUrl = restTemplate.getRootUri() + "/v1/api/auth/login";
-        ResponseEntity<TokenDTO> responseEntity =
-                restTemplate.exchange(loginAuthorsUrl, HttpMethod.POST, requestEntity, TokenDTO.class);
+        ResponseEntity<TokenModel> responseEntity =
+                restTemplate.exchange(loginAuthorsUrl, HttpMethod.POST, requestEntity, TokenModel.class);
 
         final String tokenAuthorsUrl = restTemplate.getRootUri() + "/v1/api/auth/token";
         HttpEntity<Object> tokenRequestEntity;
@@ -164,16 +164,16 @@ class AuthControllerTest {
             tokenRequestEntity = new HttpEntity<>(responseEntity.getBody());
         } else throw new Exception("RefreshToken does not found");
 
-        ResponseEntity<TokenDTO> tokenDTOResponseEntity =
-                restTemplate.exchange(tokenAuthorsUrl, HttpMethod.POST, tokenRequestEntity, TokenDTO.class);
+        ResponseEntity<TokenModel> tokenDTOResponseEntity =
+                restTemplate.exchange(tokenAuthorsUrl, HttpMethod.POST, tokenRequestEntity, TokenModel.class);
 
         assertAll(
                 () -> assertEquals(HttpStatus.OK, tokenDTOResponseEntity.getStatusCode()),
                 () -> assertEquals(MediaType.APPLICATION_JSON, tokenDTOResponseEntity.getHeaders().getContentType()),
                 () -> {
                     if (tokenDTOResponseEntity.getBody() != null) {
-                        assertEquals(TokenDTO.class, tokenDTOResponseEntity.getBody().getClass());
-                    } else throw new Exception("TokenDTO was not created");
+                        assertEquals(TokenModel.class, tokenDTOResponseEntity.getBody().getClass());
+                    } else throw new Exception("TokenModel was not created");
                 }
         );
     }
@@ -185,7 +185,7 @@ class AuthControllerTest {
                     "classpath:cleanup.sql")
     })
     void RefreshTokenReturnBadRequestMessageCuzEmpty() throws JsonProcessingException {
-        HttpEntity<Object> tokenRequestEntity = new HttpEntity<>(new TokenDTO());
+        HttpEntity<Object> tokenRequestEntity = new HttpEntity<>(new TokenModel());
         final String tokenAuthorsUrl = restTemplate.getRootUri() + "/v1/api/auth/token";
         ResponseEntity<String> responseEntity =
                 restTemplate.exchange(tokenAuthorsUrl, HttpMethod.POST, tokenRequestEntity, String.class);
@@ -209,7 +209,7 @@ class AuthControllerTest {
                     "classpath:cleanup.sql")
     })
     void oidcReturnInvalidValueMessageAndBadRequestStatus() throws JsonProcessingException {
-        OidcDTO oidcDTO = OidcDTO.builder().idToken("eyJhbGciOiJSUzI1NiIsImtpZCI6ImI0OWM1MDYyZ" +
+        OpenIdConnectionModel openIdConnectionModel = OpenIdConnectionModel.builder().idToken("eyJhbGciOiJSUzI1NiIsImtpZCI6ImI0OWM1MDYyZ" +
                         "Dg5MGY1Y2U0NDllODkwYzg4ZThkZDk4YzRmZWUwYWIiLCJ0eXAiOiJKV1QifQ.eyJpc3MiO" +
                         "iJodHRwczovL2FjY291bnRzLmdvb2dsZS5jb20iLCJhenAiOiIxMzA3MDAyNzI3NzYtMzkxc" +
                         "TMxNmNmazUxMWlhOTJjMGswOWRqYjM4b2U3OGsuYXBwcy5nb29nbGV1c2VyY29udGVudC5jb2" +
@@ -226,7 +226,7 @@ class AuthControllerTest {
                         "4efGxxMftam4huuu5XJZBaiDYKmMAYIEaU1ldgVnOyj7qJINHpRtHAA2eYyc34BvAbSseEpuKSHr5" +
                         "yZMO915woj96Jf1lM82oSyiIQ3ZTjzjcrTfkpPqG8OAAA3lPpmxGAvyKJhicBOc1ItmTG491Q")
                 .build();
-        HttpEntity<OidcDTO> tokenRequestEntity = new HttpEntity<>(oidcDTO);
+        HttpEntity<OpenIdConnectionModel> tokenRequestEntity = new HttpEntity<>(openIdConnectionModel);
         final String tokenAuthorsUrl = restTemplate.getRootUri() + "/v1/api/auth/oidc";
         ResponseEntity<String> responseEntity =
                 restTemplate.exchange(tokenAuthorsUrl, HttpMethod.POST, tokenRequestEntity, String.class);
