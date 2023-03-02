@@ -1,7 +1,7 @@
 package com.epam.esm.security.controller;
 
-import com.epam.esm.security.model.AuthUserModel;
-import com.epam.esm.security.model.OpenIdConnectionModel;
+import com.epam.esm.security.model.AuthUserRequest;
+import com.epam.esm.security.model.OpenIdConnectionRequest;
 import com.epam.esm.security.model.TokenModel;
 import com.epam.esm.security.service.JwtService;
 import lombok.RequiredArgsConstructor;
@@ -20,13 +20,13 @@ public class AuthController {
     private final JwtService jwtService;
 
     @PostMapping("/register")
-    public ResponseEntity<TokenModel> register(@RequestBody AuthUserModel signupUser) {
+    public ResponseEntity<TokenModel> register(@RequestBody AuthUserRequest signupUser) {
         TokenModel register = jwtService.register(signupUser);
         return ResponseEntity.ok(register);
     }
 
     @PostMapping("/login")
-    public ResponseEntity<TokenModel> login(@RequestBody AuthUserModel loginUser) {
+    public ResponseEntity<TokenModel> login(@RequestBody AuthUserRequest loginUser) {
         TokenModel login = jwtService.login(loginUser);
         return ResponseEntity.ok(login);
     }
@@ -38,7 +38,7 @@ public class AuthController {
     }
 
     @PostMapping("/oidc")
-    public ResponseEntity<TokenModel> oidc(@RequestBody OpenIdConnectionModel oidc) {
+    public ResponseEntity<TokenModel> oidc(@RequestBody OpenIdConnectionRequest oidc) {
         TokenModel token = jwtService.oidc(oidc);
         return ResponseEntity.ok(token);
     }

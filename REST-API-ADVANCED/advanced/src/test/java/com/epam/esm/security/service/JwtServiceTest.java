@@ -3,9 +3,9 @@ package com.epam.esm.security.service;
 import com.epam.esm.security.TokenGenerator;
 import com.epam.esm.security.exception.TokenBadRequestException;
 import com.epam.esm.security.feign.client.GoogleAuthApiClient;
-import com.epam.esm.security.feign.tokenmodel.VerifiedTokenModel;
-import com.epam.esm.security.model.AuthUserModel;
-import com.epam.esm.security.model.OpenIdConnectionModel;
+import com.epam.esm.security.feign.model.VerifiedTokenResponce;
+import com.epam.esm.security.model.AuthUserRequest;
+import com.epam.esm.security.model.OpenIdConnectionRequest;
 import com.epam.esm.security.model.TokenModel;
 import com.epam.esm.user.entity.User;
 import com.epam.esm.user.entity.provider.Provider;
@@ -47,7 +47,7 @@ class JwtServiceTest {
 
     @Test
     void register() {
-        AuthUserModel signupUser = new AuthUserModel("TestUser", "TestPassword");
+        AuthUserRequest signupUser = new AuthUserRequest("TestUser", "TestPassword");
         User user = User.builder().email(signupUser.getUsername()).password(signupUser.getPassword())
                 .role(Role.USER).provider(Provider.BASIC).build();
         TokenModel expected = new TokenModel("1", "accessToken", "refreshToken");
@@ -65,7 +65,7 @@ class JwtServiceTest {
 
     @Test
     void registerThrowUserInvalidRequestExceptionCuzUserExist() {
-        AuthUserModel signupUser = new AuthUserModel("TestUser", "TestPassword");
+        AuthUserRequest signupUser = new AuthUserRequest("TestUser", "TestPassword");
         User user = User.builder().email(signupUser.getUsername()).password(signupUser.getPassword())
                 .role(Role.USER).provider(Provider.BASIC).build();
         when(userRepository.existsByEmail(user.getUsername())).thenReturn(true);
@@ -75,7 +75,7 @@ class JwtServiceTest {
 
     @Test
     void login() {
-        AuthUserModel loginUser = new AuthUserModel("TestUser", "TestPassword");
+        AuthUserRequest loginUser = new AuthUserRequest("TestUser", "TestPassword");
         User user = User.builder().email(loginUser.getUsername()).password(loginUser.getPassword())
                 .role(Role.USER).provider(Provider.BASIC).build();
         Authentication unauthenticated = UsernamePasswordAuthenticationToken.
@@ -93,7 +93,7 @@ class JwtServiceTest {
 
     @Test
     void loginThrowUserInvalidRequestExceptionCuzUserDoesNotExist() {
-        AuthUserModel loginUser = new AuthUserModel("TestUser", "TestPassword");
+        AuthUserRequest loginUser = new AuthUserRequest("TestUser", "TestPassword");
         Authentication authentication = UsernamePasswordAuthenticationToken.
                 unauthenticated(loginUser.getUsername(), loginUser.getPassword());
 
@@ -118,14 +118,14 @@ class JwtServiceTest {
                 .role(Role.USER).provider(Provider.GOOGLE).build();
         Authentication authentication = UsernamePasswordAuthenticationToken.
                 authenticated(afterSave, null, afterSave.getAuthorities());
-        VerifiedTokenModel verifiedDTO = VerifiedTokenModel.builder().email(user.getEmail()).build();
+        VerifiedTokenResponce verifiedDTO = VerifiedTokenResponce.builder().email(user.getEmail()).build();
         TokenModel expected = new TokenModel("1", "accessToken", "refreshToken");
 
         when(googleAuthApiClient.getVerifiedToken(idToken)).thenReturn(verifiedDTO);
         when(userRepository.findByEmail(verifiedDTO.getEmail())).thenReturn(Optional.of(user));
         when(userRepository.save(beforeSave)).thenReturn(afterSave);
         when(tokenGenerator.createToken(authentication)).thenReturn(expected);
-        assertEquals(expected, jwtService.oidc(OpenIdConnectionModel.builder().idToken(idToken).build()));
+        assertEquals(expected, jwtService.oidc(OpenIdConnectionRequest.builder().idToken(idToken).build()));
     }
 
     @Test
@@ -137,13 +137,13 @@ class JwtServiceTest {
                 .role(Role.USER).provider(Provider.GOOGLE).build();
         Authentication authentication = UsernamePasswordAuthenticationToken.
                 authenticated(exist, null, exist.getAuthorities());
-        VerifiedTokenModel verifiedDTO = VerifiedTokenModel.builder().email(user.getEmail()).build();
+        VerifiedTokenResponce verifiedDTO = VerifiedTokenResponce.builder().email(user.getEmail()).build();
         TokenModel expected = new TokenModel("1", "accessToken", "refreshToken");
 
         when(googleAuthApiClient.getVerifiedToken(idToken)).thenReturn(verifiedDTO);
         when(userRepository.findByEmail(verifiedDTO.getEmail())).thenReturn(Optional.of(exist));
         when(tokenGenerator.createToken(authentication)).thenReturn(expected);
-        assertEquals(expected, jwtService.oidc(OpenIdConnectionModel.builder().idToken(idToken).build()));
+        assertEquals(expected, jwtService.oidc(OpenIdConnectionRequest.builder().idToken(idToken).build()));
     }
 
     @Test
@@ -154,13 +154,13 @@ class JwtServiceTest {
 
         Authentication authentication = UsernamePasswordAuthenticationToken.
                 authenticated(user, null, user.getAuthorities());
-        VerifiedTokenModel verifiedDTO = VerifiedTokenModel.builder().email(user.getEmail()).build();
+        VerifiedTokenResponce verifiedDTO = VerifiedTokenResponce.builder().email(user.getEmail()).build();
         TokenModel expected = new TokenModel("1", "accessToken", "refreshToken");
 
         when(googleAuthApiClient.getVerifiedToken(idToken)).thenReturn(verifiedDTO);
         when(userRepository.findByEmail(verifiedDTO.getEmail())).thenReturn(Optional.empty());
         when(userRepository.save(user)).thenReturn(user);
         when(tokenGenerator.createToken(authentication)).thenReturn(expected);
-        assertEquals(expected, jwtService.oidc(OpenIdConnectionModel.builder().idToken(idToken).build()));
+        assertEquals(expected, jwtService.oidc(OpenIdConnectionRequest.builder().idToken(idToken).build()));
     }
 }

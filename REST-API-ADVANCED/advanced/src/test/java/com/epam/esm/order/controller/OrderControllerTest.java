@@ -3,7 +3,7 @@ package com.epam.esm.order.controller;
 import com.epam.esm.ErrorConstants;
 import com.epam.esm.certificate.entity.Certificate;
 import com.epam.esm.order.entity.Order;
-import com.epam.esm.security.model.AuthUserModel;
+import com.epam.esm.security.model.AuthUserRequest;
 import com.epam.esm.security.model.TokenModel;
 import com.epam.esm.tag.entity.Tag;
 import com.epam.esm.user.entity.User;
@@ -49,9 +49,9 @@ class OrderControllerTest {
     @BeforeEach
     void setUp() {
 
-        AuthUserModel authUserModel = new AuthUserModel("testUser3@mail.com",
+        AuthUserRequest authUserRequest = new AuthUserRequest("testUser3@mail.com",
                 "TestPassword");
-        HttpEntity<Object> loginEntity = new HttpEntity<>(authUserModel);
+        HttpEntity<Object> loginEntity = new HttpEntity<>(authUserRequest);
 
         final String authorsUrl = restTemplate.getRootUri() + "/v1/api/auth/login";
 

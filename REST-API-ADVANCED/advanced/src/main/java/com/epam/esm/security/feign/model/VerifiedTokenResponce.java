@@ -1,4 +1,4 @@
-package com.epam.esm.security.feign.tokenmodel;
+package com.epam.esm.security.feign.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;
@@ -8,7 +8,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Builder
-public class VerifiedTokenModel {
+public class VerifiedTokenResponce {
     private String iss;
     private String azp;
     private String email;

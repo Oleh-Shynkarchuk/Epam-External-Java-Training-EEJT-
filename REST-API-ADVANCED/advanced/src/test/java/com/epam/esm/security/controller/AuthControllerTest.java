@@ -1,8 +1,8 @@
 package com.epam.esm.security.controller;
 
 import com.epam.esm.ErrorConstants;
-import com.epam.esm.security.model.AuthUserModel;
-import com.epam.esm.security.model.OpenIdConnectionModel;
+import com.epam.esm.security.model.AuthUserRequest;
+import com.epam.esm.security.model.OpenIdConnectionRequest;
 import com.epam.esm.security.model.TokenModel;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.json.JsonMapper;
@@ -40,8 +40,8 @@ class AuthControllerTest {
                     "classpath:cleanup.sql")
     })
     void registerShouldReturnTokenDTO() {
-        AuthUserModel authUserModel = new AuthUserModel("NewTestUser", "TestPassword");
-        HttpEntity<Object> requestEntity = new HttpEntity<>(authUserModel);
+        AuthUserRequest authUserRequest = new AuthUserRequest("NewTestUser", "TestPassword");
+        HttpEntity<Object> requestEntity = new HttpEntity<>(authUserRequest);
         final String authorsUrl = restTemplate.getRootUri() + "/v1/api/auth/register";
         ResponseEntity<TokenModel> responseEntity =
                 restTemplate.exchange(authorsUrl, HttpMethod.POST, requestEntity, TokenModel.class);
@@ -63,14 +63,14 @@ class AuthControllerTest {
                     "classpath:cleanup.sql")
     })
     void registerShouldReturnExceptionCuzUserIsAlreadyExist() throws JsonProcessingException {
-        AuthUserModel authUserModel = new AuthUserModel("testUser1@mail.com",
+        AuthUserRequest authUserRequest = new AuthUserRequest("testUser1@mail.com",
                 "TestPassword");
-        HttpEntity<Object> requestEntity = new HttpEntity<>(authUserModel);
+        HttpEntity<Object> requestEntity = new HttpEntity<>(authUserRequest);
         final String authorsUrl = restTemplate.getRootUri() + "/v1/api/auth/register";
 
         String expected = JsonMapper.builder().build().writeValueAsString
                 (Map.of(CODE, ErrorConstants.USER_INVALID_REQUEST_ERROR_CODE,
-                        MESSAGE, "User with ( name =  " + authUserModel.getUsername()
+                        MESSAGE, "User with ( name =  " + authUserRequest.getUsername()
                                 + ") already exist. This field must be unique, change it and try again."));
 
         ResponseEntity<String> responseEntity =
@@ -90,9 +90,9 @@ class AuthControllerTest {
                     "classpath:cleanup.sql")
     })
     void login() {
-        AuthUserModel authUserModel = new AuthUserModel("testUser3@mail.com",
+        AuthUserRequest authUserRequest = new AuthUserRequest("testUser3@mail.com",
                 "TestPassword");
-        HttpEntity<Object> requestEntity = new HttpEntity<>(authUserModel);
+        HttpEntity<Object> requestEntity = new HttpEntity<>(authUserRequest);
 
         final String loginAuthorsUrl = restTemplate.getRootUri() + "/v1/api/auth/register";
         restTemplate.exchange(loginAuthorsUrl, HttpMethod.POST, requestEntity, TokenModel.class);
@@ -120,9 +120,9 @@ class AuthControllerTest {
                     "classpath:cleanup.sql")
     })
     void loginShouldReturnBadCredentials() throws JsonProcessingException {
-        AuthUserModel authUserModel = new AuthUserModel("testUser1@mail.com",
+        AuthUserRequest authUserRequest = new AuthUserRequest("testUser1@mail.com",
                 "WrongPassword");
-        HttpEntity<Object> requestEntity = new HttpEntity<>(authUserModel);
+        HttpEntity<Object> requestEntity = new HttpEntity<>(authUserRequest);
         final String authorsUrl = restTemplate.getRootUri() + "/v1/api/auth/login";
 
         String expected = JsonMapper.builder().build().writeValueAsString(Map.of(
@@ -150,9 +150,9 @@ class AuthControllerTest {
     })
     void token() throws Exception {
 
-        AuthUserModel authUserModel = new AuthUserModel("testUser3@mail.com",
+        AuthUserRequest authUserRequest = new AuthUserRequest("testUser3@mail.com",
                 "TestPassword");
-        HttpEntity<Object> requestEntity = new HttpEntity<>(authUserModel);
+        HttpEntity<Object> requestEntity = new HttpEntity<>(authUserRequest);
 
         final String loginAuthorsUrl = restTemplate.getRootUri() + "/v1/api/auth/login";
         ResponseEntity<TokenModel> responseEntity =
@@ -209,7 +209,7 @@ class AuthControllerTest {
                     "classpath:cleanup.sql")
     })
     void oidcReturnInvalidValueMessageAndBadRequestStatus() throws JsonProcessingException {
-        OpenIdConnectionModel openIdConnectionModel = OpenIdConnectionModel.builder().idToken("eyJhbGciOiJSUzI1NiIsImtpZCI6ImI0OWM1MDYyZ" +
+        OpenIdConnectionRequest openIdConnectionRequest = OpenIdConnectionRequest.builder().idToken("eyJhbGciOiJSUzI1NiIsImtpZCI6ImI0OWM1MDYyZ" +
                         "Dg5MGY1Y2U0NDllODkwYzg4ZThkZDk4YzRmZWUwYWIiLCJ0eXAiOiJKV1QifQ.eyJpc3MiO" +
                         "iJodHRwczovL2FjY291bnRzLmdvb2dsZS5jb20iLCJhenAiOiIxMzA3MDAyNzI3NzYtMzkxc" +
                         "TMxNmNmazUxMWlhOTJjMGswOWRqYjM4b2U3OGsuYXBwcy5nb29nbGV1c2VyY29udGVudC5jb2" +
@@ -226,7 +226,7 @@ class AuthControllerTest {
                         "4efGxxMftam4huuu5XJZBaiDYKmMAYIEaU1ldgVnOyj7qJINHpRtHAA2eYyc34BvAbSseEpuKSHr5" +
                         "yZMO915woj96Jf1lM82oSyiIQ3ZTjzjcrTfkpPqG8OAAA3lPpmxGAvyKJhicBOc1ItmTG491Q")
                 .build();
-        HttpEntity<OpenIdConnectionModel> tokenRequestEntity = new HttpEntity<>(openIdConnectionModel);
+        HttpEntity<OpenIdConnectionRequest> tokenRequestEntity = new HttpEntity<>(openIdConnectionRequest);
         final String tokenAuthorsUrl = restTemplate.getRootUri() + "/v1/api/auth/oidc";
         ResponseEntity<String> responseEntity =
                 restTemplate.exchange(tokenAuthorsUrl, HttpMethod.POST, tokenRequestEntity, String.class);

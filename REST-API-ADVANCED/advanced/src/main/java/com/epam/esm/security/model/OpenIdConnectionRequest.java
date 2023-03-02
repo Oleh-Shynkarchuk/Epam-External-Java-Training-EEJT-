@@ -7,7 +7,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Builder
-public class OpenIdConnectionModel {
+public class OpenIdConnectionRequest {
     private String accessToken;
     private String idToken;
 }

@@ -3,9 +3,9 @@ package com.epam.esm.security.service;
 import com.epam.esm.security.TokenGenerator;
 import com.epam.esm.security.exception.TokenBadRequestException;
 import com.epam.esm.security.feign.client.GoogleAuthApiClient;
-import com.epam.esm.security.feign.tokenmodel.VerifiedTokenModel;
-import com.epam.esm.security.model.AuthUserModel;
-import com.epam.esm.security.model.OpenIdConnectionModel;
+import com.epam.esm.security.feign.model.VerifiedTokenResponce;
+import com.epam.esm.security.model.AuthUserRequest;
+import com.epam.esm.security.model.OpenIdConnectionRequest;
 import com.epam.esm.security.model.TokenModel;
 import com.epam.esm.user.entity.User;
 import com.epam.esm.user.entity.provider.Provider;
@@ -36,7 +36,7 @@ public class JwtService {
     private final JwtAuthenticationProvider jwtRefresherTokenAuthProvider;
     private final PasswordEncoder passwordEncoder;
 
-    public TokenModel register(AuthUserModel signupUser) {
+    public TokenModel register(AuthUserRequest signupUser) {
         User user = User.builder()
                 .email(signupUser.getUsername())
                 .password(passwordEncoder.encode(signupUser.getPassword()))
@@ -54,7 +54,7 @@ public class JwtService {
                 + ") already exist. This field must be unique, change it and try again.");
     }
 
-    public TokenModel login(AuthUserModel loginUser) {
+    public TokenModel login(AuthUserRequest loginUser) {
         Authentication authentication = daoAuthenticationProvider.
                 authenticate(UsernamePasswordAuthenticationToken.
                         unauthenticated(loginUser.getUsername(), loginUser.getPassword()));
@@ -70,9 +70,9 @@ public class JwtService {
         throw new TokenBadRequestException();
     }
 
-    public TokenModel oidc(OpenIdConnectionModel oidc) {
+    public TokenModel oidc(OpenIdConnectionRequest oidc) {
         Authentication authentication;
-        VerifiedTokenModel verifiedToken = googleAuthApiClient.getVerifiedToken(oidc.getIdToken());
+        VerifiedTokenResponce verifiedToken = googleAuthApiClient.getVerifiedToken(oidc.getIdToken());
         Optional<User> optionalUser = userRepository.findByEmail(verifiedToken.getEmail());
         if (optionalUser.isPresent()) {
             User updateUser = optionalUser.get();
