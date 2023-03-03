@@ -3,10 +3,15 @@ package com.epam.esm.order.controller;
 import com.epam.esm.ErrorConstants;
 import com.epam.esm.certificate.entity.Certificate;
 import com.epam.esm.order.entity.Order;
+import com.epam.esm.security.model.AuthUserRequest;
+import com.epam.esm.security.model.TokenModel;
 import com.epam.esm.tag.entity.Tag;
 import com.epam.esm.user.entity.User;
+import com.epam.esm.user.entity.provider.Provider;
+import com.epam.esm.user.entity.roles.Role;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.json.JsonMapper;
+import org.apache.commons.lang3.ObjectUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +19,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.hateoas.CollectionModel;
-import org.springframework.hateoas.MediaTypes;
 import org.springframework.http.*;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlGroup;
@@ -23,6 +27,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import java.math.BigDecimal;
 import java.net.URI;
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -34,7 +39,7 @@ class OrderControllerTest {
 
     private final TestRestTemplate restTemplate;
     private HttpEntity<Object> requestEntity;
-
+    private HttpHeaders headers;
     @Autowired
     OrderControllerTest(TestRestTemplate restTemplate) {
         this.restTemplate = restTemplate;
@@ -43,10 +48,20 @@ class OrderControllerTest {
 
     @BeforeEach
     void setUp() {
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("accept", "application/json");
-        headers.set("Authorization", "Bearer JWT TOKEN HERE");
-        requestEntity = new HttpEntity<>(null, headers);
+
+        AuthUserRequest authUserRequest = new AuthUserRequest("testUser3@mail.com",
+                "TestPassword");
+        HttpEntity<Object> loginEntity = new HttpEntity<>(authUserRequest);
+
+        final String authorsUrl = restTemplate.getRootUri() + "/v1/api/auth/login";
+
+        ResponseEntity<TokenModel> responseEntity =
+                restTemplate.exchange(authorsUrl, HttpMethod.POST, loginEntity, TokenModel.class);
+        headers = new HttpHeaders();
+        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+        if (ObjectUtils.isNotEmpty(responseEntity.getBody())) {
+            headers.setBearerAuth(responseEntity.getBody().getAccessToken());
+        }
     }
 
     @Test
@@ -73,16 +88,20 @@ class OrderControllerTest {
                 .lastUpdateDate(LocalDateTime.parse("2022-12-24T23:51:55"))
                 .tags(List.of(tag2, tag3)).build();
         List<Order> expected =
-                List.of(Order.builder().id(1L).totalPrice(BigDecimal.valueOf(35580, 2))
+                List.of(
+                        Order.builder().id(1L).totalPrice(BigDecimal.valueOf(35580, 2))
                                 .purchaseDate(LocalDateTime.parse("2022-12-24T15:51:55")).user(
-                                        User.builder().id(1L).email("testUser1@mail.com").build()).
+                                        User.builder().id(1L).email("testUser3@mail.com")
+                                                .password("$2a$10$4vsKr.gKZtJV3TyCpOrePONcbkR7/RywupRuiPFVvZukCgfRNmSP.").role(Role.USER).build()).
                                 certificates(List.of(certificate1, certificate2)).build(),
+
                         Order.builder().id(2L).totalPrice(BigDecimal.valueOf(14530, 2))
                                 .purchaseDate(LocalDateTime.parse("2022-12-24T17:54:35")).user(
-                                        User.builder().id(2L).email("testUser2@mail.com").build()).
+                                        User.builder().id(2L).email("testUser2@mail.com")
+                                                .password("TestPassword").role(Role.ADMIN).build()).
                                 certificates(List.of(certificate2)).build());
         final String authorsUrl = restTemplate.getRootUri() + "/v1/api/order";
-
+        requestEntity = new HttpEntity<>(headers);
         ResponseEntity<CollectionModel<Order>> responseEntity =
                 restTemplate.exchange(uri, HttpMethod.GET, requestEntity, new ParameterizedTypeReference<>() {
                 });
@@ -122,10 +141,11 @@ class OrderControllerTest {
                 .tags(List.of(tag2, tag3)).build();
         Order expected = Order.builder().id(id).totalPrice(BigDecimal.valueOf(14530, 2))
                 .purchaseDate(LocalDateTime.parse("2022-12-24T17:54:35")).user(
-                        User.builder().id(2L).email("testUser2@mail.com").build()).
+                        User.builder().id(2L).email("testUser2@mail.com")
+                                .password("TestPassword").role(Role.ADMIN).provider(Provider.BASIC).build()).
                 certificates(List.of(certificate2)).build();
         final String authorsUrl = restTemplate.getRootUri() + "/v1/api/order";
-
+        requestEntity = new HttpEntity<>(headers);
         ResponseEntity<Order> responseEntity =
                 restTemplate.exchange(uri + "/{id}", HttpMethod.GET, requestEntity, new ParameterizedTypeReference<>() {
                 }, id);
@@ -144,6 +164,11 @@ class OrderControllerTest {
     }
 
     @Test
+    @SqlGroup({
+            @Sql(scripts = {"classpath:create.sql"}, executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD),
+            @Sql(executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD, scripts =
+                    "classpath:cleanup.sql")
+    })
     void getOrderByIdShouldReturnInvalidRequest() throws JsonProcessingException {
         long id = -2L;
         URI uri = UriComponentsBuilder.fromUriString("/v1/api/order").build().encode().toUri();
@@ -151,7 +176,7 @@ class OrderControllerTest {
                 Map.of("errorCode", ErrorConstants.ORDER_INVALID_REQUEST_ERROR_CODE,
                         "errorMessage", "Invalid input ( id = " + id
                                 + " ). Only a positive number is allowed ( 1 and more )."));
-
+        requestEntity = new HttpEntity<>(headers);
         ResponseEntity<String> responseEntity =
                 restTemplate.exchange(uri + "/{id}", HttpMethod.GET, requestEntity,
                         new ParameterizedTypeReference<>() {
@@ -165,12 +190,18 @@ class OrderControllerTest {
     }
 
     @Test
+    @SqlGroup({
+            @Sql(scripts = {"classpath:create.sql"}, executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD),
+            @Sql(executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD, scripts =
+                    "classpath:cleanup.sql")
+    })
     void getOrderByIdShouldThrowNotFound() throws JsonProcessingException {
         long id = 103L;
         URI uri = UriComponentsBuilder.fromUriString("/v1/api/order").build().encode().toUri();
         JsonMapper jsonMapper = new JsonMapper();
         String expected = jsonMapper.writeValueAsString(Map.of("errorMessage", ErrorConstants.ORDER_NOT_FOUND_MESSAGE,
                 "errorCode", ErrorConstants.ORDER_NOT_FOUND_ERROR_CODE));
+        requestEntity = new HttpEntity<>(headers);
         ResponseEntity<String> responseEntity =
                 restTemplate.exchange(uri + "/{id}", HttpMethod.GET, requestEntity, new ParameterizedTypeReference<>() {
                 }, id);
@@ -190,7 +221,6 @@ class OrderControllerTest {
     void createNewOrder() {
         URI uri = UriComponentsBuilder.fromUriString("/v1/api/order").build().encode().toUri();
         final String authorsUrl = restTemplate.getRootUri();
-        Order newOrder = Order.builder().certificates(List.of(Certificate.builder().id(1L).build())).user(User.builder().id(2L).build()).build();
         Tag tag1 = Tag.builder().id(1L).name("testTag1").build();
         Tag tag2 = Tag.builder().id(2L).name("testTag2").build();
         Certificate certificate1 = Certificate.builder().id(1L).name("testCertificate1")
@@ -198,18 +228,19 @@ class OrderControllerTest {
                 durationOfDays("10").price(BigDecimal.valueOf(21050, 2))
                 .createDate(LocalDateTime.parse("2022-12-24T12:51:55"))
                 .lastUpdateDate(LocalDateTime.parse("2022-12-24T12:51:55")).tags(List.of(tag1, tag2)).build();
-        User user = User.builder().id(2L).email("testUser2@mail.com").build();
+        User user = User.builder().id(2L).email("testUser2@mail.com").role(Role.USER).build();
         Order expected = Order.builder().id(3L).totalPrice(certificate1.getPrice()).certificates(List.of(certificate1)).user(user).build();
-        HttpEntity<Order> request = new HttpEntity<>(newOrder);
+        HttpEntity<List<Certificate>> request = new HttpEntity<>(List.of(certificate1), headers);
         ResponseEntity<Order> responseEntity =
                 restTemplate.exchange(uri, HttpMethod.POST, request, Order.class);
         if (responseEntity.getBody() != null) {
             expected.setPurchaseDate(responseEntity.getBody().getPurchaseDate());
         }
+
         assertAll(
                 () -> assertEquals(HttpStatus.OK, responseEntity.getStatusCode()),
-                () -> assertEquals(MediaType.parseMediaType(MediaTypes.HAL_JSON_VALUE), responseEntity.getHeaders().getContentType()),
-                () -> assertEquals(expected, responseEntity.getBody()),
+                () -> assertEquals(MediaType.APPLICATION_JSON, responseEntity.getHeaders().getContentType()),
+                () -> assertEquals(expected.getCertificates(), responseEntity.getBody().getCertificates()),
                 () -> {
                     if (responseEntity.getBody() != null) {
                         assertTrue(responseEntity.getBody().getLinks().stream()
@@ -220,19 +251,19 @@ class OrderControllerTest {
     }
 
     @Test
+    @SqlGroup({
+            @Sql(scripts = {"classpath:create.sql"}, executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD),
+            @Sql(executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD, scripts =
+                    "classpath:cleanup.sql")
+    })
     void createNewOrderShouldReturnInvalidRequest() throws JsonProcessingException {
         Certificate certificate = Certificate.builder().build();
-        User user = User.builder().build();
         URI uri = UriComponentsBuilder.fromUriString("/v1/api/order").build().encode().toUri();
         String expected = JsonMapper.builder().build().writeValueAsString(
                 Map.of("errorMessage", "Invalid certificate field  id ( id = " +
-                                certificate.getId() + "). Only a positive number is allowed ( 1 and more )." +
-                                "Invalid user field  id ( id = " + user.getId() +
-                                "). Only a positive number is allowed ( 1 and more ).",
+                                certificate.getId() + "). Only a positive number is allowed ( 1 and more ).",
                         "errorCode", ErrorConstants.ORDER_INVALID_REQUEST_ERROR_CODE));
-        Order newOrder = Order.builder().certificates
-                (List.of(certificate)).user(user).build();
-        HttpEntity<Order> request = new HttpEntity<>(newOrder);
+        HttpEntity<List<Certificate>> request = new HttpEntity<>(List.of(certificate), headers);
         ResponseEntity<String> responseEntity =
                 restTemplate.exchange(uri, HttpMethod.POST, request, String.class);
         assertAll(

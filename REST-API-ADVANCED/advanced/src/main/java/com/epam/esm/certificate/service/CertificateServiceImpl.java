@@ -8,6 +8,7 @@ import com.epam.esm.certificate.repo.CertificateRepository;
 import com.epam.esm.certificate.validation.CertificateValidator;
 import com.epam.esm.tag.entity.Tag;
 import com.epam.esm.tag.service.TagService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,20 +25,12 @@ import java.util.Optional;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class CertificateServiceImpl implements CertificateService {
 
     private final CertificateRepository certificateRepository;
     private final TagService tagService;
     private final CertificateValidator validator;
-
-    @Autowired
-    public CertificateServiceImpl(CertificateRepository certificateRepository,
-                                  TagService tagService,
-                                  CertificateValidator validator) {
-        this.certificateRepository = certificateRepository;
-        this.tagService = tagService;
-        this.validator = validator;
-    }
 
     public List<Certificate> getAllCertificates(Pageable paginationCriteria) {
         log.debug("Start of get all certificates method in service layer." +
@@ -102,8 +95,7 @@ public class CertificateServiceImpl implements CertificateService {
         if (certificateRepository.existsById(id)) {
             log.debug("Deleting certificate from repository");
             certificateRepository.deleteById(id);
-        }
-        throw getCertificateNotFoundException();
+        } else throw getCertificateNotFoundException();
     }
 
     @Override

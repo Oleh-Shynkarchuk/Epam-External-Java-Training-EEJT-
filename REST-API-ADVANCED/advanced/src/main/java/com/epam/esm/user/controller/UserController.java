@@ -5,12 +5,14 @@ import com.epam.esm.user.entity.User;
 import com.epam.esm.user.exception.UserInvalidRequestException;
 import com.epam.esm.user.hateoas.UserHateoasSupport;
 import com.epam.esm.user.sevice.UserService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springdoc.api.annotations.ParameterObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,19 +23,12 @@ import java.util.List;
 @Slf4j
 @RestController
 @RequestMapping("/v1/api/user")
+@RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class UserController {
 
     private final UserService userService;
     private final UserHateoasSupport hateoasSupport;
     private final Validator validator;
-
-    @Autowired
-    public UserController(UserService userService, UserHateoasSupport hateoasSupport, Validator validator) {
-        this.userService = userService;
-        this.hateoasSupport = hateoasSupport;
-        this.validator = validator;
-
-    }
 
     @GetMapping
     public ResponseEntity<CollectionModel<User>> getAllUser(@ParameterObject Pageable paginationCriteria) {
@@ -46,6 +41,7 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("@securityService.customFilter(#id)")
     public ResponseEntity<User> getUser(@PathVariable String id) {
         log.debug("Request accepted getUserById. " +
                 "Id param request = " + id);

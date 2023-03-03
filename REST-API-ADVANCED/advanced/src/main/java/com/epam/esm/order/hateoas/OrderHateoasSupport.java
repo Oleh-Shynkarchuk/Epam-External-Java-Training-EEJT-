@@ -11,6 +11,7 @@ import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Set;
 
 @Component
 public class OrderHateoasSupport {
@@ -32,7 +33,7 @@ public class OrderHateoasSupport {
                 WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(OrderController.class)
                         .getAllOrder(Pageable.unpaged())).withRel("getAllOrders"),
                 WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(OrderController.class).
-                        createNewOrder(Order.builder().build())).withRel("createNewOrder")
+                        createNewOrder(Set.of())).withRel("createNewOrder")
         );
     }
 
@@ -44,7 +45,7 @@ public class OrderHateoasSupport {
                 WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(OrderController.class)
                         .getAllOrder(paginationCriteria)).withRel("getAllOrders"),
                 WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(OrderController.class)
-                        .createNewOrder(Order.builder().build())).withRel("createNewOrder")
+                        .createNewOrder(Set.of())).withRel("createNewOrder")
         );
     }
 

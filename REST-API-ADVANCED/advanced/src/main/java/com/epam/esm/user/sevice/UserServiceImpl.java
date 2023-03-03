@@ -5,26 +5,26 @@ import com.epam.esm.Validator;
 import com.epam.esm.user.entity.User;
 import com.epam.esm.user.exception.UserNotFoundException;
 import com.epam.esm.user.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.text.MessageFormat;
 import java.util.List;
 
 @Slf4j
 @Service
-public class UserServiceImpl implements UserService {
+@RequiredArgsConstructor(onConstructor = @__(@Autowired))
+public class UserServiceImpl implements UserService, UserDetailsService {
 
     private final UserRepository userRepository;
     private final Validator validator;
-
-    @Autowired
-    public UserServiceImpl(UserRepository userRepository, Validator validator) {
-        this.userRepository = userRepository;
-        this.validator = validator;
-    }
 
     @Override
     public List<User> getAllUsers(Pageable paginationCriteria) {
@@ -50,5 +50,12 @@ public class UserServiceImpl implements UserService {
     private UserNotFoundException userNotFoundException() {
         log.error(ErrorConstants.USER_NOT_FOUND_MESSAGE);
         return new UserNotFoundException();
+    }
+
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        return userRepository.findByEmail(username)
+                .orElseThrow(() -> new UsernameNotFoundException(
+                        MessageFormat.format("username {0} not found", username)));
     }
 }

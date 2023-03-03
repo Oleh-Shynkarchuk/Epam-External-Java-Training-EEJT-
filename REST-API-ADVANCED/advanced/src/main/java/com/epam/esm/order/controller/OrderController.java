@@ -1,37 +1,34 @@
 package com.epam.esm.order.controller;
 
+import com.epam.esm.certificate.entity.Certificate;
 import com.epam.esm.order.entity.Order;
 import com.epam.esm.order.exception.OrderInvalidRequestException;
 import com.epam.esm.order.hateoas.OrderHateoasSupport;
 import com.epam.esm.order.service.OrderService;
 import com.epam.esm.order.validation.OrderValidator;
+import com.epam.esm.user.entity.User;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springdoc.api.annotations.ParameterObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Set;
 
 @Slf4j
 @RestController
 @RequestMapping("/v1/api/order")
+@RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class OrderController {
 
     private final OrderService orderService;
     private final OrderHateoasSupport hateoasSupport;
     private final OrderValidator validator;
-
-    @Autowired
-    public OrderController(OrderService orderService,
-                           OrderHateoasSupport hateoasSupport,
-                           OrderValidator validator) {
-        this.orderService = orderService;
-        this.hateoasSupport = hateoasSupport;
-        this.validator = validator;
-    }
 
     @GetMapping
     public ResponseEntity<CollectionModel<Order>> getAllOrder(@ParameterObject Pageable paginationCriteria) {
@@ -61,11 +58,13 @@ public class OrderController {
     }
 
     @PostMapping()
-    public ResponseEntity<Order> createNewOrder(@RequestBody Order newOrder) {
-
+    public ResponseEntity<Order> createNewOrder(@RequestBody Set<Certificate> orderList) {
+        String orderResponse = validator.isValidOrderFieldsWithErrorResponse(orderList.stream().toList());
+        Order newOrder = Order.builder().certificates(orderList.stream().toList())
+                .user((User) SecurityContextHolder.getContext().getAuthentication().getPrincipal())
+                .build();
         log.debug("Request accepted getOrderById. " +
-                "new Order object request = " + newOrder.toString());
-        String orderResponse = validator.isValidOrderFieldsWithErrorResponse(newOrder);
+                "new Order object request = " + newOrder);
         if (orderResponse.isEmpty()) {
             Order order = orderService.createOrder(newOrder);
             Order orderAndHateoas = hateoasSupport.addHateoasSupportToSingleOrder(order);

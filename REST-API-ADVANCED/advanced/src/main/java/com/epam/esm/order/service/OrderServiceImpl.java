@@ -8,6 +8,7 @@ import com.epam.esm.order.exception.OrderNotFoundException;
 import com.epam.esm.order.repository.OrderRepository;
 import com.epam.esm.order.validation.OrderValidator;
 import com.epam.esm.user.sevice.UserService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -20,24 +21,13 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class OrderServiceImpl implements OrderService {
 
     private final OrderRepository orderRepository;
     private final CertificateService certificateService;
     private final UserService userService;
     private final OrderValidator validator;
-
-    @Autowired
-    public OrderServiceImpl(
-            OrderRepository orderRepository,
-            CertificateService certificateService,
-            OrderValidator validator,
-            UserService userService) {
-        this.orderRepository = orderRepository;
-        this.certificateService = certificateService;
-        this.validator = validator;
-        this.userService = userService;
-    }
 
     @Override
     public List<Order> getAllOrder(Pageable paginationCriteria) {

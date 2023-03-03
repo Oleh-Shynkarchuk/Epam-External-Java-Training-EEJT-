@@ -6,6 +6,7 @@ import com.epam.esm.tag.exception.TagInvalidRequestException;
 import com.epam.esm.tag.exception.TagNotFoundException;
 import com.epam.esm.tag.repo.TagRepository;
 import com.epam.esm.tag.validation.TagValidator;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -17,16 +18,11 @@ import java.util.Optional;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class TagServiceImpl implements TagService {
 
     private final TagRepository tagRepository;
     private final TagValidator validator;
-
-    @Autowired
-    public TagServiceImpl(TagRepository tagRepository, TagValidator validator) {
-        this.tagRepository = tagRepository;
-        this.validator = validator;
-    }
 
     @Override
     public List<Tag> getAllTags(Pageable paginationCriteria) {
@@ -72,8 +68,7 @@ public class TagServiceImpl implements TagService {
         if (tagRepository.existsById(id)) {
             log.debug("Deleting tag in repository");
             tagRepository.deleteById(id);
-        }
-        throw tagNotFoundException();
+        } else throw tagNotFoundException();
     }
 
     @Override

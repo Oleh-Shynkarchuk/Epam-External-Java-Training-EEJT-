@@ -103,7 +103,6 @@ class CertificateServiceTest {
     void deleteCertificateByIdVerify() {
         long id = 1L;
         Mockito.when(certificateRepository.existsById(id)).thenReturn(true);
-        Mockito.doNothing().when(certificateRepository).deleteById(id);
         certificateService.deleteCertificateById(id);
         Mockito.verify(certificateRepository, Mockito.times(1)).deleteById(id);
     }

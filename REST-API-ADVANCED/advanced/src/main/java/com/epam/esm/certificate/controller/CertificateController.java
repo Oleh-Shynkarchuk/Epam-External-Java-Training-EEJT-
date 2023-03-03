@@ -4,8 +4,8 @@ import com.epam.esm.certificate.entity.Certificate;
 import com.epam.esm.certificate.exception.CertificateInvalidRequestException;
 import com.epam.esm.certificate.hateoas.CertificateHateoasSupport;
 import com.epam.esm.certificate.service.CertificateService;
-import com.epam.esm.certificate.service.CertificateServiceImpl;
 import com.epam.esm.certificate.validation.CertificateValidator;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springdoc.api.annotations.ParameterObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,21 +20,12 @@ import java.util.List;
 @Slf4j
 @RestController
 @RequestMapping("/v1/api/certificate")
+@RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class CertificateController {
 
     private final CertificateService certificateService;
     private final CertificateHateoasSupport hateoasSupport;
     private final CertificateValidator validator;
-
-    @Autowired
-    public CertificateController(
-            CertificateServiceImpl certificateService,
-            CertificateHateoasSupport hateoasSupport,
-            CertificateValidator validator) {
-        this.certificateService = certificateService;
-        this.hateoasSupport = hateoasSupport;
-        this.validator = validator;
-    }
 
     @GetMapping
     public ResponseEntity<CollectionModel<Certificate>> getAllGiftCertificates(
@@ -116,9 +107,8 @@ public class CertificateController {
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteCertificateById(
             @PathVariable("id") String id) {
-
         log.debug("Request accepted deleteCertificateById." +
-                "Id request = " + id);
+                "Id request = {}", id);
         String idResponse = validator.isPositiveAndParsableIdResponse(id);
         if (idResponse.isEmpty()) {
             certificateService.deleteCertificateById(Long.parseLong(id));

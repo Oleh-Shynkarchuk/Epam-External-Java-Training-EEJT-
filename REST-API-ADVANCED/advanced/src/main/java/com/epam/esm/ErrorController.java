@@ -16,17 +16,15 @@ import java.util.Map;
 public class ErrorController extends ResponseEntityExceptionHandler {
     @ExceptionHandler(value = ApplicationException.class)
     protected ResponseEntity<?> handleCertificateInvalidRequestException(ApplicationException ex, WebRequest request) {
-        log.debug("Exception handling.");
+        log.debug("Exception handling. {},{}", ex, request);
         log.error("errorCode:" + ex.getErrorCode() + "\n errorMessage:" + ex.getMessage());
         return handleExceptionInternal(ex,
                 Map.of("errorCode", ex.getErrorCode(), "errorMessage", ex.getMessage()),
                 getHttpHeaders(), ex.getHttpStatus(), request);
     }
-
     private static HttpHeaders getHttpHeaders() {
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setContentType(MediaType.APPLICATION_JSON);
         return httpHeaders;
     }
-
 }
