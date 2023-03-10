@@ -24,4 +24,4 @@ spring:
   datasource:
     password: ${MY_AWS_PASSWORD}
     username: ${MY_AWS_USERNAME}
-    url: jdbc:mysql://${MY_AWS_DB_URL}:${MY_DB_PORT}/gifts?useSSL=false&allowPublicKeyRetrieval=true&autoReconnect=true
+    url: jdbc:mysql://${MY_AWS_DB_URL}:${MY_DB_PORT}/${MY_DB_NAME}?useSSL=false&allowPublicKeyRetrieval=true&autoReconnect=true

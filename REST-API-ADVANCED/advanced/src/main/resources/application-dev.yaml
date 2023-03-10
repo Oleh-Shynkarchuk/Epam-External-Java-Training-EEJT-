@@ -24,4 +24,4 @@ spring:
   datasource:
     password: ${MY_DEV_PASSWORD}
     username: ${MY_DEV_USERNAME}
-    url: jdbc:mysql://${MY_DB_URL}:${MY_DB_PORT}/gifts
+    url: jdbc:mysql://${MY_DB_URL}:${MY_DB_PORT}/${MY_DB_NAME}
