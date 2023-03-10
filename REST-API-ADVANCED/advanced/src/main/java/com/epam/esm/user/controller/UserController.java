@@ -41,7 +41,7 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("@securityService.customFilter(#id)")
+    @PreAuthorize("@securityService.hasAccess(#id)")
     public ResponseEntity<User> getUser(@PathVariable String id) {
         log.debug("Request accepted getUserById. " +
                 "Id param request = " + id);
