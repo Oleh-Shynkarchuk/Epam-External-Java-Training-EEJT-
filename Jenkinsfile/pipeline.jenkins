@@ -1,44 +1,43 @@
 pipeline {
   triggers {
-         pollSCM('H/5 * * * *')
+           pollSCM('H/5 * * * *')
   }
   agent any
   tools {
          maven 'mvn-3.8.8'
          jdk 'jdk-17'
-    }
+  }
   stages{
-                stage ('Package Stage') {
+  stage ('Package Stage') {
                  steps {
-                     dir('/ProgramData/Jenkins/.jenkins/workspace/add/REST-API-ADVANCED/advanced'){
+                     dir('REST-API-ADVANCED/advanced'){
                     bat 'mvn -D maven.test.failure.ignore=true clean install'
-                }
-            }
-        }
-                stage('Test & Jacoco Static Analysis') {
-                steps {
-                    dir('/ProgramData/Jenkins/.jenkins/workspace/add/REST-API-ADVANCED/advanced'){
-                    junit 'target/surefire-reports /**/*.xml'
-                    jacoco()
-                }
-            }
-        }
-                stage('Sonar Scanner Coverage') {
-                 steps {
-                     dir('/ProgramData/Jenkins/.jenkins/workspace/add/REST-API-ADVANCED/advanced'){
-                    bat "mvn sonar:sonar"
-                }
-            }
-        }
-
-                stage ('Deploy on this Server') {
-                 steps {
-                        dir('/ProgramData/Jenkins/.jenkins/workspace/add/REST-API-ADVANCED/advanced'){
-                    deploy adapters:
-                    [tomcat9(credentialsId: 'TomcatCred', path: '', url: 'http: //localhost:8080')],
-                     contextPath: null, war: '**/*.war'
+                      }
                     }
-                }
-            }
+
+  }
+  stage('Test & Jacoco Static Analysis') {
+                steps {
+                    dir('REST-API-ADVANCED/advanced'){
+                    junit 'target/surefire-reports/**/*.xml'
+                    jacoco()
+                    }
+                       }
+  }
+  stage('Sonar Scanner Coverage') {
+        steps {
+               dir('REST-API-ADVANCED/advanced'){
+                    bat "mvn sonar:sonar"
+               }
         }
+  }
+  stage ('Deploy on this Server') {
+        steps {
+              dir('REST-API-ADVANCED/advanced'){
+                 deploy adapters: [tomcat9(credentialsId: 'TomcatCred', path: '', url: 'http://localhost:8080')], contextPath: null, war: '**/*.war'
+              }
+
+        }
+     }
+  }
 }
