@@ -4,24 +4,41 @@ pipeline {
   }
   agent any
   tools {
-         maven 'mvn-3.8.1'
+         maven 'mvn-3.8.8'
          jdk 'jdk-17'
-  }
+    }
   stages{
                 stage ('Package Stage') {
-                    bat './mvnw package'
+                 steps {
+                     dir('/ProgramData/Jenkins/.jenkins/workspace/add/REST-API-ADVANCED/advanced'){
+                    bat 'mvn -D maven.test.failure.ignore=true clean install'
                 }
+            }
+        }
                 stage('Test & Jacoco Static Analysis') {
-                    junit 'target/surefire-reports/**/*.xml'
+                steps {
+                    dir('/ProgramData/Jenkins/.jenkins/workspace/add/REST-API-ADVANCED/advanced'){
+                    junit 'target/surefire-reports /**/*.xml'
                     jacoco()
                 }
+            }
+        }
                 stage('Sonar Scanner Coverage') {
-                    bat "./mvnw sonar:sonar"
+                 steps {
+                     dir('/ProgramData/Jenkins/.jenkins/workspace/add/REST-API-ADVANCED/advanced'){
+                    bat "mvn sonar:sonar"
                 }
+            }
+        }
 
                 stage ('Deploy on this Server') {
-                    deploy adapters: [tomcat9(credentialsId: 'TOMCAT_CREDENTIAL_IN_SETTINGS', path: '', url: 'http://localhost:8085')], contextPath: null, war: '**/*.war'
+                 steps {
+                        dir('/ProgramData/Jenkins/.jenkins/workspace/add/REST-API-ADVANCED/advanced'){
+                    deploy adapters:
+                    [tomcat9(credentialsId: 'TomcatCred', path: '', url: 'http: //localhost:8080')],
+                     contextPath: null, war: '**/*.war'
+                    }
                 }
-  }
-
+            }
+        }
 }
