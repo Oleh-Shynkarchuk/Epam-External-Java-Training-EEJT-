@@ -1,5 +1,6 @@
 package com.epam.esm.tag.entity;
 
+import com.epam.esm.Generated;
 import com.epam.esm.certificate.entity.Certificate;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
@@ -17,6 +18,7 @@ import java.util.Objects;
 @NoArgsConstructor
 @Table(name = "tags")
 @Builder
+@Generated
 public class Tag extends RepresentationModel<Tag> {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

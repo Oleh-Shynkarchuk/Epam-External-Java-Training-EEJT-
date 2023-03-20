@@ -66,7 +66,7 @@ public class WebSecurity {
                 .disable()
                 .httpBasic()
                 .disable()
-                .sessionManagement((session) -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests()
                 .antMatchers("/", "/error", "/favicon.ico", "/**/*.png", "/**/*.gif",
                         "/**/*.svg", "/**/*.jpg", "/**/*.html", "/**/*.css", "/**/*.js")

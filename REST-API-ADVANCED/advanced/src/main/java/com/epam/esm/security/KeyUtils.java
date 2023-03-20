@@ -1,5 +1,6 @@
 package com.epam.esm.security;
 
+import com.epam.esm.security.exception.KeyPairException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.jetbrains.annotations.NotNull;
@@ -69,18 +70,18 @@ public class KeyUtils {
             try {
                 return getKeyPairFromFiles(publicKeyFile, privateKeyFile);
             } catch (NoSuchAlgorithmException | IOException | InvalidKeySpecException e) {
-                throw new RuntimeException(e);
+                throw new KeyPairException(e.getMessage());
             }
         } else {
             if (Arrays.asList(environment.getActiveProfiles()).contains("prod")) {
-                throw new RuntimeException("public and private key don`t exist");
+                throw new KeyPairException("public and private key don`t exist");
             }
         }
         createDirectoryForKeyPair();
         try {
             keyPair = generateNewKeypair(privateKeyPath, publicKeyPath);
         } catch (NoSuchAlgorithmException | IOException e) {
-            throw new RuntimeException(e);
+            throw new KeyPairException(e.getMessage());
         }
         return keyPair;
     }
@@ -88,7 +89,7 @@ public class KeyUtils {
     private void createDirectoryForKeyPair() {
         File directory = new File("access-refresh-token-keys");
         if (!directory.exists()) {
-            boolean mkdirs = directory.mkdirs();
+            directory.mkdirs();
         }
     }
 

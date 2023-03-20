@@ -1,5 +1,6 @@
 package com.epam.esm.user.entity;
 
+import com.epam.esm.Generated;
 import com.epam.esm.order.entity.Order;
 import com.epam.esm.user.entity.authoritydeserializer.CustomAuthorityDeserializer;
 import com.epam.esm.user.entity.provider.Provider;
@@ -25,6 +26,7 @@ import java.util.Objects;
 @ToString
 @Builder
 @Table(name = "users")
+@Generated
 public class User extends RepresentationModel<User> implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -52,6 +54,8 @@ public class User extends RepresentationModel<User> implements UserDetails {
         User that = (User) o;
         return Objects.equals(id, that.id)
                 && Objects.equals(email, that.email)
+                && Objects.equals(role, that.role)
+                && Objects.equals(provider, that.provider)
                 && Objects.equals(password, that.password);
     }
 
@@ -59,6 +63,11 @@ public class User extends RepresentationModel<User> implements UserDetails {
     @JsonDeserialize(using = CustomAuthorityDeserializer.class)
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority(role.name()));
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), id, email, password, role, provider);
     }
 
     @Override

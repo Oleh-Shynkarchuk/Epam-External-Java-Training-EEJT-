@@ -1,0 +1,27 @@
+pipeline {
+  triggers {
+         pollSCM('H/5 * * * *')
+  }
+  agent any
+  tools {
+         maven 'mvn-3.8.1'
+         jdk 'jdk-17'
+  }
+  stages{
+                stage ('Package Stage') {
+                    bat './mvnw package'
+                }
+                stage('Test & Jacoco Static Analysis') {
+                    junit 'target/surefire-reports/**/*.xml'
+                    jacoco()
+                }
+                stage('Sonar Scanner Coverage') {
+                    bat "./mvnw sonar:sonar"
+                }
+
+                stage ('Deploy on this Server') {
+                    deploy adapters: [tomcat9(credentialsId: 'TOMCAT_CREDENTIAL_IN_SETTINGS', path: '', url: 'http://localhost:8085')], contextPath: null, war: '**/*.war'
+                }
+  }
+
+}
