@@ -31,7 +31,7 @@ pipeline {
                }
         }
   }
-  stage ('Deploy on this Server') {
+  stage ('Deploy on Tomcat Server') {
         steps {
               dir('REST-API-ADVANCED/advanced'){
                  deploy adapters: [tomcat9(credentialsId: 'TomcatCred', path: '', url: 'http://localhost:8080')], contextPath: null, war: '**/*.war'
