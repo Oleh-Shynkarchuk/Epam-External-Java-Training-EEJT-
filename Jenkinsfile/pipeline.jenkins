@@ -39,5 +39,15 @@ pipeline {
 
         }
      }
+      stage ('Health check') {
+             steps {
+               httpRequest (consoleLogResponseBody: true,
+           contentType: 'APPLICATION_JSON',
+           httpMode: 'GET',
+           requestBody: null,
+           url: "http://localhost:8080/advanced/actuator/health",
+           validResponseCodes: '200')
+             }
+         }
   }
 }
