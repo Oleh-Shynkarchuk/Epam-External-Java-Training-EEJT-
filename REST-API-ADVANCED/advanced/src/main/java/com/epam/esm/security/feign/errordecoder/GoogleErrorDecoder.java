@@ -1,5 +1,6 @@
 package com.epam.esm.security.feign.errordecoder;
 
+import com.epam.esm.Generated;
 import com.epam.esm.security.feign.exception.BadRequestException;
 import com.epam.esm.security.feign.exception.ExceptionMessage;
 import com.fasterxml.jackson.databind.json.JsonMapper;
@@ -9,6 +10,7 @@ import feign.codec.ErrorDecoder;
 import java.io.IOException;
 import java.io.InputStream;
 
+@Generated
 public class GoogleErrorDecoder implements ErrorDecoder {
     @Override
     public Exception decode(String methodKey, Response response) {

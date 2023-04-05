@@ -1,5 +1,6 @@
 package com.epam.esm.certificate.entity;
 
+import com.epam.esm.Generated;
 import com.epam.esm.order.entity.Order;
 import com.epam.esm.tag.entity.Tag;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -27,6 +28,7 @@ import java.util.Objects;
 @Builder
 @ToString
 @EntityListeners(AuditingEntityListener.class)
+@Generated
 public class Certificate extends RepresentationModel<Certificate> {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -73,6 +75,11 @@ public class Certificate extends RepresentationModel<Certificate> {
             this.setTags(sourceCertificate.getTags());
         }
         return this;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), id, name, description, price, durationOfDays, createDate, lastUpdateDate, tags);
     }
 
     @Override

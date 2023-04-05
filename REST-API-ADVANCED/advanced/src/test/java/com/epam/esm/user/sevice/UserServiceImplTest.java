@@ -14,6 +14,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import java.util.List;
 import java.util.Optional;
@@ -77,5 +78,14 @@ class UserServiceImplTest {
         Mockito.when(userRepository.findById(requestId)).thenReturn(Optional.empty());
 
         assertThrows(UserNotFoundException.class, () -> userService.getUserById(requestId));
+    }
+
+    @Test
+    void getUserByUserNameShouldThrowUsernameNotFoundException() {
+        String name = "TestName";
+
+        Mockito.when(userRepository.findByEmail(name)).thenReturn(Optional.empty());
+
+        assertThrows(UsernameNotFoundException.class, () -> userService.loadUserByUsername(name));
     }
 }

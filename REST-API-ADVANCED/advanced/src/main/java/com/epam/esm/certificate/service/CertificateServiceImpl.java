@@ -73,10 +73,9 @@ public class CertificateServiceImpl implements CertificateService {
     public Certificate patchCertificate(Long id, Certificate patchCertificate) {
         log.debug("Start of patch certificate method in service layer." +
                 "Uniqueness check.");
-        if (StringUtils.isNotEmpty(patchCertificate.getName())) {
-            if (certificateIsExist(id, patchCertificate)) {
-                throw certificateInvalidRequestException(patchCertificate);
-            }
+        if (StringUtils.isNotEmpty(patchCertificate.getName())
+                && certificateIsExist(id, patchCertificate)) {
+            throw certificateInvalidRequestException(patchCertificate);
         }
         log.debug("Get a certificate by id request parameter or else throw error." +
                 "After this merge with updated version of certificate");

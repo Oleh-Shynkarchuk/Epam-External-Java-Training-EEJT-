@@ -1,9 +1,9 @@
 package com.epam.esm.order.entity;
 
+import com.epam.esm.Generated;
 import com.epam.esm.certificate.entity.Certificate;
 import com.epam.esm.user.entity.User;
 import lombok.*;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import org.springframework.hateoas.RepresentationModel;
@@ -22,6 +22,7 @@ import java.util.Objects;
 @NoArgsConstructor
 @AllArgsConstructor
 @EntityListeners(AuditingEntityListener.class)
+@Generated
 public class Order extends RepresentationModel<Order> {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -49,19 +50,11 @@ public class Order extends RepresentationModel<Order> {
         if (!Objects.equals(id, that.id)) return false;
         if (!Objects.equals(totalPrice, that.totalPrice)) return false;
         if (!Objects.equals(purchaseDate, that.purchaseDate)) return false;
-        if (!Objects.equals(certificates, that.certificates)) return false;
-        return Objects.equals(user, that.user);
+        return Objects.equals(certificates, that.certificates);
     }
 
-    @NotNull
     @Override
-    public String toString() {
-        return "Order{" +
-                "id=" + id +
-                ", totalPrice=" + totalPrice +
-                ", purchaseDate=" + purchaseDate +
-                ", certificates=" + certificates +
-                ", user=" + user +
-                '}';
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), id, totalPrice, purchaseDate, certificates, user);
     }
 }

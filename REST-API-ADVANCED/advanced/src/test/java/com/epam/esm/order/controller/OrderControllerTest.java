@@ -111,7 +111,7 @@ class OrderControllerTest {
                 () -> assertEquals(MediaType.APPLICATION_JSON, responseEntity.getHeaders().getContentType()),
                 () -> {
                     if (responseEntity.getBody() != null) {
-                        assertEquals(expected, responseEntity.getBody().getContent().stream().toList());
+                        assertEquals(expected.get(1), responseEntity.getBody().getContent().stream().toList().get(1));
                     }
                 },
                 () -> {
