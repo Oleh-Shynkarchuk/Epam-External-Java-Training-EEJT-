@@ -95,7 +95,7 @@ class OrderServiceImplTest {
     void createOrder() {
         BigDecimal price = BigDecimal.valueOf(250);
         Certificate certificate = Certificate.builder().id(1L).price(price).build();
-        User user = User.builder().id(1L).build();
+        User user = User.builder().id("1").build();
         Order request = Order.builder().totalPrice(price).
                 certificates(List.of(certificate))
                 .user(user)

@@ -42,15 +42,15 @@ class CertificateServiceTest {
         Certificate expected1 = Certificate.builder().id(1L).name("TestCertificate1")
                 .description("TestDescription1").price(BigDecimal.valueOf(100))
                 .durationOfDays("15").tags(List.of(
-                        Tag.builder().id(1L).name("TestTag1").build(),
-                        Tag.builder().id(2L).name("TestTag2").build())
+                        Tag.builder().id("1").name("TestTag1").build(),
+                        Tag.builder().id("2").name("TestTag2").build())
                 ).build();
         Certificate expected2 = Certificate.builder().id(2L).name("TestCertificate2")
                 .description("TestDescription2").price(BigDecimal.valueOf(300))
                 .durationOfDays("35").tags(
                         List.of(
-                                Tag.builder().id(1L).name("TestTag1").build(),
-                                Tag.builder().id(3L).name("TestTag3").build())
+                                Tag.builder().id("1").name("TestTag1").build(),
+                                Tag.builder().id("3").name("TestTag3").build())
                 ).build();
         long availableAmount = 11L;
         Pageable pageable = PageRequest.of(0, 10);
@@ -82,8 +82,8 @@ class CertificateServiceTest {
                 .description("TestDescription1").price(BigDecimal.valueOf(100))
                 .durationOfDays("15").tags(
                         List.of(
-                                Tag.builder().id(1L).name("TestTag1").build(),
-                                Tag.builder().id(2L).name("TestTag2").build())
+                                Tag.builder().id("1").name("TestTag1").build(),
+                                Tag.builder().id("2").name("TestTag2").build())
                 ).build();
         Mockito.when(certificateRepository.findById(id)).thenReturn(Optional.of(expected1));
 
@@ -118,8 +118,8 @@ class CertificateServiceTest {
 
     @Test
     void createCertificateReturnNewCertificate() {
-        Tag firstTag = Tag.builder().id(1L).name("TestTag1").build();
-        Tag secondTag = Tag.builder().id(2L).name("TestTag2").build();
+        Tag firstTag = Tag.builder().id("1").name("TestTag1").build();
+        Tag secondTag = Tag.builder().id("2").name("TestTag2").build();
         List<Tag> tags = List.of(firstTag, secondTag);
         long id = 1L;
         Certificate newCertificate = Certificate.builder().id(null).name("TestCertificate1")
@@ -143,8 +143,8 @@ class CertificateServiceTest {
                 .description("TestDescription1").price(BigDecimal.valueOf(100))
                 .durationOfDays("15").tags(
                         List.of(
-                                Tag.builder().id(1L).name("TestTag1").build(),
-                                Tag.builder().id(2L).name("TestTag2").build())
+                                Tag.builder().id("1").name("TestTag1").build(),
+                                Tag.builder().id("2").name("TestTag2").build())
                 ).build();
 
         Mockito.when(certificateRepository.existsByName(newCertificate.getName())).thenReturn(true);
@@ -154,8 +154,8 @@ class CertificateServiceTest {
 
     @Test
     void patchCertificateReturnUpdatedCertificate() {
-        Tag firstTag = Tag.builder().id(1L).name("TestTag1").build();
-        Tag secondTag = Tag.builder().id(2L).name("TestTag2").build();
+        Tag firstTag = Tag.builder().id("1").name("TestTag1").build();
+        Tag secondTag = Tag.builder().id("2").name("TestTag2").build();
         List<Tag> tags = List.of(firstTag, secondTag);
         long id = 10L;
         Certificate newCertificate = Certificate.builder().id(null).name("TestCertificate1")
@@ -194,8 +194,8 @@ class CertificateServiceTest {
 
     @Test
     void patchCertificateShouldTrowInvalidRequestWhenInvalidFieldsValue() {
-        Tag firstTag = Tag.builder().id(1L).name("TestTag1").build();
-        Tag secondTag = Tag.builder().id(2L).name("TestTag2").build();
+        Tag firstTag = Tag.builder().id("1").name("TestTag1").build();
+        Tag secondTag = Tag.builder().id("2").name("TestTag2").build();
         List<Tag> tags = List.of(firstTag, secondTag);
         long id = 7L;
         long anotherIdForCertificateWithIdenticalName = 25L;
@@ -215,9 +215,9 @@ class CertificateServiceTest {
 
     @Test
     void getCertificateByTagsName() {
-        Tag firstTag = Tag.builder().id(1L).name("TestTag1").build();
-        Tag secondTag = Tag.builder().id(2L).name("TestTag2").build();
-        Tag thirdTag = Tag.builder().id(3L).name("TestTag3").build();
+        Tag firstTag = Tag.builder().id("1").name("TestTag1").build();
+        Tag secondTag = Tag.builder().id("2").name("TestTag2").build();
+        Tag thirdTag = Tag.builder().id("3").name("TestTag3").build();
         List<String> searchRequest = List.of(secondTag.getName(), thirdTag.getName());
         Pageable pageable = PageRequest.of(0, 10);
         Certificate expected = Certificate.builder().id(7L).name("TestCertificate1")
@@ -232,8 +232,8 @@ class CertificateServiceTest {
 
     @Test
     void getCertificateByTagsNameShouldThrowItemNotFound() {
-        Tag secondTag = Tag.builder().id(2L).name("TestTag2").build();
-        Tag thirdTag = Tag.builder().id(3L).name("TestTag3").build();
+        Tag secondTag = Tag.builder().id("2").name("TestTag2").build();
+        Tag thirdTag = Tag.builder().id("3").name("TestTag3").build();
         List<String> searchRequest = List.of(secondTag.getName(), thirdTag.getName());
         Pageable pageable = PageRequest.of(0, 10);
 

@@ -64,8 +64,8 @@ class CertificateControllerTest {
     void getAllGiftCertificates() throws Exception {
         long id = 1L;
         Pageable pageable = PageRequest.of(0, 20);
-        Tag firstTag = Tag.builder().id(1L).name("TestTag1").build();
-        Tag secondTag = Tag.builder().id(2L).name("TestTag2").build();
+        Tag firstTag = Tag.builder().id("1").name("TestTag1").build();
+        Tag secondTag = Tag.builder().id("2").name("TestTag2").build();
         List<Tag> tags = List.of(firstTag, secondTag);
         Certificate certificate1 = Certificate.builder().id(id).name("TestCertificate1")
                 .description("test description").price(BigDecimal.valueOf(200))
@@ -97,8 +97,8 @@ class CertificateControllerTest {
     @Test
     void getCertificateById() throws Exception {
         long id = 1L;
-        Tag firstTag = Tag.builder().id(1L).name("TestTag1").build();
-        Tag secondTag = Tag.builder().id(2L).name("TestTag2").build();
+        Tag firstTag = Tag.builder().id("1").name("TestTag1").build();
+        Tag secondTag = Tag.builder().id("2").name("TestTag2").build();
         List<Tag> tags = List.of(firstTag, secondTag);
         Certificate expectedCertificate = Certificate.builder().id(id).name("TestCertificate1")
                 .description("UPDATED DESCRIPTION").price(BigDecimal.valueOf(200))
@@ -141,8 +141,8 @@ class CertificateControllerTest {
     void getCertificateBySeveralTagsName() throws Exception {
         long id = 1L;
         Pageable pageable = PageRequest.of(0, 20);
-        Tag firstTag = Tag.builder().id(1L).name("TestTag1").build();
-        Tag secondTag = Tag.builder().id(2L).name("TestTag2").build();
+        Tag firstTag = Tag.builder().id("1").name("TestTag1").build();
+        Tag secondTag = Tag.builder().id("2").name("TestTag2").build();
         List<Tag> tags = List.of(firstTag, secondTag);
         Certificate certificate1 = Certificate.builder().id(id).name("TestCertificate1")
                 .description("test description").price(BigDecimal.valueOf(200))
@@ -175,8 +175,8 @@ class CertificateControllerTest {
 
     @Test
     void createCertificate() throws Exception {
-        Tag firstTag = Tag.builder().id(1L).name("TestTag1").build();
-        Tag secondTag = Tag.builder().id(2L).name("TestTag2").build();
+        Tag firstTag = Tag.builder().id("1").name("TestTag1").build();
+        Tag secondTag = Tag.builder().id("2").name("TestTag2").build();
         List<Tag> tags = List.of(firstTag, secondTag);
         Certificate newCertificate = Certificate.builder().id(null).name("TestCertificate1")
                 .description("UPDATED DESCRIPTION").price(BigDecimal.valueOf(200))
@@ -236,16 +236,16 @@ class CertificateControllerTest {
 
     @Test
     void patchCertificate() throws Exception {
-        long id = 1L;
+        String id = "1";
         Tag firstTag = Tag.builder().id(id).name("TestTag1").build();
-        Tag secondTag = Tag.builder().id(2L).name("TestTag2").build();
+        Tag secondTag = Tag.builder().id("2").name("TestTag2").build();
         List<Tag> tags = List.of(firstTag, secondTag);
         Certificate newCertificate = Certificate.builder().id(null).name("TestCertificate1")
                 .description("UPDATED DESCRIPTION").price(BigDecimal.valueOf(200))
                 .createDate(LocalDateTime.now())
                 .lastUpdateDate(LocalDateTime.now())
                 .durationOfDays("25").tags(tags).build();
-        Certificate patched = Certificate.builder().id(id).name("TestCertificate1")
+        Certificate patched = Certificate.builder().id(Long.valueOf(id)).name("TestCertificate1")
                 .description("UPDATED DESCRIPTION").price(BigDecimal.valueOf(200))
                 .createDate(LocalDateTime.now())
                 .lastUpdateDate(LocalDateTime.now())
@@ -255,7 +255,7 @@ class CertificateControllerTest {
 
         Mockito.when(validator.isPositiveAndParsableIdResponse(String.valueOf(id))).thenReturn("");
         Mockito.when(validator.isUpdatableCertificateFieldsWithErrorResponse(newCertificate)).thenReturn("");
-        Mockito.when(certificateService.patchCertificate(id, newCertificate)).thenReturn(patched);
+        Mockito.when(certificateService.patchCertificate(Long.valueOf(id), newCertificate)).thenReturn(patched);
         Mockito.when(hateoasSupport.addHateoasSupportToSingleCertificate(patched)).thenReturn(patched);
 
         String response = mockMvc.perform(MockMvcRequestBuilders.patch("/v1/api/certificate/1")
@@ -267,7 +267,7 @@ class CertificateControllerTest {
 
         assertEquals(expected, response);
         Mockito.verify(validator).isPositiveAndParsableIdResponse(String.valueOf(id));
-        Mockito.verify(certificateService).patchCertificate(id, newCertificate);
+        Mockito.verify(certificateService).patchCertificate(Long.valueOf(id), newCertificate);
         Mockito.verify(hateoasSupport).addHateoasSupportToSingleCertificate(patched);
     }
 

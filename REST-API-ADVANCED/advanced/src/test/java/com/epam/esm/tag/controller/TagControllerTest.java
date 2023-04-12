@@ -58,9 +58,9 @@ class TagControllerTest {
     @Test
     void getAllTag() throws Exception {
         Pageable pageable = PageRequest.of(0, 20);
-        Tag tag1 = Tag.builder().id(1L).name("testTag1").build();
-        Tag tag2 = Tag.builder().id(2L).name("testTag2").build();
-        Tag tag3 = Tag.builder().id(3L).name("testTag3").build();
+        Tag tag1 = Tag.builder().id("1").name("testTag1").build();
+        Tag tag2 = Tag.builder().id("2").name("testTag2").build();
+        Tag tag3 = Tag.builder().id("3").name("testTag3").build();
         List<Tag> tags = List.of(tag1, tag2, tag3);
         String expected = jsonMapper.writeValueAsString(CollectionModel.of(tags));
 
@@ -81,11 +81,11 @@ class TagControllerTest {
 
     @Test
     void getTagById() throws Exception {
-        long request = 1L;
-        Tag tag1 = Tag.builder().id(1L).name("testTag1").build();
+        String request = "1";
+        Tag tag1 = Tag.builder().id("1").name("testTag1").build();
         String expected = jsonMapper.writeValueAsString(tag1);
 
-        Mockito.when(validator.isPositiveAndParsableIdResponse(String.valueOf(request))).thenReturn("");
+        Mockito.when(validator.isPositiveAndParsableIdResponse(request)).thenReturn("");
         Mockito.when(tagService.getTagById(request))
                 .thenReturn(tag1);
         Mockito.when(hateoasSupport.addHateoasSupportToSingleTag(tag1))
@@ -120,7 +120,7 @@ class TagControllerTest {
 
     @Test
     void getMostWidelyUsedTag() throws Exception {
-        Tag tag1 = Tag.builder().id(1L).name("testTag1").build();
+        Tag tag1 = Tag.builder().id("1").name("testTag1").build();
         String expected = jsonMapper.writeValueAsString(tag1);
 
         Mockito.when(tagService.getMostWidelyUsedTag())
@@ -139,7 +139,7 @@ class TagControllerTest {
     @Test
     void createTag() throws Exception {
         Tag requestTag = Tag.builder().name("testTag1").build();
-        Tag expectedTag = Tag.builder().id(1L).name("testTag1").build();
+        Tag expectedTag = Tag.builder().id("1").name("testTag1").build();
         String expected = jsonMapper.writeValueAsString(expectedTag);
 
         Mockito.when(validator.isCreatableTagFieldsErrorResponse(requestTag)).thenReturn("");
@@ -178,8 +178,8 @@ class TagControllerTest {
 
     @Test
     void deleteTag() throws Exception {
-        long id = 1L;
-        Mockito.when(validator.isPositiveAndParsableIdResponse(String.valueOf(id))).thenReturn("");
+        String id = "1";
+        Mockito.when(validator.isPositiveAndParsableIdResponse(id)).thenReturn("");
         Mockito.doNothing().when(tagService).deleteTagById(id);
         String response = mockMvc.perform(MockMvcRequestBuilders.delete("/v1/api/tag/1")
                         .contentType(MediaType.APPLICATION_JSON))
@@ -187,7 +187,7 @@ class TagControllerTest {
                 .andReturn().getResponse().getContentAsString();
 
         assertTrue(response.isEmpty());
-        Mockito.verify(validator).isPositiveAndParsableIdResponse(String.valueOf(id));
+        Mockito.verify(validator).isPositiveAndParsableIdResponse(id);
         Mockito.verify(tagService).deleteTagById(id);
     }
 
