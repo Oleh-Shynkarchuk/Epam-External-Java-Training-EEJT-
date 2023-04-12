@@ -30,7 +30,7 @@ import java.util.Objects;
 public class User extends RepresentationModel<User> implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private String id;
     @Column(unique = true)
     private String email;
     private String password;

@@ -1,7 +1,7 @@
 package com.epam.esm;
 
 
-import org.apache.commons.lang3.math.NumberUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
@@ -21,8 +21,8 @@ public class Validator {
     }
 
     public String isPositiveAndParsableIdResponse(String id) {
-        if (!NumberUtils.isParsable(id) || Long.parseLong(id) <= 0) {
-            return "Invalid input ( id = " + id + " ). Only a positive number is allowed ( 1 and more ).";
+        if (StringUtils.isEmpty(id) || StringUtils.isBlank(id)) {
+            return "Invalid input ( id = " + id + " ).";
         } else return "";
     }
 

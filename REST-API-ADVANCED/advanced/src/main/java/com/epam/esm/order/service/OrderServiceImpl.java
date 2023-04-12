@@ -17,7 +17,6 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -60,14 +59,14 @@ public class OrderServiceImpl implements OrderService {
             totalPrice = totalPrice.add(certificate.getPrice());
         }
         newOrder.setTotalPrice(totalPrice);
-        newOrder.setUser(userService.getUserById(newOrder.getUser().getId()));
+        newOrder.setUser(userService.getUserById(Long.parseLong(newOrder.getUser().getId())));
         log.debug("Save new order in repository");
         return orderRepository.saveAndFlush(newOrder);
     }
 
     private List<Long> getCertificateIdList(Order newOrder) {
-        return newOrder.getCertificates().stream().map(Certificate::getId)
-                .collect(Collectors.toList());
+        return newOrder.getCertificates().stream().map(certificate -> Long.valueOf(certificate.getId()))
+                .toList();
     }
 
     private OrderNotFoundException orderNotFoundException() {

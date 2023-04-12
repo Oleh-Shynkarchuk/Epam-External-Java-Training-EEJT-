@@ -1,7 +1,7 @@
 package com.epam.esm.certificate.hateoas;
 
-import com.epam.esm.certificate.controller.CertificateController;
-import com.epam.esm.certificate.entity.Certificate;
+import com.epam.esm.certificate.controller.EcommerceCertificateController;
+import com.epam.esm.certificate.entity.GCertificate;
 import com.epam.esm.tag.hateoas.TagHateoasSupport;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
@@ -13,24 +13,24 @@ import org.springframework.util.CollectionUtils;
 import java.util.List;
 
 @Component
-public class CertificateHateoasSupport {
+public class GCertificateHateoasSupport {
 
     private final TagHateoasSupport tagHateoasSupport;
 
     @Autowired
-    public CertificateHateoasSupport(TagHateoasSupport tagHateoasSupport) {
+    public GCertificateHateoasSupport(TagHateoasSupport tagHateoasSupport) {
         this.tagHateoasSupport = tagHateoasSupport;
     }
 
-    public CollectionModel<Certificate> addHateoasSupportToCertificateList(
-            List<Certificate> allCertificate,
+    public CollectionModel<GCertificate> addHateoasSupportToCertificateList(
+            List<GCertificate> allCertificate,
             Pageable paginationCriteria
     ) {
         return addHateoasSupport(allCertificate, paginationCriteria, List.of());
     }
 
-    public CollectionModel<Certificate> addHateoasSupport(
-            List<Certificate> allCertificate,
+    public CollectionModel<GCertificate> addHateoasSupport(
+            List<GCertificate> allCertificate,
             Pageable paginationCriteria,
             List<String> tagName
     ) {
@@ -42,41 +42,41 @@ public class CertificateHateoasSupport {
             }
         });
         return CollectionModel.of(allCertificate).add(
-                WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(CertificateController.class)
+                WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(EcommerceCertificateController.class)
                         .getAllGiftCertificates(paginationCriteria)).withRel("getAllCertificates"),
-                WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(CertificateController.class)
+                WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(EcommerceCertificateController.class)
                                 .getCertificateBySeveralTagsName(paginationCriteria, tagName))
                         .withRel("getCertificateBySeveralTagsName"),
-                WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(CertificateController.class)
-                        .createCertificate(Certificate.builder().build())).withRel("createNewCertificate"));
+                WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(EcommerceCertificateController.class)
+                        .createCertificate(GCertificate.builder().build())).withRel("createNewCertificate"));
     }
 
-    public Certificate addHateoasSupportToSingleCertificate(Certificate certificate) {
+    public GCertificate addHateoasSupportToSingleCertificate(GCertificate certificate) {
         addHateoasSupportToCertificate(certificate);
         if (!CollectionUtils.isEmpty(certificate.getTags())) {
             certificate.getTags().forEach(tagHateoasSupport::addHateoasSupportToTag);
         }
         return certificate.add(
-                WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(CertificateController.class)
+                WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(EcommerceCertificateController.class)
                         .getAllGiftCertificates(Pageable.unpaged())).withRel("getAllCertificates"),
-                WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(CertificateController.class)
+                WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(EcommerceCertificateController.class)
                                 .getCertificateBySeveralTagsName(Pageable.unpaged(), List.of()))
                         .withRel("getCertificateBySeveralTagsName"),
-                WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(CertificateController.class)
+                WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(EcommerceCertificateController.class)
                         .createCertificate(certificate)).withRel("createNewCertificate")
         );
     }
 
-    public void addHateoasSupportToCertificate(Certificate certificate) {
+    public void addHateoasSupportToCertificate(GCertificate certificate) {
         if (certificate.getLinks().isEmpty()) {
             certificate.add(
-                    WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(CertificateController.class)
+                    WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(EcommerceCertificateController.class)
                                     .getCertificateById(String.valueOf(certificate.getId())))
                             .withRel("getCertificate"),
-                    WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(CertificateController.class)
+                    WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(EcommerceCertificateController.class)
                                     .deleteCertificateById(String.valueOf(certificate.getId())))
                             .withRel("deleteCertificate"),
-                    WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(CertificateController.class)
+                    WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(EcommerceCertificateController.class)
                                     .patchCertificate(String.valueOf(certificate.getId()), certificate))
                             .withRel("patchCertificate")
             );

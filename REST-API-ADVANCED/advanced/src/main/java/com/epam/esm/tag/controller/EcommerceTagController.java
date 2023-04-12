@@ -3,7 +3,7 @@ package com.epam.esm.tag.controller;
 import com.epam.esm.tag.entity.Tag;
 import com.epam.esm.tag.exception.TagInvalidRequestException;
 import com.epam.esm.tag.hateoas.TagHateoasSupport;
-import com.epam.esm.tag.service.TagService;
+import com.epam.esm.tag.service.EcommerceTagService;
 import com.epam.esm.tag.validation.TagValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,11 +19,11 @@ import java.util.List;
 
 @Slf4j
 @RestController
-@RequestMapping("/v1/api/tag")
+@RequestMapping("/v2/api/tag")
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
-public class TagController {
+public class EcommerceTagController {
 
-    private final TagService tagService;
+    private final EcommerceTagService tagService;
     private final TagHateoasSupport hateoasSupport;
     private final TagValidator validator;
 
