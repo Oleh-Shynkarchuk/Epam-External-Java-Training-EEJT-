@@ -1,7 +1,10 @@
 package com.epam.esm.certificate.utils;
 
 import com.commercetools.api.models.cart.ProductPublishScope;
-import com.commercetools.api.models.category.*;
+import com.commercetools.api.models.category.Category;
+import com.commercetools.api.models.category.CategoryDraft;
+import com.commercetools.api.models.category.CategoryReference;
+import com.commercetools.api.models.category.CategoryResourceIdentifier;
 import com.commercetools.api.models.common.LocalizedString;
 import com.commercetools.api.models.common.Money;
 import com.commercetools.api.models.common.PriceDraft;
@@ -26,6 +29,9 @@ import java.util.stream.Collectors;
 
 @Component
 public class CertificateUtils {
+
+    public static final String DURATION_IDENTIFIER = "duration-id-1";
+
     public ProductDraft transformCertificateToProduct(List<Category> categories, GCertificate certificate) {
         ProductDraft newProduct = new ProductDraftImpl();
         Variant variant = certificate.getVariants().get(0);
@@ -39,14 +45,14 @@ public class CertificateUtils {
         return newProduct;
     }
 
-    public GCertificate transformProductToGCertificate(List<Category> results, Product product) {
+    public GCertificate transformProductToGCertificate(List<Category> cache, Product product) {
         ProductData current = product.getMasterData().getCurrent();
         return GCertificate.builder()
                 .id(product.getId())
                 .name(current.getName().get(Locale.US))
-                .description(current.getDescription().get(Locale.US))
+                .description(getDescription(current))
                 .variants(getVariants(current.getAllVariants()))
-                .tags(getTags(results, current))
+                .tags(getTags(cache, current))
                 .createDate(product.getCreatedAt())
                 .lastUpdateDate(product.getLastModifiedAt())
                 .version(product.getVersion())
@@ -54,8 +60,15 @@ public class CertificateUtils {
 
     }
 
-    private List<Tag> getTags(List<Category> results, ProductData current) {
-        return results.stream()
+    private String getDescription(ProductData current) {
+        if (ObjectUtils.isNotEmpty(current.getDescription())) {
+            return current.getDescription().get(Locale.US);
+        }
+        return null;
+    }
+
+    private List<Tag> getTags(List<Category> cache, ProductData current) {
+        return cache.stream()
                 .filter(category -> current.getCategories()
                         .stream()
                         .map(CategoryReference::getId)
@@ -79,7 +92,7 @@ public class CertificateUtils {
                                 (Long) productVariant
                                         .getAttributes()
                                         .stream()
-                                        .filter(attribute -> attribute.getName().equals("duration-id-1"))
+                                        .filter(attribute -> attribute.getName().equals(DURATION_IDENTIFIER))
                                         .findFirst()
                                         .orElse(Attribute.of())
                                         .getValue(),
@@ -100,9 +113,8 @@ public class CertificateUtils {
                 .filter(category -> certificate.getTags().stream()
                         .map(Tag::getName)
                         .collect(Collectors.toSet())
-                        .contains(category.getName()
-                                .get(Locale.US)))
-                .map(CategoryMixin::toResourceIdentifier).toList();
+                        .contains(category.getName().get(Locale.US)))
+                .map(category -> CategoryResourceIdentifier.builder().build()).toList();
     }
 
     private ProductVariantDraft getMasterVariant(Variant variant) {
@@ -119,15 +131,15 @@ public class CertificateUtils {
                         .country("US")
                         .build())
                 .attributes(Attribute.builder()
-                        .name("duration-id-1")
+                        .name(DURATION_IDENTIFIER)
                         .value(variant.duration())
                         .build())
                 .build();
     }
 
-    public List<CategoryDraft> transformTagsToCategory(List<Category> results, List<Tag> tags) {
-        return tags.stream()
-                .filter(tag -> !results.stream()
+    public List<CategoryDraft> transformTagsToCategory(List<Category> cache, List<Tag> newTags) {
+        return newTags.stream()
+                .filter(tag -> !cache.stream()
                         .map(category -> category.getName().get(Locale.US))
                         .collect(Collectors.toSet())
                         .contains(tag.getName()))
@@ -157,6 +169,21 @@ public class CertificateUtils {
                     .description(LocalizedString.of(Locale.US, certificate.getDescription()))
                     .build());
         }
+        allProductVariantsForUpdateAction(certificate, list);
+        allProductTagsForUpdateAction(results, certificate, list);
+        list.add(ProductUpdateAction.publishBuilder().scope(ProductPublishScope.ALL).build());
+        return list;
+    }
+
+    public ProductUpdate makeProductUnpublished(Product product) {
+        return ProductUpdate
+                .builder()
+                .version(product.getVersion())
+                .actions(ProductUpdateAction.unpublishBuilder().build())
+                .build();
+    }
+
+    private void allProductVariantsForUpdateAction(GCertificate certificate, List<ProductUpdateAction> list) {
         if (!CollectionUtils.isEmpty(certificate.getVariants())) {
             for (Variant variant : certificate.getVariants()) {
                 if (!CollectionUtils.isEmpty(variant.prices())) {
@@ -176,30 +203,23 @@ public class CertificateUtils {
                 }
                 if (ObjectUtils.isNotEmpty(variant.duration())) {
                     list.add(ProductUpdateAction.setAttributeBuilder().variantId(variant.id())
-                            .name("duration-id-1")
+                            .name(DURATION_IDENTIFIER)
                             .value(variant.duration())
                             .build());
                 }
             }
-            if ((certificate.getTags() != null)) {
-                if (!certificate.getTags().isEmpty()) {
-                    getCategoryList(results, certificate)
-                            .forEach(categoryResourceIdentifier ->
-                                    list.add(ProductUpdateAction.addToCategoryBuilder()
-                                            .category(categoryResourceIdentifier)
-                                            .build()));
-                } else list.add(ProductUpdateAction.removeFromCategoryBuilder().build());
-            }
         }
-        list.add(ProductUpdateAction.publishBuilder().scope(ProductPublishScope.ALL).build());
-        return list;
     }
 
-    public ProductUpdate makeProductUnpublished(Product product) {
-        return ProductUpdate
-                .builder()
-                .version(product.getVersion())
-                .actions(ProductUpdateAction.unpublishBuilder().build())
-                .build();
+    private void allProductTagsForUpdateAction(List<Category> results, GCertificate certificate, List<ProductUpdateAction> list) {
+        if ((certificate.getTags() != null)) {
+            if (!certificate.getTags().isEmpty()) {
+                getCategoryList(results, certificate)
+                        .forEach(categoryResourceIdentifier ->
+                                list.add(ProductUpdateAction.addToCategoryBuilder()
+                                        .category(categoryResourceIdentifier)
+                                        .build()));
+            } else list.add(ProductUpdateAction.removeFromCategoryBuilder().build());
+        }
     }
 }

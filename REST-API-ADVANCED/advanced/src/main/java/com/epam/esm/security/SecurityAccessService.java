@@ -12,7 +12,7 @@ public class SecurityAccessService {
     public boolean hasAccess(String id) {
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         log.info("Requested id = {}, token id {}, token role {}", id, user.getId(), user.getRole());
-        if (user.getId().equals(Long.parseLong(id)) || user.isAdmin()) {
+        if (user.getId().equals(id) || user.isAdmin()) {
             return true;
         }
         throw new SecurityAccessDeniedException("Access denied.");

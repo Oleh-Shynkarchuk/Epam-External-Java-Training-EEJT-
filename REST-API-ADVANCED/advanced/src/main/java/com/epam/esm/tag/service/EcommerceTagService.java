@@ -18,7 +18,7 @@ public class EcommerceTagService implements TagService {
 
     @Override
     public List<Tag> getAllTags(Pageable paginationCriteria) {
-        return ecommerceTagRepo.getAllTags(paginationCriteria);
+        return ecommerceTagRepo.getAllTags();
     }
 
     @Override

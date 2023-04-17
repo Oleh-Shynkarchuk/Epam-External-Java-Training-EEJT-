@@ -28,7 +28,7 @@ public class TagServiceImpl implements TagService {
 
     @Override
     public List<Tag> getAllTags(Pageable paginationCriteria) {
-        log.debug("Start of getAllTags method in service layer." +
+        log.debug("Start of getCategoryFromCache method in service layer." +
                 "For valid non erroneous pageable request get amount of all tags in repository");
         long count = tagRepository.count();
         Pageable pageable = validator.validPageableRequest(count, paginationCriteria);

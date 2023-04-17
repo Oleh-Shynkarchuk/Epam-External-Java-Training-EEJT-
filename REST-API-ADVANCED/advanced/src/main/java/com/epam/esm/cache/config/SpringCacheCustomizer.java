@@ -8,6 +8,6 @@ import static java.util.Arrays.asList;
 public class SpringCacheCustomizer implements CacheManagerCustomizer<ConcurrentMapCacheManager> {
     @Override
     public void customize(ConcurrentMapCacheManager cacheManager) {
-        cacheManager.setCacheNames(asList("users", "orders"));
+        cacheManager.setCacheNames(asList("categories", "products"));
     }
 }

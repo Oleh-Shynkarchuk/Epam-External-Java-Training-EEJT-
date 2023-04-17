@@ -46,13 +46,12 @@ public class CertificateValidator extends Validator {
 
     public String isUpdatableCertificateFieldsWithErrorResponse(Certificate newCertificate) {
         StringBuilder errorStringBuilder = new StringBuilder();
-        if (StringUtils.isNotEmpty(newCertificate.getDurationOfDays())) {
-            if (!NumberUtils.isDigits(newCertificate.getDurationOfDays()) ||
-                    !(Integer.parseInt(newCertificate.getDurationOfDays()) > 0)) {
-                errorStringBuilder.append("Invalid certificate field  duration ( duration = ")
-                        .append(newCertificate.getDurationOfDays())
-                        .append("). Duration must be positive number!");
-            }
+        if (StringUtils.isNotEmpty(newCertificate.getDurationOfDays()) && (!NumberUtils.isDigits(newCertificate.getDurationOfDays()) ||
+                !(Integer.parseInt(newCertificate.getDurationOfDays()) > 0))) {
+            errorStringBuilder.append("Invalid certificate field  duration ( duration = ")
+                    .append(newCertificate.getDurationOfDays())
+                    .append("). Duration must be positive number!");
+
         }
         if (newCertificate.getPrice() != null && (newCertificate.getPrice().compareTo(BigDecimal.ZERO) < 0)) {
             errorStringBuilder.append("Invalid certificate field price ( price = ")
@@ -110,18 +109,20 @@ public class CertificateValidator extends Validator {
 
     public String isUpdatableGCertificateFieldsWithErrorResponse(GCertificate newCertificate) {
         StringBuilder errorStringBuilder = new StringBuilder();
-        for (Variant variant : newCertificate.getVariants()) {
-            if (ObjectUtils.isNotEmpty(variant.duration()) &&
-                    !(variant.duration() > 0)) {
-                errorStringBuilder.append("Invalid certificate variant field  duration ( duration = ")
-                        .append(variant.duration())
-                        .append("). Duration must be positive number!");
-            }
-            for (Variant.Prices prices : variant.prices()) {
-                if (prices.centAmount() != null && (prices.centAmount().compareTo(BigDecimal.ZERO) < 0)) {
-                    errorStringBuilder.append("Invalid certificate field price ( price = ")
-                            .append(prices.centAmount())
-                            .append("). Price must be positive or zero!");
+        if (!CollectionUtils.isEmpty(newCertificate.getVariants())) {
+            for (Variant variant : newCertificate.getVariants()) {
+                if (ObjectUtils.isNotEmpty(variant.duration()) &&
+                        !(variant.duration() > 0)) {
+                    errorStringBuilder.append("Invalid certificate variant field  duration ( duration = ")
+                            .append(variant.duration())
+                            .append("). Duration must be positive number!");
+                }
+                for (Variant.Prices prices : variant.prices()) {
+                    if (prices.centAmount() != null && (prices.centAmount().compareTo(BigDecimal.ZERO) < 0)) {
+                        errorStringBuilder.append("Invalid certificate field price ( price = ")
+                                .append(prices.centAmount())
+                                .append("). Price must be positive or zero!");
+                    }
                 }
             }
         }

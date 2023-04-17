@@ -30,11 +30,11 @@ public class EcommerceTagController {
     @GetMapping
     public ResponseEntity<CollectionModel<Tag>> getAllTags(@ParameterObject Pageable paginationCriteria) {
 
-        log.debug("Request accepted getAllTags. " +
+        log.debug("Request accepted getCategoryFromCache. " +
                 "Pagination object request." + paginationCriteria);
         List<Tag> allTag = tagService.getAllTags(paginationCriteria);
         CollectionModel<Tag> tagsAndHateoas = hateoasSupport.addHateoasSupportToAllTag(allTag, paginationCriteria);
-        log.debug("Send response tags list : " + tagsAndHateoas.toString() + " to client");
+        log.debug("Send response tags list : " + tagsAndHateoas.toString());
         return ResponseEntity.ok(tagsAndHateoas);
     }
 

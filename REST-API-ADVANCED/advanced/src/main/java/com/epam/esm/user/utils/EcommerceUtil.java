@@ -17,7 +17,7 @@ public class EcommerceUtil {
         return User.builder()
                 .id(customer.getId())
                 .email(customer.getEmail())
-                .role(Role.valueOf(customerGroup.stream().filter(c -> c.getId().equals(customer.getCustomerGroup().getId())).findFirst().get().getName()))
+                .role(Role.valueOf(customerGroup.stream().filter(c -> c.getId().equals(customer.getCustomerGroup().getId())).findFirst().orElseThrow().getName()))
                 .provider(Provider.ECOMMERCE)
                 .build();
     }

@@ -19,7 +19,7 @@ public class TagHateoasSupport {
                 WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(TagController.class)
                         .getMostWidelyUsedTag()).withRel("getMostWidelyUsedTag"),
                 WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(TagController.class)
-                        .getAllTags(Pageable.unpaged())).withRel("getAllTags"),
+                        .getAllTags(Pageable.unpaged())).withRel("getCategoryFromCache"),
                 WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(TagController.class)
                         .createTag(Tag.builder().build())).withRel("createNewTag"),
                 WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(TagController.class)
@@ -31,7 +31,7 @@ public class TagHateoasSupport {
         allTag.forEach(this::addHateoasSupportToTag);
         return CollectionModel.of(allTag).add(
                 WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(TagController.class)
-                        .getAllTags(paginationCriteria)).withRel("getAllTags"),
+                        .getAllTags(paginationCriteria)).withRel("getCategoryFromCache"),
                 WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(TagController.class)
                         .getMostWidelyUsedTag()).withRel("getMostWidelyUsedTag"),
                 WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(TagController.class)

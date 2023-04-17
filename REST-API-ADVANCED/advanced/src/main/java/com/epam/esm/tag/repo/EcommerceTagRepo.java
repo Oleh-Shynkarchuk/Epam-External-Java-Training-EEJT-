@@ -3,14 +3,14 @@ package com.epam.esm.tag.repo;
 import com.commercetools.api.client.ProjectApiRoot;
 import com.commercetools.api.models.category.Category;
 import com.commercetools.api.models.category.CategoryDraft;
+import com.epam.esm.cache.service.CacheService;
+import com.epam.esm.cache.utils.CacheUtil;
 import com.epam.esm.tag.ecommerceutil.TagUtils;
 import com.epam.esm.tag.entity.Tag;
+import com.epam.esm.tag.exception.TagNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.CachePut;
-import org.springframework.cache.annotation.Cacheable;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -20,44 +20,64 @@ import java.util.List;
 public class EcommerceTagRepo {
 
     private final ProjectApiRoot projectApiRoot;
-    private final TagUtils certificateUtils;
+    private final TagUtils tagUtils;
+    private final CacheService cacheService;
 
-    public List<Tag> getAllTags(Pageable paginationCriteria) {
-        List<Category> results = projectApiRoot.categories()
-                .get()
-                .withLimit(paginationCriteria.getPageSize())
-                .withOffset(paginationCriteria.getOffset())
-                .executeBlocking()
-                .getBody().getResults();
-
-        return results.stream().map(certificateUtils::transformCategoryToTag).toList();
+    public List<Tag> getAllTags() {
+        return getCategoryFromCache().stream().map(tagUtils::transformCategoryToTag).toList();
     }
 
     public Tag getTagById(String id) {
-        return certificateUtils.transformCategoryToTag(projectApiRoot.categories().withId(id).get().executeBlocking().getBody());
+        return tagUtils.transformCategoryToTag(
+                getCategoryFromCache()
+                        .stream()
+                        .filter(category -> category.getId().equals(id))
+                        .findFirst()
+                        .orElseThrow(TagNotFoundException::new));
     }
 
     public Tag createTag(Tag newTag) {
-        CategoryDraft category = certificateUtils.transformTagToCategoryDraft(newTag);
-        return certificateUtils.transformCategoryToTag(createCategory(category));
+        CategoryDraft category = tagUtils.transformTagToCategoryDraft(newTag);
+        return tagUtils.transformCategoryToTag(createCategory(category));
     }
 
-    @CacheEvict(cacheNames = "categories", key = "#id")
     public void deleteTag(String id) {
-        projectApiRoot.categories().withId(id).delete().executeBlocking().getBody();
+        projectApiRoot.categories()
+                .withId(id)
+                .delete(getCategoryFromCache()
+                        .stream()
+                        .filter(category -> category.getId().equals(id))
+                        .findFirst()
+                        .orElseThrow(TagNotFoundException::new)
+                        .getVersion())
+                .executeBlocking()
+                .getBody();
+        getCategoryFromCache().removeIf(category -> category.getId().equals(id));
     }
 
     public Tag getMost() {
         return null;
     }
 
-    @Cacheable("categories")
-    public List<Category> getAllTags() {
-        return projectApiRoot.categories().get().executeBlocking().getBody().getResults();
+    public List<Category> getCategoryFromCache() {
+        Object cache = cacheService.getCache(CacheUtil.CATEGORY_CACHE);
+        if (ObjectUtils.isEmpty(cache)) {
+            cacheService.put(CacheUtil.CATEGORY_CACHE,
+                    projectApiRoot
+                            .categories()
+                            .get()
+                            .executeBlocking()
+                            .getBody()
+                            .getResults()
+            );
+        }
+        return cacheService.getCache(CacheUtil.CATEGORY_CACHE);
     }
 
-    @CachePut("categories")
-    public Category createCategory(CategoryDraft categoryDraft) {
-        return projectApiRoot.categories().post(categoryDraft).executeBlocking().getBody();
+    private Category createCategory(CategoryDraft categoryDraft) {
+        List<Category> cache = getCategoryFromCache();
+        Category category = projectApiRoot.categories().post(categoryDraft).executeBlocking().getBody();
+        cache.add(category);
+        return category;
     }
 }

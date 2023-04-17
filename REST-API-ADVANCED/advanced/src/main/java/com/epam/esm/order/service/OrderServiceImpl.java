@@ -65,7 +65,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     private List<Long> getCertificateIdList(Order newOrder) {
-        return newOrder.getCertificates().stream().map(certificate -> Long.valueOf(certificate.getId()))
+        return newOrder.getCertificates().stream().map(Certificate::getId)
                 .toList();
     }
 
