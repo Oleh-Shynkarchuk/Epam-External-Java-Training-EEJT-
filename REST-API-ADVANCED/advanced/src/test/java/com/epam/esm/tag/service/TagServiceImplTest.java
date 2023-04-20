@@ -35,8 +35,8 @@ class TagServiceImplTest {
     void getAllTag() {
         long availableAmountOfOrders = 2L;
         Pageable pageable = PageRequest.of(0, 20);
-        Tag tag1 = Tag.builder().id(1L).build();
-        Tag tag2 = Tag.builder().id(2L).build();
+        Tag tag1 = Tag.builder().id("1").build();
+        Tag tag2 = Tag.builder().id("2").build();
         Page<Tag> expected = new PageImpl<>(List.of(tag1, tag2), pageable, availableAmountOfOrders);
 
         Mockito.when(tagRepository.count()).thenReturn(availableAmountOfOrders);
@@ -62,19 +62,19 @@ class TagServiceImplTest {
 
     @Test
     void getTagById() {
-        long requestId = 1L;
+        String requestId = "1";
         Tag expected = Tag.builder().id(requestId).build();
 
-        Mockito.when(tagRepository.findById(requestId)).thenReturn(Optional.of(expected));
+        Mockito.when(tagRepository.findById(Long.valueOf(requestId))).thenReturn(Optional.of(expected));
 
         assertEquals(expected, tagService.getTagById(requestId));
     }
 
     @Test
     void getTagByIdShouldThrowItemNotFound() {
-        long requestId = 1L;
+        String requestId = "1";
 
-        Mockito.when(tagRepository.findById(requestId)).thenReturn(Optional.empty());
+        Mockito.when(tagRepository.findById(Long.valueOf(requestId))).thenReturn(Optional.empty());
 
         assertThrows(TagNotFoundException.class, () -> tagService.getTagById(requestId));
     }
@@ -82,7 +82,7 @@ class TagServiceImplTest {
     @Test
     void getOptionalTagByName() {
         String request = "testTagName";
-        Tag expected = Tag.builder().id(1L).name(request).build();
+        Tag expected = Tag.builder().id("1").name(request).build();
 
         Mockito.when(tagRepository.findByName(request)).thenReturn(Optional.of(expected));
 
@@ -93,7 +93,7 @@ class TagServiceImplTest {
     void createTag() {
         String name = "testTag";
         Tag newTag = Tag.builder().id(null).name(name).build();
-        Tag expected = Tag.builder().id(1L).name(name).build();
+        Tag expected = Tag.builder().id("1").name(name).build();
         Mockito.when(tagRepository.existsByName(newTag.getName())).thenReturn(false);
         Mockito.when(tagRepository.save(newTag)).thenReturn(expected);
 
@@ -111,30 +111,30 @@ class TagServiceImplTest {
 
     @Test
     void deleteTag() {
-        long requestId = 1L;
+        String requestId = "1";
 
-        Mockito.when(tagRepository.existsById(requestId)).thenReturn(true);
-        Mockito.doNothing().when(tagRepository).deleteById(requestId);
+        Mockito.when(tagRepository.existsById(Long.valueOf(requestId))).thenReturn(true);
+        Mockito.doNothing().when(tagRepository).deleteById(Long.valueOf(requestId));
 
         assertDoesNotThrow(() -> tagService.deleteTagById(requestId));
-        Mockito.verify(tagRepository).deleteById(requestId);
+        Mockito.verify(tagRepository).deleteById(Long.valueOf(requestId));
     }
 
     @Test
     void deleteTagShouldThrowNotFound() {
-        long requestId = 1L;
+        String requestId = "1";
 
-        Mockito.when(tagRepository.existsById(requestId)).thenReturn(false);
+        Mockito.when(tagRepository.existsById(Long.valueOf(requestId))).thenReturn(false);
 
         assertThrows(TagNotFoundException.class, () -> tagService.deleteTagById(requestId));
     }
 
     @Test
     void getMostWidelyUsedTag() {
-        long idMostUsedTAG = 1L;
+        String idMostUsedTAG = "1";
         Tag expected = Tag.builder().id(idMostUsedTAG).name("TestTag").build();
-        Mockito.when(tagRepository.findId()).thenReturn(idMostUsedTAG);
-        Mockito.when(tagRepository.findById(idMostUsedTAG)).thenReturn(Optional.of(expected));
+        Mockito.when(tagRepository.findId()).thenReturn(Long.valueOf(idMostUsedTAG));
+        Mockito.when(tagRepository.findById(Long.valueOf(idMostUsedTAG))).thenReturn(Optional.of(expected));
         assertEquals(expected, tagService.getMostWidelyUsedTag());
     }
 }

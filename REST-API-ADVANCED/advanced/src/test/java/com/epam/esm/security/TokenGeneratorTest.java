@@ -37,7 +37,7 @@ class TokenGeneratorTest {
 
     @Test
     void createToken() {
-        User user = User.builder().id(1L).email("test@email.com")
+        User user = User.builder().id("1").email("test@email.com")
                 .password("TestPassword").role(Role.USER).provider(Provider.BASIC).build();
         Authentication authentication = UsernamePasswordAuthenticationToken.
                 authenticated(user, user.getPassword(), user.getAuthorities());
@@ -47,7 +47,7 @@ class TokenGeneratorTest {
         Jwt decodedRefresh = refreshTokenDecoder.decode(token.getRefreshToken());
 
         assertAll(
-                () -> assertEquals(user.getId(), Long.parseLong(token.getUserId())),
+                () -> assertEquals(user.getId(), token.getUserId()),
                 () -> assertEquals(issuer, decodedAccess.getClaimAsString("iss")),
                 () -> assertEquals(issuer, decodedRefresh.getClaimAsString("iss")),
                 () -> assertEquals(user.getRole().name(), decodedAccess.getClaimAsString("role")),

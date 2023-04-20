@@ -9,13 +9,13 @@ import java.util.Optional;
 public interface TagService {
     List<Tag> getAllTags(Pageable paginationCriteria);
 
-    Tag getTagById(Long id);
+    Tag getTagById(String id);
 
     Optional<Tag> getTagByName(String tagName);
 
     Tag createTag(Tag newTag);
 
-    void deleteTagById(Long id);
+    void deleteTagById(String id);
 
     Tag getMostWidelyUsedTag();
 

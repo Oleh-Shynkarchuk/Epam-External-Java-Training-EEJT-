@@ -1,7 +1,7 @@
 package com.epam.esm;
 
 
-import org.apache.commons.lang3.math.NumberUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
@@ -14,16 +14,16 @@ public class Validator {
         if (availableAmountOfItemsEnoughForPagination(paginationCriteria, availableAmount)) {
             paginationCriteria = PageRequest.of(
                     (int) Math.floor((float) availableAmount / paginationCriteria.getPageNumber()),
-                    paginationCriteria.getPageSize()
-            );
+                    paginationCriteria.getPageSize());
         }
         return paginationCriteria;
     }
 
     public String isPositiveAndParsableIdResponse(String id) {
-        if (!NumberUtils.isParsable(id) || Long.parseLong(id) <= 0) {
-            return "Invalid input ( id = " + id + " ). Only a positive number is allowed ( 1 and more ).";
-        } else return "";
+        if (StringUtils.isBlank(id)) {
+            return "Invalid input ( id = " + id + " ).";
+        }
+        return "";
     }
 
     private boolean availableAmountOfItemsEnoughForPagination(Pageable paginationCriteria, long availableAmount) {

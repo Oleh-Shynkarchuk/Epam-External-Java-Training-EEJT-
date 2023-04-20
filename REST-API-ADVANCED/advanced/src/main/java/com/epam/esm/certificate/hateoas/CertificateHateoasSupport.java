@@ -8,6 +8,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 
 import java.util.List;
 
@@ -34,7 +35,12 @@ public class CertificateHateoasSupport {
             List<String> tagName
     ) {
         allCertificate.forEach(this::addHateoasSupportToCertificate);
-        allCertificate.forEach(certificate -> certificate.getTags().forEach(tagHateoasSupport::addHateoasSupportToTag));
+        allCertificate.forEach(certificate -> {
+            if (!CollectionUtils.isEmpty(certificate.getTags())) {
+                certificate.getTags()
+                        .forEach(tagHateoasSupport::addHateoasSupportToTag);
+            }
+        });
         return CollectionModel.of(allCertificate).add(
                 WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(CertificateController.class)
                         .getAllGiftCertificates(paginationCriteria)).withRel("getAllCertificates"),
@@ -47,7 +53,9 @@ public class CertificateHateoasSupport {
 
     public Certificate addHateoasSupportToSingleCertificate(Certificate certificate) {
         addHateoasSupportToCertificate(certificate);
-        certificate.getTags().forEach(tagHateoasSupport::addHateoasSupportToTag);
+        if (!CollectionUtils.isEmpty(certificate.getTags())) {
+            certificate.getTags().forEach(tagHateoasSupport::addHateoasSupportToTag);
+        }
         return certificate.add(
                 WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(CertificateController.class)
                         .getAllGiftCertificates(Pageable.unpaged())).withRel("getAllCertificates"),

@@ -15,13 +15,11 @@ public class OrderValidator extends Validator {
         if (CollectionUtils.isEmpty(newOrder)) {
             errorStringBuilder.append("Order must contains certificates");
         }
-        for (Certificate certificate : newOrder) {
-            if (ObjectUtils.isEmpty(certificate.getId()) || certificate.getId() <= 0) {
-                errorStringBuilder.append("Invalid certificate field  id ( id = ")
+        newOrder.stream().filter(certificate ->
+                        ObjectUtils.isEmpty(certificate.getId()) || certificate.getId() <= 0)
+                .forEach(certificate -> errorStringBuilder.append("Invalid certificate field  id ( id = ")
                         .append(certificate.getId())
-                        .append("). Only a positive number is allowed ( 1 and more ).");
-            }
-        }
+                        .append("). Only a positive number is allowed ( 1 and more )."));
         return errorStringBuilder.toString();
     }
 }

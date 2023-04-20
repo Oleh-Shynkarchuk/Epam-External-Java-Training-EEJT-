@@ -32,7 +32,7 @@ class SecurityAccessServiceTest {
         SecurityContextHolder.setContext(securityContext);
         when(SecurityContextHolder.getContext().getAuthentication()).
                 thenReturn(new UsernamePasswordAuthenticationToken(
-                        User.builder().id(1L).role(Role.ADMIN).build(),
+                        User.builder().id("1").role(Role.ADMIN).build(),
                         null));
         String request = "2";
         assertTrue(securityAccessService.hasAccess(request));
@@ -44,7 +44,7 @@ class SecurityAccessServiceTest {
         SecurityContextHolder.setContext(securityContext);
         when(SecurityContextHolder.getContext().getAuthentication()).
                 thenReturn(new UsernamePasswordAuthenticationToken(
-                        User.builder().id(1L).role(Role.USER).build(),
+                        User.builder().id("1").role(Role.USER).build(),
                         null));
         String request = "2";
         assertThrows(SecurityAccessDeniedException.class, () -> securityAccessService.hasAccess(request));

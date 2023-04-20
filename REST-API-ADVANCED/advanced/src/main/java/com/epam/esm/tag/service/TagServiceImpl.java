@@ -9,6 +9,7 @@ import com.epam.esm.tag.validation.TagValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Primary;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -19,6 +20,7 @@ import java.util.Optional;
 @Slf4j
 @Service
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
+@Primary
 public class TagServiceImpl implements TagService {
 
     private final TagRepository tagRepository;
@@ -26,7 +28,7 @@ public class TagServiceImpl implements TagService {
 
     @Override
     public List<Tag> getAllTags(Pageable paginationCriteria) {
-        log.debug("Start of getAllTags method in service layer." +
+        log.debug("Start of getCategoryFromCache method in service layer." +
                 "For valid non erroneous pageable request get amount of all tags in repository");
         long count = tagRepository.count();
         Pageable pageable = validator.validPageableRequest(count, paginationCriteria);
@@ -39,10 +41,10 @@ public class TagServiceImpl implements TagService {
     }
 
     @Override
-    public Tag getTagById(Long id) {
+    public Tag getTagById(String id) {
         log.debug("Start of getTagById method in service layer. " +
                 "Get tag by id from repository");
-        return tagRepository.findById(id).orElseThrow(this::tagNotFoundException);
+        return tagRepository.findById(Long.parseLong(id)).orElseThrow(this::tagNotFoundException);
     }
 
     public Optional<Tag> getTagByName(String tagName) {
@@ -62,12 +64,12 @@ public class TagServiceImpl implements TagService {
     }
 
     @Override
-    public void deleteTagById(Long id) {
+    public void deleteTagById(String id) {
         log.debug("Start of deleteTagById method in service layer. " +
                 "Return check result is exist tag by id in repository");
-        if (tagRepository.existsById(id)) {
+        if (tagRepository.existsById(Long.parseLong(id))) {
             log.debug("Deleting tag in repository");
-            tagRepository.deleteById(id);
+            tagRepository.deleteById(Long.parseLong(id));
         } else throw tagNotFoundException();
     }
 
@@ -78,7 +80,7 @@ public class TagServiceImpl implements TagService {
         Long id = tagRepository.findId();
 
         log.debug("Get MostWidelyUsedTag in repository by received id");
-        return getTagById(id);
+        return getTagById(String.valueOf(id));
     }
 
     private boolean tagIsExistByName(String name) {

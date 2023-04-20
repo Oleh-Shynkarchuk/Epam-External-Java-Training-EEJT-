@@ -114,7 +114,7 @@ class JwtServiceTest {
                 .role(Role.USER).provider(Provider.BASIC).build();
         User beforeSave = User.builder().email("TestUser").password("TestPassword")
                 .role(Role.USER).provider(Provider.GOOGLE).build();
-        User afterSave = User.builder().id(1L).email("TestUser").password("TestPassword")
+        User afterSave = User.builder().id("1").email("TestUser").password("TestPassword")
                 .role(Role.USER).provider(Provider.GOOGLE).build();
         Authentication authentication = UsernamePasswordAuthenticationToken.
                 authenticated(afterSave, null, afterSave.getAuthorities());
@@ -133,7 +133,7 @@ class JwtServiceTest {
         String idToken = "TestOidcToken";
         User user = User.builder().email("TestUser").password("TestPassword")
                 .role(Role.USER).provider(Provider.GOOGLE).build();
-        User exist = User.builder().id(1L).email("TestUser").password("TestPassword")
+        User exist = User.builder().id("1").email("TestUser").password("TestPassword")
                 .role(Role.USER).provider(Provider.GOOGLE).build();
         Authentication authentication = UsernamePasswordAuthenticationToken.
                 authenticated(exist, null, exist.getAuthorities());

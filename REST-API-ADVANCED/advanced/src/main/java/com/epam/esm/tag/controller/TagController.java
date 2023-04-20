@@ -30,7 +30,7 @@ public class TagController {
     @GetMapping
     public ResponseEntity<CollectionModel<Tag>> getAllTags(@ParameterObject Pageable paginationCriteria) {
 
-        log.debug("Request accepted getAllTags. " +
+        log.debug("Request accepted getCategoryFromCache. " +
                 "Pagination object request." + paginationCriteria);
         List<Tag> allTag = tagService.getAllTags(paginationCriteria);
         CollectionModel<Tag> tagsAndHateoas = hateoasSupport.addHateoasSupportToAllTag(allTag, paginationCriteria);
@@ -45,7 +45,7 @@ public class TagController {
                 "Id param request = " + id);
         String idResponse = validator.isPositiveAndParsableIdResponse(id);
         if (idResponse.isEmpty()) {
-            Tag serviceTag = tagService.getTagById(Long.parseLong(id));
+            Tag serviceTag = tagService.getTagById(id);
             Tag tagAndHateoas = hateoasSupport.addHateoasSupportToSingleTag(serviceTag);
             log.debug("Send response tag: " + tagAndHateoas.toString() + " to client");
             return ResponseEntity.ok(tagAndHateoas);
@@ -84,7 +84,7 @@ public class TagController {
                 "Id param request = " + id);
         String idResponse = validator.isPositiveAndParsableIdResponse(id);
         if (idResponse.isEmpty()) {
-            tagService.deleteTagById(Long.valueOf(id));
+            tagService.deleteTagById(id);
             log.debug("Successful deleted tag");
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }

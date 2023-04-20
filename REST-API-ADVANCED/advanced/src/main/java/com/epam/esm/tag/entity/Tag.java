@@ -22,9 +22,10 @@ import java.util.Objects;
 public class Tag extends RepresentationModel<Tag> {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private String id;
     @Column(nullable = false, unique = true)
     private String name;
+    private Long version;
     @ManyToMany(mappedBy = "tags")
     @JsonIgnore
     @ToString.Exclude
