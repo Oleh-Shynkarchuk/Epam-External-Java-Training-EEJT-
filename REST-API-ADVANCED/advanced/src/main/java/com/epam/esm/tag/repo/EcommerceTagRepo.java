@@ -76,7 +76,12 @@ public class EcommerceTagRepo {
 
     private Category createCategory(CategoryDraft categoryDraft) {
         List<Category> cache = getCategoryFromCache();
-        Category category = projectApiRoot.categories().post(categoryDraft).executeBlocking().getBody();
+        Category category =
+                projectApiRoot
+                        .categories()
+                        .post(categoryDraft)
+                        .executeBlocking()
+                        .getBody();
         cache.add(category);
         return category;
     }

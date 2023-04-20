@@ -3,7 +3,6 @@ package com.epam.esm.certificate.validation;
 import com.epam.esm.Validator;
 import com.epam.esm.certificate.entity.Certificate;
 import com.epam.esm.certificate.entity.GCertificate;
-import com.epam.esm.certificate.entity.Variant;
 import com.epam.esm.tag.entity.Tag;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -25,7 +24,7 @@ public class CertificateValidator extends Validator {
         }
         if (StringUtils.isEmpty(newCertificate.getDurationOfDays()) ||
                 !NumberUtils.isDigits(newCertificate.getDurationOfDays()) ||
-                !(Integer.parseInt(newCertificate.getDurationOfDays()) > 0)) {
+                Integer.parseInt(newCertificate.getDurationOfDays()) <= 0) {
             errorStringBuilder.append("Invalid certificate field  duration ( duration = ")
                     .append(newCertificate.getDurationOfDays())
                     .append("). Duration for new certificate must be positive number!");
@@ -46,8 +45,7 @@ public class CertificateValidator extends Validator {
 
     public String isUpdatableCertificateFieldsWithErrorResponse(Certificate newCertificate) {
         StringBuilder errorStringBuilder = new StringBuilder();
-        if (StringUtils.isNotEmpty(newCertificate.getDurationOfDays()) && (!NumberUtils.isDigits(newCertificate.getDurationOfDays()) ||
-                !(Integer.parseInt(newCertificate.getDurationOfDays()) > 0))) {
+        if (isDurationValidPositiveDigitsString(newCertificate)) {
             errorStringBuilder.append("Invalid certificate field  duration ( duration = ")
                     .append(newCertificate.getDurationOfDays())
                     .append("). Duration must be positive number!");
@@ -83,22 +81,15 @@ public class CertificateValidator extends Validator {
                     .append(newCertificate.getName())
                     .append("). Name cannot be empty!");
         }
-        for (Variant variant : newCertificate.getVariants()) {
-            if (ObjectUtils.isEmpty(variant.duration()) ||
-                    !(variant.duration() > 0)) {
-                errorStringBuilder.append("Invalid certificate variant field  duration ( duration = ")
-                        .append(variant.duration())
-                        .append("). Duration for new certificate must be positive number!");
-            }
-            for (Variant.Prices prices : variant.prices()) {
-                if (ObjectUtils.isEmpty(prices.centAmount()) ||
-                        prices.centAmount().compareTo(BigDecimal.ZERO) < 0) {
-                    errorStringBuilder.append("Invalid certificate variant field price ( price = ")
-                            .append(prices.centAmount())
-                            .append("). Price for new certificate must be positive or zero!");
-                }
-            }
-        }
+        newCertificate.getVariants().stream().filter(variant -> ObjectUtils.isEmpty(variant.duration()) || variant.duration() <= 0).forEach(variant -> {
+            errorStringBuilder.append("Invalid certificate variant field  duration ( duration = ")
+                    .append(variant.duration())
+                    .append("). Duration for new certificate must be positive number!");
+            variant.prices().stream().filter(prices -> ObjectUtils.isEmpty(prices.centAmount()) ||
+                    prices.centAmount().compareTo(BigDecimal.ZERO) < 0).forEach(prices -> errorStringBuilder.append("Invalid certificate variant field price ( price = ")
+                    .append(prices.centAmount())
+                    .append("). Price for new certificate must be positive or zero!"));
+        });
         if (!CollectionUtils.isEmpty(newCertificate.getTags())) {
             newCertificate.getTags().stream()
                     .map(this::isValidTagErrorResponse)
@@ -110,21 +101,21 @@ public class CertificateValidator extends Validator {
     public String isUpdatableGCertificateFieldsWithErrorResponse(GCertificate newCertificate) {
         StringBuilder errorStringBuilder = new StringBuilder();
         if (!CollectionUtils.isEmpty(newCertificate.getVariants())) {
-            for (Variant variant : newCertificate.getVariants()) {
+            newCertificate.getVariants().forEach(variant -> {
                 if (ObjectUtils.isNotEmpty(variant.duration()) &&
-                        !(variant.duration() > 0)) {
+                        variant.duration() <= 0) {
                     errorStringBuilder.append("Invalid certificate variant field  duration ( duration = ")
                             .append(variant.duration())
                             .append("). Duration must be positive number!");
                 }
-                for (Variant.Prices prices : variant.prices()) {
+                variant.prices().forEach(prices -> {
                     if (prices.centAmount() != null && (prices.centAmount().compareTo(BigDecimal.ZERO) < 0)) {
                         errorStringBuilder.append("Invalid certificate field price ( price = ")
                                 .append(prices.centAmount())
                                 .append("). Price must be positive or zero!");
                     }
-                }
-            }
+                });
+            });
         }
         if (!CollectionUtils.isEmpty(newCertificate.getTags())) {
             newCertificate.getTags().stream()
@@ -132,5 +123,10 @@ public class CertificateValidator extends Validator {
                     .forEach(errorStringBuilder::append);
         }
         return errorStringBuilder.toString();
+    }
+
+    private boolean isDurationValidPositiveDigitsString(Certificate newCertificate) {
+        return StringUtils.isNotEmpty(newCertificate.getDurationOfDays()) && (!NumberUtils.isDigits(newCertificate.getDurationOfDays()) ||
+                Integer.parseInt(newCertificate.getDurationOfDays()) <= 0);
     }
 }

@@ -14,16 +14,16 @@ public class Validator {
         if (availableAmountOfItemsEnoughForPagination(paginationCriteria, availableAmount)) {
             paginationCriteria = PageRequest.of(
                     (int) Math.floor((float) availableAmount / paginationCriteria.getPageNumber()),
-                    paginationCriteria.getPageSize()
-            );
+                    paginationCriteria.getPageSize());
         }
         return paginationCriteria;
     }
 
     public String isPositiveAndParsableIdResponse(String id) {
-        if (StringUtils.isEmpty(id) || StringUtils.isBlank(id)) {
+        if (StringUtils.isBlank(id)) {
             return "Invalid input ( id = " + id + " ).";
-        } else return "";
+        }
+        return "";
     }
 
     private boolean availableAmountOfItemsEnoughForPagination(Pageable paginationCriteria, long availableAmount) {

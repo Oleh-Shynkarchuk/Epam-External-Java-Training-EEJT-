@@ -9,8 +9,7 @@ import org.springframework.stereotype.Component;
 public class TagValidator extends Validator {
 
     public String isCreatableTagFieldsErrorResponse(Tag newTag) {
-        if (StringUtils.isEmpty(newTag.getName()) ||
-                StringUtils.isBlank(newTag.getName())) {
+        if (StringUtils.isBlank(newTag.getName())) {
             return ("Invalid tag field name ( name = "
                     + newTag.getName() + "). Name cannot be empty!");
         }
